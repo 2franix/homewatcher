@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="config">
+		<xs:complexType>
+			<xs:all>
+				<!-- MODES -->
+				<xs:element name="modes">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="unbounded">
+							<xs:element name="mode"/>
+						</xs:sequence>
+						<xs:attribute name="objectId" type="xs:ID"/>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- ALERTS -->
+				<xs:element name="alerts">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="unbounded">
+							<xs:element name="alert"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<!-- SENSORS -->
+				<xs:element name="sensors">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="unbounded">
+							<xs:element name="class" minOccurs="0" maxOccurs="unbounded" type="sensorDefinition"/>
+							<xs:element name="sensor" type="sensorDefinition"/>
+						</xs:sequence>
+					</xs:complexType>
+
+					<!-- Define unicity rule for sensor names. -->
+					<xs:unique name="sensorNameUnicity">
+						<xs:selector xpath="./sensor"/>
+						<xs:field xpath="@name"/>
+					</xs:unique>
+				</xs:element>
+
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Sensor type. -->
+	<xs:complexType name="sensorDefinition">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="activation"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:token"/>
+		<xs:attribute name="type" type="xs:token"/>
+	</xs:complexType>
+</xs:schema>	

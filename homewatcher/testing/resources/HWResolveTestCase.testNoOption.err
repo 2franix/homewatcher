@@ -1,0 +1,2 @@
+usage: hwresolve.py [-h] [-o FILE] [-v LEVEL] HWCONF
+hwresolve.py: error: the following arguments are required: HWCONF

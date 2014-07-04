@@ -1,0 +1,2 @@
+usage: hwconf.py [-h] [-i HWCONF] [-o FILE] [-v LEVEL] LKNCONF
+hwconf.py: error: the following arguments are required: LKNCONF

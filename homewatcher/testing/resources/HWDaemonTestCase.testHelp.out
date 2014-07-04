@@ -1,0 +1,13 @@
+usage: hwdaemon.py [-h] [--log-file LOGFILE] [-v LEVEL] HWCONF
+
+Standalone script used as a launcher for the Homewatcher daemon.
+
+positional arguments:
+  HWCONF                use HWCONF as homewatcher configuration.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --log-file LOGFILE    output daemon's activity to LOGFILE rather than on
+                        standard output.
+  -v LEVEL, --verbosity LEVEL
+                        set verbosity level.

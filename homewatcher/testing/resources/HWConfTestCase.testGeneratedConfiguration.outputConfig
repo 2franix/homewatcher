@@ -1,0 +1,38 @@
+<config>
+	<services>
+		<xmlserver port="1030" type="inet"/>
+	<ioports><ioport host="127.0.0.1" id="homewatcher" port="1031" type="tcp"/></ioports></services>
+	<objects>
+		<object flags="wu" id="Siren" init="off" type="1.001"/>
+		<object flags="u" id="Mode" init="1" pyknxcallback="onModeObjectChanged" type="5.xxx"/>
+		<object flags="u" id="AppliedMode" init="1" type="5.xxx"/>
+
+		<object flags="r" id="CameraTrigger" init="off" type="1.001"/> 
+		<object flags="r" id="OpeningTriggerEntrance" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="OpeningEnabledEntrance" init="off" type="1.001"/> 
+		<object flags="r" id="OpeningTriggerLivingRoom" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="OpeningTriggerKitchen" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="OpeningEnabledLivingRoom" init="off" type="1.001"/> 
+		<object flags="r" id="OpeningEnabledKitchen" init="off" type="1.001"/> 
+		<object flags="r" id="OpeningTriggerGarage" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="OpeningEnabledGarage" init="off" type="1.001"/> 
+		<object flags="r" id="SmokeTriggerBedroom" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="SmokeEnabledBedroom" init="off" type="1.001"/> 
+		<object flags="r" id="SmokeTriggerKitchen" init="off" pyknxcallback="onWatchedObjectChanged" type="1.001"/> 
+		<object flags="r" id="SmokeEnabledKitchen" init="off" type="1.001"/> 
+		<object flags="wr" id="IntrusionInhibition" init="off" pyknxcallback="onAlertInhibitionObjectChanged" type="1.001"/>
+		<object flags="r" id="IntrusionPersistence" init="off" pyknxcallback="onAlertPersistenceObjectChanged" type="1.001"/>
+		<object flags="r" id="FirePersistence" init="off" pyknxcallback="onAlertPersistenceObjectChanged" type="1.001"/>
+		<object flags="r" id="TemperaturePersistence" init="off" pyknxcallback="onAlertPersistenceObjectChanged" type="1.001"/>
+		<object flags="r" id="CameraTriggerPersistence" init="off" type="1.001"/>
+		<object flags="r" id="DoorTriggerPersistence" init="off" type="1.001"/>
+
+		<object flags="r" id="CameraActivation" init="off" type="1.001"/>
+		<object flags="r" id="DoorActivation" init="off" type="1.001"/>
+
+		<object flags="r" id="OutdoorTemperature" init="10" pyknxcallback="onWatchedObjectChanged" type="9.xxx"/>
+		<object flags="r" id="OutdoorTemperatureEnabled" init="off" type="1.001"/>
+		<object flags="r" id="OutdoorTemperaturePersistence" init="off" type="1.001"/>
+	</objects>
+	<logging level="DEBUG"/>
+<rules><rule id="homewatcherMode" init="false"><condition id="Mode" trigger="true" type="object"/><actionlist type="if-true"><action data="onModeObjectChanged|objectId=Mode$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherOpeningTriggerEntrance" init="false"><condition id="OpeningTriggerEntrance" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=OpeningTriggerEntrance$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherOpeningTriggerLivingRoom" init="false"><condition id="OpeningTriggerLivingRoom" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=OpeningTriggerLivingRoom$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherOpeningTriggerKitchen" init="false"><condition id="OpeningTriggerKitchen" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=OpeningTriggerKitchen$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherOpeningTriggerGarage" init="false"><condition id="OpeningTriggerGarage" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=OpeningTriggerGarage$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherSmokeTriggerBedroom" init="false"><condition id="SmokeTriggerBedroom" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=SmokeTriggerBedroom$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherSmokeTriggerKitchen" init="false"><condition id="SmokeTriggerKitchen" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=SmokeTriggerKitchen$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherIntrusionInhibition" init="false"><condition id="IntrusionInhibition" trigger="true" type="object"/><actionlist type="if-true"><action data="onAlertInhibitionObjectChanged|objectId=IntrusionInhibition$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherIntrusionPersistence" init="false"><condition id="IntrusionPersistence" trigger="true" type="object"/><actionlist type="if-true"><action data="onAlertPersistenceObjectChanged|objectId=IntrusionPersistence$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherFirePersistence" init="false"><condition id="FirePersistence" trigger="true" type="object"/><actionlist type="if-true"><action data="onAlertPersistenceObjectChanged|objectId=FirePersistence$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherTemperaturePersistence" init="false"><condition id="TemperaturePersistence" trigger="true" type="object"/><actionlist type="if-true"><action data="onAlertPersistenceObjectChanged|objectId=TemperaturePersistence$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule><rule id="homewatcherOutdoorTemperature" init="false"><condition id="OutdoorTemperature" trigger="true" type="object"/><actionlist type="if-true"><action data="onWatchedObjectChanged|objectId=OutdoorTemperature$" ioport="homewatcher" type="ioport-tx"/></actionlist></rule></rules></config>

@@ -1,0 +1,38 @@
+<config>
+	<services>
+		<xmlserver port="1030" type="inet"/>
+	</services>
+	<objects>
+		<object flags="wu" id="Siren" init="off" type="1.001"/>
+		<object flags="u" id="Mode" init="1" type="5.xxx"/>
+		<object flags="u" id="AppliedMode" init="1" type="5.xxx"/>
+
+		<object flags="r"  id="CameraTrigger" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningTriggerEntrance" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningEnabledEntrance" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningTriggerLivingRoom" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningTriggerKitchen" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningEnabledLivingRoom" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningEnabledKitchen" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningTriggerGarage" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningEnabledGarage" init="off" type="1.001"/> 
+		<object flags="r"  id="SmokeTriggerBedroom" init="off" type="1.001"/> 
+		<object flags="r"  id="SmokeEnabledBedroom" init="off" type="1.001"/> 
+		<object flags="r"  id="SmokeTriggerKitchen" init="off" type="1.001"/> 
+		<object flags="r"  id="SmokeEnabledKitchen" init="off" type="1.001"/> 
+		<object flags="wr" id="IntrusionInhibition" init="off" type="1.001"/>
+		<object flags="r" id="IntrusionPersistence" init="off" type="1.001"/>
+		<object flags="r" id="FirePersistence" init="off" type="1.001"/>
+		<object flags="r" id="TemperaturePersistence" init="off" type="1.001"/>
+		<object flags="r" id="CameraTriggerPersistence" init="off" type="1.001"/>
+		<object flags="r" id="DoorTriggerPersistence" init="off" type="1.001"/>
+
+		<object flags="r"  id="CameraActivation" init="off" type="1.001"/>
+		<object flags="r"  id="DoorActivation" init="off" type="1.001"/>
+
+		<object flags="r" id="OutdoorTemperature" init="10" type="9.xxx"/>
+		<object flags="r" id="OutdoorTemperatureEnabled" init="off" type="1.001"/>
+		<object flags="r" id="OutdoorTemperaturePersistence" init="off" type="1.001"/>
+	</objects>
+	<logging level="DEBUG"/>
+</config>
