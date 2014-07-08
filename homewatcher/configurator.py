@@ -1,4 +1,6 @@
-# Copyright (C) 2012-2013 Cyrille Defranoux
+#!/usr/bin/python3
+
+# Copyright (C) 2012-2014 Cyrille Defranoux
 #
 # This file is part of Homewatcher.
 #
