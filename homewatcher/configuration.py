@@ -20,13 +20,15 @@
 # For any question, feature requests or bug reports, feel free to contact me at:
 # knx at aminate dot net
 
+# Check that pyknx is present as soon as possible.
+from homewatcher import ensurepyknx
+
 from pyknx import logger
 import xml.dom.minidom
 import os.path
 import itertools
 import re
 from functools import cmp_to_key
-from lxml import etree
 
 class Property(object):
 	"""

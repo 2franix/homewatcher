@@ -24,6 +24,9 @@
 Reads a configuration file for Homewatcher and resolves its parameterized parts before dumping it again.
 """
 
+# Check that pyknx is present as soon as possible.
+from homewatcher import ensurepyknx
+
 from homewatcher.configuration import Configuration
 import argparse
 import sys

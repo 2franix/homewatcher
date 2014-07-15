@@ -24,6 +24,9 @@
 Standalone script used as a launcher for the Homewatcher daemon.
 """
 
+# Check that pyknx is present as soon as possible.
+from homewatcher import ensurepyknx
+
 from pyknx import communicator, linknx, logger
 from homewatcher import configuration
 import argparse

@@ -26,6 +26,9 @@ This script adds pyknxcallback attributes to linknx objects that have to communi
 Which objects are to be added the attribute are determined based on the homewatcher XML configuration passed to this script.
 """
 
+# Check that pyknx is present as soon as possible.
+from homewatcher import ensurepyknx
+
 from homewatcher.configurator import Configurator
 import argparse
 import sys
