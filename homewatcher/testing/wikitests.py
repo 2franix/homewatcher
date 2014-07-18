@@ -24,7 +24,7 @@ import sys
 from pyknx import logger, linknx, configurator
 from pyknx.communicator import Communicator
 from homewatcher import configuration
-from homewatcher.testing import base
+import homewatcher.testing.base
 import logging
 import test
 from homewatcher.sensor import *
@@ -40,12 +40,25 @@ import stat
 import pwd, grp
 import shutil
 
-class HWDaemonTestCase(base.TestCaseBase):
-	def testNoOption(self):
-		self.assertShellCommand(['../../hwdaemon.py'], 'resources/HWDaemonTestCase.testNoOption.out', 'resources/HWDaemonTestCase.testNoOption.err')
+class WikiTestCase(homewatcher.testing.base.TestCaseBase):
+	""" Implements tests that ensure the documentation presented in the Wiki Pages is correct. """
+	def setUp(self):
+		linknxConfFile = self.getResourceFullName('linknx.conf.xml', appendsTestName=False)
+		hwConfigFile = self.getResourceFullName('homewatcher.conf.xml', appendsTestName=False)
+		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=linknxConfFile, usesCommunicator=True, hwConfigFile=hwConfigFile)
 
-	def testHelp(self):
-		self.assertShellCommand(['../../hwdaemon.py', '-h'], 'resources/HWDaemonTestCase.testHelp.out')
+	def testLightWhenOpeningDoor(self):
+		self.changeAlarmMode('Away', None) 
+		entranceTrigger = self.linknx.getObject('EntranceDoorTrigger')
+		entranceLight = self.linknx.getObject('EntranceLight')
+		entranceTrigger.value = False
+		self.assertFalse(entranceLight.value)
+
+		self.waitDuring(1, 'Initializing...')
+
+		entranceTrigger.value = True
+		self.waitDuring(0.3, 'Opening door...')
+		self.assertTrue(entranceLight.value)
 
 if __name__ == '__main__':
 	unittest.main()

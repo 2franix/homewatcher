@@ -55,11 +55,10 @@ class TestCaseBase(base.WithLinknxTestCase):
 		self.assertEqual(self.emailInfo['attachments'], attachments)
 		if consumesEmail: self.emailInfo = None
 
-	def setUp(self, usesLinknx=True, usesCommunicator=True):
-		linknxConfFile = 'linknx_test_conf.xml' if usesLinknx else None
+	def setUp(self, linknxConfFile='linknx_test_conf.xml', usesCommunicator=True,  hwConfigFile=os.path.join(os.path.dirname(__file__), 'homewatcher_test_conf.xml')):
+		usesLinknx = linknxConfFile != None
 		communicatorAddress = ('localhost', 1031) if usesCommunicator else None
 		userScript = os.path.join(os.path.dirname(configuration.__file__), 'linknxuserfile.py')
-		hwConfigFile = os.path.join(os.path.dirname(__file__), 'homewatcher_test_conf.xml')
 		userScriptArgs = {'hwconfig':hwConfigFile}
 		try:
 			if usesCommunicator:

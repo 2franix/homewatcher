@@ -42,7 +42,7 @@ import shutil
 
 class HWConfTestCase(homewatcher.testing.base.TestCaseBase):
 	def setUp(self):
-		homewatcher.testing.base.TestCaseBase.setUp(self, usesLinknx=False, usesCommunicator=False)
+		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=None, usesCommunicator=False)
 		self.hwConfPyFile = os.path.join(self.homewatcherScriptsDirectory, 'hwconf.py')
 
 	def testNoOption(self):

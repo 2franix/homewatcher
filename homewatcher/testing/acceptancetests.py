@@ -44,7 +44,7 @@ class AcceptanceTestCase(base.TestCaseBase):
 		# Initialize alert state.
 		self.sensorsInPersistentAlertOnLastCheck = []
 
-		base.TestCaseBase.setUp(self, usesLinknx=True, usesCommunicator=True)
+		base.TestCaseBase.setUp(self, usesCommunicator=True)
 
 	# @property
 	# def alarmModeObject(self):

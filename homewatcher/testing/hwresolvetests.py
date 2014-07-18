@@ -42,7 +42,7 @@ import shutil
 
 class HWResolveTestCase(homewatcher.testing.base.TestCaseBase):
 	def setUp(self):
-		homewatcher.testing.base.TestCaseBase.setUp(self, usesLinknx=False, usesCommunicator=False)
+		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=None, usesCommunicator=False)
 		self.hwResolvePyFile = os.path.join(self.homewatcherScriptsDirectory, 'hwresolve.py')
 
 	def testNoOption(self):

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<modes objectId="Mode">  
+		<mode name="Presence" value="1"/>  
+		<mode name="Away" value="2">  
+			<sensor>EntranceDoor</sensor>  
+		</mode>  
+	</modes>  
+	<alerts>  
+		<alert name="Intrusion">  
+			<event type="sensor joined">  
+				<action type="set-value" id="EntranceLight" value="on"/>  
+			</event>   
+		</alert>  
+	</alerts>   
+	<sensors>  
+		<sensor type="boolean" name="EntranceDoor" alert="Intrusion" watchedObjectId="EntranceDoorTrigger" enabledObjectId="EntranceDoorEnabled"/>  
+	</sensors>  
+</config>  
