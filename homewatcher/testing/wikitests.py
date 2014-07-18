@@ -48,7 +48,8 @@ class WikiTestCase(homewatcher.testing.base.TestCaseBase):
 		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=linknxConfFile, usesCommunicator=True, hwConfigFile=hwConfigFile)
 
 	def testLightWhenOpeningDoor(self):
-		self.changeAlarmMode('Away', None) 
+		""" Test the configuration sample proposed in the Getting Started page. """
+		self.changeAlarmMode('Away', None)
 		entranceTrigger = self.linknx.getObject('EntranceDoorTrigger')
 		entranceLight = self.linknx.getObject('EntranceLight')
 		entranceTrigger.value = False
