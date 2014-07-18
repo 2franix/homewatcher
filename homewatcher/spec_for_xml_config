@@ -2,19 +2,19 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="file://config.xsd">
 	<services>
 		<linknx host="localhost" port="1028"/>
-		<motion configDirectory="/etc/motion/" backupLocation="ftp://server:port/path/"/>
-		<smtp host="localhost" port="25"/>
-		<daemon host="localhost" port="1029" fromAddress="me@mailprovider.com"/> 
+		<smtp host="localhost" port="25" fromAddress="me@mailprovider.com"/>
+		<daemon host="localhost" port="1029"/> 
 	</services>
 	<modes objectId="Mode">
 		<!-- Event that applies for all modes. -->
 		<event type="entered">
 			<!--<action...> --><!-- Action duplicates will not be executed (based on an object equality comparison). -->
 		</event>
-		<mode name="Presence" value="1"/>
+		<mode name="Presence" value="1">
 			<event type="entered"> <!-- Event that applies for the Presence mode only. -->
 				<action type="send-email" to="help@example.com" subject="New mode">Mode is now Presence</action>
 			</event>
+		</mode>
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
