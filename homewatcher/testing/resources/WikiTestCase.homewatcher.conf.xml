@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+	<services>
+		<daemon port="1031"/> 
+	</services>
 	<modes objectId="Mode">  
 		<mode name="Presence" value="1"/>  
 		<mode name="Away" value="2">  

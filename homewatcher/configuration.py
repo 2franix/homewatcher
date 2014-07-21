@@ -417,7 +417,7 @@ class ServicesRepository(object):
 
 	def __init__(self):
 		self.linknx = LinknxService()
-		self.pyknx = PyknxService()
+		self.daemon = PyknxService()
 
 class ModeDependentValue(object):
 

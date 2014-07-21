@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<services>
+		<xmlserver port="1030" type="inet"/>
+	</services>
+	<objects>
+		<object flags="cwtu" gad="0/0/1" id="EntranceLight" init="request" type="1.001">Entrance light bulb</object>
+		<object flags="cwtu" gad="0/0/2" id="EntranceDoorTrigger" init="request" type="1.001">Entrance door opening sensor</object>
+
+		<!-- Objects defined for Homewatcher, see below for details -->
+		<object flags="u" gad="0/0/3" id="Mode" init="1" type="5.xxx">Integer value that represents the alarm mode currently active</object>
+		<object flags="rt" gad="0/0/4" id="EntranceDoorEnabled" init="off" type="1.001">Value indicating whether the entrance door surveillance is currently on or off</object>
+	</objects>
+</config>

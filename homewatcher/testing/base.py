@@ -117,7 +117,7 @@ class TestCaseBase(base.WithLinknxTestCase):
 		# Check email notification.
 		expectedSubjectStart = 'Entered mode {0}'.format(newMode)
 		self.waitDuring(1, 'Waiting for email notification')
-		self.assertEmail('mode change', emailAddressesForNotification, expectedSubjectStart, [])
+		if emailAddressesForNotification != None: self.assertEmail('mode change', emailAddressesForNotification, expectedSubjectStart, [])
 
 	def assertAlert(self, sensorsInPrealert, sensorsInAlert, sensorsInPersistentAlert):
 		# Sort sensors by alert types.
