@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="file://config.xsd">
+<config>
 	<services>
 		<linknx host="localhost" port="1028"/>
-		<smtp host="localhost" port="25" fromAddress="me@mailprovider.com"/>
 		<daemon host="localhost" port="1029"/> 
 	</services>
 	<modes objectId="Mode">
 		<!-- Event that applies for all modes. -->
 		<event type="entered">
-			<!--<action...> --><!-- Action duplicates will not be executed (based on an object equality comparison). -->
+				<action type="send-email" to="address@foo.com" subject="Subject">Mail text</action>
 		</event>
 		<mode name="Presence" value="1">
 			<event type="entered"> <!-- Event that applies for the Presence mode only. -->
@@ -18,8 +17,6 @@
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
-			<class>Camera</class>
-			<sensor>Camera1</sensor><!-- Monitor Camera1 in this mode. This sensor will use the overriden activationDelay defined for the Camera class. -->
 		</mode>
 		<mode name="Night" value="3">
 			<sensor>EntranceDoorOpening</sensor>
@@ -28,7 +25,7 @@
 	</modes>
 	<alerts>
 		<alert name="Intrusion" persistenceObjectId="IntrusionPersistence" >
-			<event type="sensor joigned">
+			<event type="sensor joined">
 				<action type="send-email" to="address@foo.com" subject="Subject">Mail text</action>
 			</event>
 			<event type="activated">
@@ -40,7 +37,7 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<sensor type="OpeningSensor" name="EntranceDoorOpening" location="Entrance">
+		<sensor type="boolean" name="EntranceDoorOpening" location="Entrance" alert="Intrusion" enabledObjectId="EntranceDoorOpeningEnabled" watchedObjectId="EntranceDoorOpeningTrigger" postalertTimeout="10">
 			<activationDelay>
 				<value mode="Away">5</value>
 				<value mode="Night">3</value>
@@ -52,21 +49,10 @@
 		<class type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertTimeout="0" postalertTimeout="10">
 			<activationCriterion type="sensor" sensor="{name}" whenTriggered="False"/>
 		</class>
-		<class type="camera" name="Camera" watchedObjectId="{name}Trigger" enabledObjectId="{name}Enabled" persistenceObjectId="{name}Persistence" alert="Intrusion" baseURL="http://foo.com/{name}" motionConfig="motionconf/{name}.conf">
-			<activationDelay value="2">
-				<value mode="Away">10</value><!-- All sensors that inherit the Camera class will use a modified activationDelay for this mode. But those sensors are not implicitly monitored in this mode! -->
-			</activationDelay>
-		</class>
 		<sensor type="OpeningSensor" name="LivingRoomWindowOpening" location="LivingRoom">
 			<activationDelay>
 				<value mode="Night">3</value>
 			</activationDelay>
-		</sensor>
-		<sensor type="Camera" name="Camera1">
-			<activationCriterion type="and">
-				<activationCriterion type="sensor" sensor="{name}" whenTriggered="false"/>
-				<activationCriterion type="sensor" sensor="SwitchPorte{sensorLocation}" sensorLocation='Entree' whenTriggered="FaLse"/>
-			</activationCriterion>
 		</sensor>
 	</sensors>
 </config>

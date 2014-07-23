@@ -50,6 +50,43 @@ class AcceptanceTestCase(base.TestCaseBase):
 	# def alarmModeObject(self):
 		# return self.linknx.getObject('Protection_Alarme_ModeDemande')
 
+	def testClassesActivationInModes(self):
+		""" Exercises the inclusion of classes in Mode objects.
+
+			When doing so, all sensors that inherit those classes should be active. """
+		daemon = self.alarmDaemon
+
+		# Prepare useful sensors.
+		bedroomSmoke = daemon.getSensorByName('BedroomSmokeSensor')
+		kitchenSmoke = daemon.getSensorByName('KitchenSmokeSensor')
+
+		# Initialize state to a known one.
+		self.emailInfo = None
+		self.alarmModeObject.value = 3 # Night.
+		self.waitDuring(0.5, 'Initialization.')
+
+		# Check smoke sensors are inactive.
+		self.assertFalse(bedroomSmoke.isEnabled)
+		self.assertFalse(kitchenSmoke.isEnabled)
+
+		# Go to Presence mode.
+		self.emailInfo = None
+		self.alarmModeObject.value = 1 # Presence.
+		self.waitDuring(0.5, 'Switching to Presence.')
+
+		# Check smoke sensors are now active.
+		self.assertTrue(bedroomSmoke.isEnabled)
+		self.assertTrue(kitchenSmoke.isEnabled)
+
+		# Go to Night mode again.
+		self.emailInfo = None
+		self.alarmModeObject.value = 3 # Night.
+		self.waitDuring(0.5, 'Switching back to Night.')
+
+		# Check smoke sensors are inactive again.
+		self.assertFalse(bedroomSmoke.isEnabled)
+		self.assertFalse(kitchenSmoke.isEnabled)
+
 	def testPostponedActivation(self):
 		""" Test that exercises the postponing of the activation of a sensor whenever its canEnabled property returns False. """
 
@@ -389,8 +426,8 @@ class AcceptanceTestCase(base.TestCaseBase):
 		# Prepare sensors involved in this test.
 		entranceDoor = daemon.getSensorByName('EntranceDoorOpening')
 		livingWindow = daemon.getSensorByName('LivingRoomWindowOpening')
-		kitchenSmoke = daemon.getSensorByName('KitchenSmokeDetector')
-		bedroomSmoke = daemon.getSensorByName('BedroomSmokeDetector')
+		kitchenSmoke = daemon.getSensorByName('KitchenSmokeSensor')
+		bedroomSmoke = daemon.getSensorByName('BedroomSmokeSensor')
 
 		# Initialize state to a known one.
 		self.alarmModeObject.value = 1
@@ -428,6 +465,9 @@ class AcceptanceTestCase(base.TestCaseBase):
 			for s in daemon.getAlertByName('Intrusion').sensors:
 				self.assertFalse(s.isEnabled, '{0} should now be disabled.'.format(s))
 		self.waitDuring(4, 'Let little time go to test sensors\' state in the long run.', [checkAllSensorsEnabledState])
+
+		self.fail('Test mode-dependent events.')
+		self.fail('Test mode-independent events.')
 
 	def testFloatSensors(self):
 		daemon = self.alarmDaemon

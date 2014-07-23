@@ -10,6 +10,7 @@
 			<action type="copy-value" from="Mode" to="AppliedMode"/>
 		</event>
 		<mode name="Presence" value="1">
+			<sensor>SmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 		</mode>
 		<mode name="Away" value="2">
@@ -17,8 +18,8 @@
 			<sensor>GarageDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>KitchenWindowOpening</sensor>
-			<sensor>KitchenSmokeDetector</sensor>
-			<sensor>BedroomSmokeDetector</sensor>
+			<sensor>KitchenSmokeSensor</sensor>
+			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 		</mode>
 		<mode name="Night" value="3">
@@ -57,8 +58,8 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<class name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertTimeout="2" postalertTimeout="2"/>
-		<class name="SmokeDetector" type="boolean" watchedObjectId="SmokeTrigger{location}" enabledObjectId="SmokeEnabled{location}" alert="Fire" activationDelay="1" prealertTimeout="0" postalertTimeout="10"/>
+		<sensor isClass="true" name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertTimeout="2" postalertTimeout="2"/>
+		<sensor isClass="true" name="SmokeSensor" type="boolean" watchedObjectId="SmokeTrigger{location}" enabledObjectId="SmokeEnabled{location}" alert="Fire" activationDelay="1" prealertTimeout="0" postalertTimeout="10"/>
 
 		<sensor name="EntranceDoorOpening" type="OpeningSensor" location="Entrance">
 			<activationDelay>
@@ -82,8 +83,8 @@
 			</activationDelay>
 		</sensor>
 
-		<sensor name="BedroomSmokeDetector" type="SmokeDetector" location="Bedroom"/>
-		<sensor name="KitchenSmokeDetector" type="SmokeDetector" location="Kitchen"/>
+		<sensor name="BedroomSmokeSensor" type="SmokeSensor" location="Bedroom"/>
+		<sensor name="KitchenSmokeSensor" type="SmokeSensor" location="Kitchen"/>
 
 		<sensor name="OutdoorTemperature" type="float" alert="Temperature" watchedObjectId="OutdoorTemperature" enabledObjectId="OutdoorTemperatureEnabled" lowerBound="0" upperBound="30.5" hysteresis="2"/> 
 	</sensors>

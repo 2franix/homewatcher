@@ -136,7 +136,16 @@ class Sensor(object):
 
 	def isRequiredByCurrentMode(self):
 		if self._daemon._isTerminated: return False
-		return self.name in self._daemon.currentMode.sensorNames
+
+		# Simple case: the sensor is specified by its name in config.
+		if self.name in self._daemon.currentMode.sensorNames:
+			return True
+
+		# Advanced case: one of the sensor base classes is specified by its name
+		# in config.
+		baseClassesNames = set(self.getInheritedClassNames())
+
+		return len(baseClassesNames.intersection(self._daemon.currentMode.sensorNames)) > 0
 
 	@property
 	def daemon(self):
@@ -289,6 +298,12 @@ class Sensor(object):
 	# def hasAlertAlreadyBeenTriggered(self):
 		# """ Tell whether this sensor has already participated in any of the current alerts. """
 		# return self in self.daemon._triggeredSensorsSinceModeChanged
+
+	def getInheritedClassNames(self):
+		if self.config.isRootType():
+			return []
+		else:
+			return [self.type] + self.daemon.getSensorByName(self.type).getInheritedClassNames()
 
 	def makePrealertTimer(self):
 		def onPrealertEnded(timer):

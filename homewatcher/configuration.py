@@ -56,7 +56,7 @@ class Property(object):
 		self.isCollection = isCollection # Whether this property is a collection of values.
 		self.isUnique = isUnique
 		self.values = values # Collection of possible values. May be a callable (configuration object and property's owner object are passed as arguments). If None, no restriction on values.
-		self.getter = getter # Optional method to call to retrieve property value. If set to None, the owner object's field named as this property is used.
+		self.getter = getter # Optional method to call to retrieve property value. If set to None, the owner object's field named the same as this property is used.
 
 	def isOfPrimitiveType(self):
 		return self.type in (str, int, float, bool)
@@ -379,18 +379,18 @@ class PyknxService(object):
 	def __repr__(self):
 		return 'PyknxService(host={host}, port={port})'.format(**vars(self))
 
-class SMTPService(object):
-	PROPERTY_DEFINITIONS = PropertyCollection()
-	PROPERTY_DEFINITIONS.addProperty('host', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
-	PROPERTY_DEFINITIONS.addProperty('port', isMandatory=False, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
-	PROPERTY_DEFINITIONS.addProperty('fromAddress', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
-
-	def __init__(self):
-		self.host = 'localhost'
-		self.port = 25
-
-	def __repr__(self):
-		return 'SMTPService(host={host}, port={port})'.format(**vars(self))
+# class SMTPService(object):
+	# PROPERTY_DEFINITIONS = PropertyCollection()
+	# PROPERTY_DEFINITIONS.addProperty('host', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
+	# PROPERTY_DEFINITIONS.addProperty('port', isMandatory=False, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
+	# PROPERTY_DEFINITIONS.addProperty('fromAddress', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
+# 
+	# def __init__(self):
+		# self.host = 'localhost'
+		# self.port = 25
+# 
+	# def __repr__(self):
+		# return 'SMTPService(host={host}, port={port})'.format(**vars(self))
 
 class LinknxService(object):
 	PROPERTY_DEFINITIONS = PropertyCollection()
@@ -611,6 +611,7 @@ class Sensor(object):
 	PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
 	getClassNamesExceptRoot = lambda configuration, owner: [c.name for c in configuration.classes if (not c.isRootType() or owner.name in Sensor.Type.getAll()) and c != owner and not configuration.doesSensorInherit(c, owner)]
 	PROPERTY_DEFINITIONS.addProperty('type', isMandatory=lambda context: not context.object.isRootType(), type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, values=getClassNamesExceptRoot)
+	PROPERTY_DEFINITIONS.addProperty('isClass', isMandatory=True, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 	isNotClass = lambda context: not context.object.isClass
 	PROPERTY_DEFINITIONS.addProperty('alertName', isMandatory=isNotClass, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML='alert')
 	PROPERTY_DEFINITIONS.addProperty('enabledObjectId', isMandatory=isNotClass, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
@@ -662,7 +663,6 @@ class Sensor(object):
 	@staticmethod
 	def fromXML(xmlElement):
 		s = Sensor(None, None, isBuiltIn=False)
-		s.isClass = xmlElement.tagName.lower() == 'class'
 		Sensor.PROPERTY_DEFINITIONS.readObjectFromXML(s, xmlElement)
 		return s
 
@@ -861,7 +861,7 @@ class Configuration(object):
 	PROPERTY_DEFINITIONS = PropertyCollection()
 	PROPERTY_DEFINITIONS.addProperty('modesRepository', isMandatory=True, type=ModesRepository, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='modes')
 	PROPERTY_DEFINITIONS.addProperty('alerts', isMandatory=True, type=Alert, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='alert', groupNameInXML='alerts', isCollection=True)
-	PROPERTY_DEFINITIONS.addProperty('sensorsAndClasses', isMandatory=True, type=Sensor, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('sensor','class'), groupNameInXML='sensors', isCollection=True, getter=lambda config, configAgain: config.sensors)
+	PROPERTY_DEFINITIONS.addProperty('sensorsAndClasses', isMandatory=True, type=Sensor, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('sensor',), groupNameInXML='sensors', isCollection=True, getter=lambda config, configAgain: config.sensorsAndClassesWithoutBuiltIns)
 	PROPERTY_DEFINITIONS.addProperty('servicesRepository', isMandatory=False, type=ServicesRepository, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='services')
 
 	def __init__(self):
@@ -1021,6 +1021,8 @@ class Configuration(object):
 			s = sensor
 		else:
 			s = self._getSensorOrClassByName(sensor)
+			if s == None:
+				return False
 
 		if isinstance(classs, Sensor):
 			className = classs.name
@@ -1052,6 +1054,10 @@ class Configuration(object):
 		if not self.sensorsAndClasses: return []
 		return [s for s in self.sensorsAndClasses if s.isClass]
 
+	@property
+	def sensorsAndClassesWithoutBuiltIns(self):
+		return [s for s in self.sensorsAndClasses if not s.isBuiltIn]
+
 	def getBuiltInRootClass(self, sensorOrClass):
 		if isinstance(sensorOrClass, str):
 			sensorOrClass = self._getSensorOrClassByName(sensorOrClass)
@@ -1076,10 +1082,10 @@ class Configuration(object):
 		resolvedSensors = []
 		for sensor in self.sensorsAndClasses:
 			if sensor.isClass:
-				if sensor.isBuiltIn:
-					resolvedSensors.append(sensor)
-				else:
-					continue
+				# if sensor.isBuiltIn:
+				resolvedSensors.append(sensor)
+				# else:
+					# continue
 			else:
 				resolvedSensors.append(self._getResolvedSensor(sensor))
 
@@ -1123,13 +1129,13 @@ class Configuration(object):
 			else:
 				currentClass = None
 
-		# Replace the base class by the first class that still exists in the
-		# resolved configuration: this is the first builtin class. In case
-		# something goes wrong when searching for this builtin class, simply
-		# reuse the base class of the original sensor. This will not work
-		# properly but configuration's integrity checks will be more accurate.
-		builtinRootClass = self.getBuiltInRootClass(sensor.type)
-		resolvedCopy.type = sensor.type if builtinRootClass is None else builtinRootClass.name
+		# # Replace the base class by the first class that still exists in the
+		# # resolved configuration: this is the first builtin class. In case
+		# # something goes wrong when searching for this builtin class, simply
+		# # reuse the base class of the original sensor. This will not work
+		# # properly but configuration's integrity checks will be more accurate.
+		# builtinRootClass = self.getBuiltInRootClass(sensor.type)
+		# resolvedCopy.type = sensor.type if builtinRootClass is None else builtinRootClass.name
 
 		# Resolve parameterized string fields.
 		self.resolveObject(resolvedCopy, {})
@@ -1154,7 +1160,7 @@ class Configuration(object):
 		if len(byNames) == 0:
 			return None
 		elif len(byNames) > 1:
-			raise Configuration.IntegrityException('Those sensors are homonymous: {0}'.format(sensorByNames))
+			raise Configuration.IntegrityException('Those sensors are homonymous: {0}'.format(byNames))
 		else:
 			return byNames[0]
 
