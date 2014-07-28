@@ -7,7 +7,7 @@
 	<modes objectId="Mode">
 		<!-- Event that applies for all modes. -->
 		<event type="entered">
-				<action type="send-email" to="address@foo.com" subject="Subject">Mail text</action>
+			<action type="send-email" to="address@foo.com" subject="Subject">Mail text</action>
 		</event>
 		<mode name="Presence" value="1">
 			<event type="entered"> <!-- Event that applies for the Presence mode only. -->
@@ -46,9 +46,9 @@
 				<value mode="Away">6</value>
 			</prealertTimeout>
 		</sensor>
-		<class type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertTimeout="0" postalertTimeout="10">
+		<sensor isClass="true" type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertTimeout="0" postalertTimeout="10">
 			<activationCriterion type="sensor" sensor="{name}" whenTriggered="False"/>
-		</class>
+		</sensor>
 		<sensor type="OpeningSensor" name="LivingRoomWindowOpening" location="LivingRoom">
 			<activationDelay>
 				<value mode="Night">3</value>
