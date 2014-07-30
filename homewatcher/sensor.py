@@ -138,14 +138,13 @@ class Sensor(object):
 		if self._daemon._isTerminated: return False
 
 		# Simple case: the sensor is specified by its name in config.
-		if self.name in self._daemon.currentMode.sensorNames:
-			return True
+		return self.name in self._daemon.currentMode.sensorNames
 
-		# Advanced case: one of the sensor base classes is specified by its name
-		# in config.
-		baseClassesNames = set(self.getInheritedClassNames())
-
-		return len(baseClassesNames.intersection(self._daemon.currentMode.sensorNames)) > 0
+		# # Advanced case: one of the sensor base classes is specified by its name
+		# # in config.
+		# baseClassesNames = set(self.getInheritedClassNames())
+# 
+		# return len(baseClassesNames.intersection(self._daemon.currentMode.sensorNames)) > 0
 
 	@property
 	def daemon(self):
@@ -300,10 +299,7 @@ class Sensor(object):
 		# return self in self.daemon._triggeredSensorsSinceModeChanged
 
 	def getInheritedClassNames(self):
-		if self.config.isRootType():
-			return []
-		else:
-			return [self.type] + self.daemon.getSensorByName(self.type).getInheritedClassNames()
+            return [sensorConfig.name for sensorConfig in self.daemon.configuration.getInheritedClassNames(self.config)]
 
 	def makePrealertTimer(self):
 		def onPrealertEnded(timer):

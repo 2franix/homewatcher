@@ -10,7 +10,6 @@
 			<action type="copy-value" from="Mode" to="AppliedMode"/>
 		</event>
 		<mode name="Presence" value="1">
-			<sensor>SmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 		</mode>
 		<mode name="Away" value="2">
