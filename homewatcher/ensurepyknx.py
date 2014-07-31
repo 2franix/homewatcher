@@ -23,10 +23,10 @@
 import sys
 
 if sys.version_info.major < 3:
-	print('Homewatcher is designed to work with Python 3 or above. Your current version is ' + sys.version)
+    print('Homewatcher is designed to work with Python 3 or above. Your current version is ' + sys.version)
 
 try:
-	import pyknx
+    import pyknx
 except ImportError:
-	print('Could not import package "pyknx". Make sure it is installed before continuing. You can install it from PyPI with "pip3 install pyknx"')
-	exit(1)
+    print('Could not import package "pyknx". Make sure it is installed before continuing. You can install it from PyPI with "pip3 install pyknx"')
+    exit(1)

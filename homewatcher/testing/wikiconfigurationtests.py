@@ -41,16 +41,16 @@ import pwd, grp
 import shutil
 
 class WikiConfigurationTestCase(homewatcher.testing.base.TestCaseBase):
-	""" Implements tests that ensure the documentation presented in the Configuration Reference Guide page is correct. """
-	def setUp(self):
-		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=None, usesCommunicator=False)
+    """ Implements tests that ensure the documentation presented in the Configuration Reference Guide page is correct. """
+    def setUp(self):
+        homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=None, usesCommunicator=False)
 
-	def testFullConfigForReferenceGuide(self):
-		""" Tests the sample configuration proposed in the Configuration Reference Guide page. """
-		configurationFile = self.getResourceFullName('homewatcher.conf.xml')
-		config = configuration.Configuration.parseFile(configurationFile)
-		config.resolve()
-		config.checkIntegrity()
+    def testFullConfigForReferenceGuide(self):
+        """ Tests the sample configuration proposed in the Configuration Reference Guide page. """
+        configurationFile = self.getResourceFullName('homewatcher.conf.xml')
+        config = configuration.Configuration.parseFile(configurationFile)
+        config.resolve()
+        config.checkIntegrity()
 
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()

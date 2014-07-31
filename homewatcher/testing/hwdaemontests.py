@@ -41,11 +41,11 @@ import pwd, grp
 import shutil
 
 class HWDaemonTestCase(base.TestCaseBase):
-	def testNoOption(self):
-		self.assertShellCommand(['../../hwdaemon.py'], 'resources/HWDaemonTestCase.testNoOption.out', 'resources/HWDaemonTestCase.testNoOption.err')
+    def testNoOption(self):
+        self.assertShellCommand(['../../hwdaemon.py'], 'resources/HWDaemonTestCase.testNoOption.out', 'resources/HWDaemonTestCase.testNoOption.err')
 
-	def testHelp(self):
-		self.assertShellCommand(['../../hwdaemon.py', '-h'], 'resources/HWDaemonTestCase.testHelp.out')
+    def testHelp(self):
+        self.assertShellCommand(['../../hwdaemon.py', '-h'], 'resources/HWDaemonTestCase.testHelp.out')
 
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()

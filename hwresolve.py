@@ -37,25 +37,25 @@ from pyknx import logger
 __doc__ = __doc__.format(scriptname=os.path.basename(__file__))
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description=__doc__)
-	parser.add_argument('homewatcherConfig', help='use HWCONF as the source configuration to resolve.', metavar='HWCONF')
-	parser.add_argument('-o', '--output-file', dest='outputFile', help='write the resolved configuration to FILE rather than to standard output.', metavar='FILE')
-	parser.add_argument('-v', '--verbose', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='error')
-	args = parser.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('homewatcherConfig', help='use HWCONF as the source configuration to resolve.', metavar='HWCONF')
+    parser.add_argument('-o', '--output-file', dest='outputFile', help='write the resolved configuration to FILE rather than to standard output.', metavar='FILE')
+    parser.add_argument('-v', '--verbose', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='error')
+    args = parser.parse_args()
 
-	# Configure logger.
-	logger.initLogger(None, args.verbosityLevel.upper())
+    # Configure logger.
+    logger.initLogger(None, args.verbosityLevel.upper())
 
-	# Read configuration.
-	config = Configuration.parseFile(args.homewatcherConfig)
+    # Read configuration.
+    config = Configuration.parseFile(args.homewatcherConfig)
 
-	# Generate a resolved XML.
-	config.resolve()
-	resolvedDom = config.toXml()
-	xmlOutput = resolvedDom.toprettyxml().strip()
+    # Generate a resolved XML.
+    config.resolve()
+    resolvedDom = config.toXml()
+    xmlOutput = resolvedDom.toprettyxml().strip()
 
-	if args.outputFile:
-		with open(args.outputFile, 'w') as f:
-			f.write(xmlOutput)
-	else:
-		print(xmlOutput)
+    if args.outputFile:
+        with open(args.outputFile, 'w') as f:
+            f.write(xmlOutput)
+    else:
+        print(xmlOutput)

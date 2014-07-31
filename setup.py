@@ -25,52 +25,52 @@ import pip
 import sys
 
 def installRequirement(requirementName):
-	print('************************* IMPORTANT ******************************'.format(requirementName))
-	print('The {0} package is required and is not installed on this machine.'.format(requirementName))
-	print('You should install {0} first using for instance "pip3 install {0}"'.format(requirementName))
-	print('******************************************************************'.format(requirementName))
-	# print('Do you want to abort installation of homewatcher in order to complete this required step? (yes/no)')
-	# answer = None
-	# while not answer:
-		# answer = sys.stdin.readline().lower().strip()
-		# if not answer in ('yes', 'no'):
-			# print('Please answer either yes or no.')
-			# answer = None
-	# if answer == 'yes':
-		# exit(2)
-	# args = ['install']
-	# if canGetPreVersion: args.append('--pre')
-	# args.append(requirementName)
-	# pip.main(args)
+    print('************************* IMPORTANT ******************************'.format(requirementName))
+    print('The {0} package is required and is not installed on this machine.'.format(requirementName))
+    print('You should install {0} first using for instance "pip3 install {0}"'.format(requirementName))
+    print('******************************************************************'.format(requirementName))
+    # print('Do you want to abort installation of homewatcher in order to complete this required step? (yes/no)')
+    # answer = None
+    # while not answer:
+        # answer = sys.stdin.readline().lower().strip()
+        # if not answer in ('yes', 'no'):
+            # print('Please answer either yes or no.')
+            # answer = None
+    # if answer == 'yes':
+        # exit(2)
+    # args = ['install']
+    # if canGetPreVersion: args.append('--pre')
+    # args.append(requirementName)
+    # pip.main(args)
 
 if sys.version_info.major < 3:
-	print('This package is compatible with Python 3 and above.')
-	exit(4)
+    print('This package is compatible with Python 3 and above.')
+    exit(4)
 
 # Install pyknx if required.
 try:
-	import pyknx
+    import pyknx
 except ImportError:
-	installRequirement('pyknx')
+    installRequirement('pyknx')
 
 # # Install lxml.
 # try:
-	# import lxml
+    # import lxml
 # except ImportError:
-	# installRequirement('lxml')
+    # installRequirement('lxml')
 
 
-setup(	name='homewatcher',
-		version='0.0.1b10',
-		description='Alarm system built on top of Linknx',
-		long_description=''.join(open('README.md').readlines()),
-		author='Cyrille Defranoux',
-		author_email='knx@aminate.net',
-		maintainer='Cyrille Defranoux',
-		maintainer_email='knx@aminate.net',
-		license='GNU Public General License',
-		url='https://github.com/2franix/homewatcher/',
-		requires=['pyknx (>=2.0)', 'lxml'],
-		packages=['homewatcher'],
-		data_files=[('.', ['README.md'])],
-		scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py'])
+setup(name='homewatcher',
+      version='0.0.1b10',
+      description='Alarm system built on top of Linknx',
+      long_description=''.join(open('README.md').readlines()),
+      author='Cyrille Defranoux',
+      author_email='knx@aminate.net',
+      maintainer='Cyrille Defranoux',
+      maintainer_email='knx@aminate.net',
+      license='GNU Public General License',
+      url='https://github.com/2franix/homewatcher/',
+      requires=['pyknx (>=2.0)', 'lxml'],
+      packages=['homewatcher'],
+      data_files=[('.', ['README.md'])],
+      scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py'])

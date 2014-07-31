@@ -41,25 +41,25 @@ import pwd, grp
 import shutil
 
 class WikiTestCase(homewatcher.testing.base.TestCaseBase):
-	""" Implements tests that ensure the documentation presented in the Wiki Pages is correct. """
-	def setUp(self):
-		linknxConfFile = self.getResourceFullName('linknx.conf.xml', appendsTestName=False)
-		hwConfigFile = self.getResourceFullName('homewatcher.conf.xml', appendsTestName=False)
-		homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=linknxConfFile, usesCommunicator=True, hwConfigFile=hwConfigFile)
+    """ Implements tests that ensure the documentation presented in the Wiki Pages is correct. """
+    def setUp(self):
+        linknxConfFile = self.getResourceFullName('linknx.conf.xml', appendsTestName=False)
+        hwConfigFile = self.getResourceFullName('homewatcher.conf.xml', appendsTestName=False)
+        homewatcher.testing.base.TestCaseBase.setUp(self, linknxConfFile=linknxConfFile, usesCommunicator=True, hwConfigFile=hwConfigFile)
 
-	def testLightWhenOpeningDoor(self):
-		""" Test the configuration sample proposed in the Getting Started page. """
-		self.changeAlarmMode('Away', None)
-		entranceTrigger = self.linknx.getObject('EntranceDoorTrigger')
-		entranceLight = self.linknx.getObject('EntranceLight')
-		entranceTrigger.value = False
-		self.assertFalse(entranceLight.value)
+    def testLightWhenOpeningDoor(self):
+        """ Test the configuration sample proposed in the Getting Started page. """
+        self.changeAlarmMode('Away', None)
+        entranceTrigger = self.linknx.getObject('EntranceDoorTrigger')
+        entranceLight = self.linknx.getObject('EntranceLight')
+        entranceTrigger.value = False
+        self.assertFalse(entranceLight.value)
 
-		self.waitDuring(1, 'Initializing...')
+        self.waitDuring(1, 'Initializing...')
 
-		entranceTrigger.value = True
-		self.waitDuring(0.3, 'Opening door...')
-		self.assertTrue(entranceLight.value)
+        entranceTrigger.value = True
+        self.waitDuring(0.3, 'Opening door...')
+        self.assertTrue(entranceLight.value)
 
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()

@@ -35,27 +35,27 @@ import logging
 import os
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description=__doc__)
-	parser.add_argument('homewatcherConfig', help='use HWCONF as homewatcher configuration.', metavar='HWCONF')
-	parser.add_argument('--log-file', dest='logFile', help='output daemon\'s activity to LOGFILE rather than on standard output.', metavar='LOGFILE', default=None)
-	parser.add_argument('-v', '--verbosity', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='info')
-	args = parser.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('homewatcherConfig', help='use HWCONF as homewatcher configuration.', metavar='HWCONF')
+    parser.add_argument('--log-file', dest='logFile', help='output daemon\'s activity to LOGFILE rather than on standard output.', metavar='LOGFILE', default=None)
+    parser.add_argument('-v', '--verbosity', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='info')
+    args = parser.parse_args()
 
-	# Configure logger.
-	logger.initLogger(None, args.verbosityLevel.upper())
+    # Configure logger.
+    logger.initLogger(None, args.verbosityLevel.upper())
 
-	# The homewatcher daemon is represented by an instance of
-	# a pyknx.communicator.Communicator that runs with an "user script" dedicated to
-	# interfacing linknx with homewatcher's capabilities.
-	# First: read homewatcher config to read the linknx server url.
-	# Second: start pyknxcommunicator with homewatcher's user script.
-	logger.reportInfo('Reading config file {file}'.format(file=args.homewatcherConfig))
-	config = configuration.Configuration.parseFile(args.homewatcherConfig)
-	userScript = os.path.join(os.path.dirname(configuration.__file__), 'linknxuserfile.py')
-	logger.reportDebug('Pyknx\'s user script for homewatcher is {script}'.format(script=userScript))
-	userScriptArgs = {'hwconfig' : config}
-	services = config.servicesRepository
-	communicatorAddress=('localhost', services.pyknx.port)
-	logger.reportInfo('Starting Homewatcher at {communicatorAddr}, linked to linknx at {linknxAddr}'.format(communicatorAddr=communicatorAddress, linknxAddr=services.linknx.address))
-	linknx = linknx.Linknx(services.linknx.host, services.linknx.port)
-	communicator.Communicator.runAndWait(linknxAddress=linknx.address, userFile=userScript, communicatorAddress=communicatorAddress, userScriptArgs=userScriptArgs, verbosityLevel=args.verbosityLevel, logFile=args.logFile)
+    # The homewatcher daemon is represented by an instance of
+    # a pyknx.communicator.Communicator that runs with an "user script" dedicated to
+    # interfacing linknx with homewatcher's capabilities.
+    # First: read homewatcher config to read the linknx server url.
+    # Second: start pyknxcommunicator with homewatcher's user script.
+    logger.reportInfo('Reading config file {file}'.format(file=args.homewatcherConfig))
+    config = configuration.Configuration.parseFile(args.homewatcherConfig)
+    userScript = os.path.join(os.path.dirname(configuration.__file__), 'linknxuserfile.py')
+    logger.reportDebug('Pyknx\'s user script for homewatcher is {script}'.format(script=userScript))
+    userScriptArgs = {'hwconfig' : config}
+    services = config.servicesRepository
+    communicatorAddress=('localhost', services.pyknx.port)
+    logger.reportInfo('Starting Homewatcher at {communicatorAddr}, linked to linknx at {linknxAddr}'.format(communicatorAddr=communicatorAddress, linknxAddr=services.linknx.address))
+    linknx = linknx.Linknx(services.linknx.host, services.linknx.port)
+    communicator.Communicator.runAndWait(linknxAddress=linknx.address, userFile=userScript, communicatorAddress=communicatorAddress, userScriptArgs=userScriptArgs, verbosityLevel=args.verbosityLevel, logFile=args.logFile)
