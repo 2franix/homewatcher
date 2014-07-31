@@ -467,7 +467,6 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.waitDuring(4, 'Let little time go to test sensors\' state in the long run.', [checkAllSensorsEnabledState])
 
         self.fail('Test mode-dependent events.')
-        self.fail('Test mode-independent events.')
 
     def testFloatSensors(self):
         daemon = self.alarmDaemon

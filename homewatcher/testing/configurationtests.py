@@ -112,8 +112,8 @@ class ConfigurationTestCase(base.TestCaseBase):
         self.assertFalse(config.doesSensorInherit(c2, c1))
 
         def checkInheritance(sensorName, classes):
-            self.assertEqual([c.name for c in config.getInheritedClassNames(sensorName, includesBuiltIns=True)], classes + ['boolean', 'root'])
-            self.assertEqual([c.name for c in config.getInheritedClassNames(sensorName)], classes)
+            self.assertEqual([c.name for c in config.getClassesInheritedBySensor(sensorName, includesBuiltIns=True)], classes + ['boolean', 'root'])
+            self.assertEqual([c.name for c in config.getClassesInheritedBySensor(sensorName)], classes)
 
         checkInheritance('s1', [])
         checkInheritance('s2', ['c2', 'c3'])

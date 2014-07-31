@@ -5,12 +5,12 @@
 		<daemon host="localhost" port="1031"/>
 	</services>
 	<modes objectId="Mode">
-		<event type="entered">
-			<action type="send-email" to="notify@bar.com"/>
-			<action type="copy-value" from="Mode" to="AppliedMode"/>
-		</event>
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action type="send-email" to="notify@bar.com"/>
+				<action type="copy-value" from="Mode" to="AppliedMode"/>
+			</event>
 		</mode>
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
@@ -20,11 +20,19 @@
 			<sensor>KitchenSmokeSensor</sensor>
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action type="send-email" to="notify@bar.com"/>
+				<action type="copy-value" from="Mode" to="AppliedMode"/>
+			</event>
 		</mode>
 		<mode name="Night" value="3">
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action type="send-email" to="notify@bar.com"/>
+				<action type="copy-value" from="Mode" to="AppliedMode"/>
+			</event>
 		</mode>
 	</modes>
 	<alerts>

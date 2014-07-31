@@ -1,26 +1,34 @@
 <?xml version="1.0" ?>
 <config>
 	<modes objectId="Mode">
-		<event type="entered">
-			<action to="notify@bar.com" type="send-email"/>
-			<action from="Mode" to="AppliedMode" type="copy-value"/>
-		</event>
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action to="notify@bar.com" type="send-email"/>
+				<action from="Mode" to="AppliedMode" type="copy-value"/>
+			</event>
 		</mode>
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>GarageDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>KitchenWindowOpening</sensor>
-			<sensor>KitchenSmokeDetector</sensor>
-			<sensor>BedroomSmokeDetector</sensor>
+			<sensor>KitchenSmokeSensor</sensor>
+			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action to="notify@bar.com" type="send-email"/>
+				<action from="Mode" to="AppliedMode" type="copy-value"/>
+			</event>
 		</mode>
 		<mode name="Night" value="3">
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
+			<event type="entered">
+				<action to="notify@bar.com" type="send-email"/>
+				<action from="Mode" to="AppliedMode" type="copy-value"/>
+			</event>
 		</mode>
 	</modes>
 	<alerts>
@@ -53,7 +61,9 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<sensor alert="Intrusion" enabledObjectId="OpeningEnabledEntrance" name="EntranceDoorOpening" postalertTimeout="2.0" triggerValue="True" type="boolean" watchedObjectId="OpeningTriggerEntrance">
+		<sensor activationDelay="1.0" alert="Intrusion" enabledObjectId="OpeningEnabled{location}" isClass="True" name="OpeningSensor" postalertTimeout="2.0" prealertTimeout="2.0" type="boolean" watchedObjectId="OpeningTrigger{location}"/>
+		<sensor activationDelay="1.0" alert="Fire" enabledObjectId="SmokeEnabled{location}" isClass="True" name="SmokeSensor" postalertTimeout="10.0" prealertTimeout="0.0" type="boolean" watchedObjectId="SmokeTrigger{location}"/>
+		<sensor alert="Intrusion" enabledObjectId="OpeningEnabledEntrance" isClass="False" name="EntranceDoorOpening" postalertTimeout="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerEntrance">
 			<activationDelay>
 				<value mode="Away">5.0</value>
 				<value mode="Night">3.0</value>
@@ -65,29 +75,29 @@
 			</prealertTimeout>
 			<activationCriterion sensor="EntranceDoorOpening" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="5.0" alert="Intrusion" enabledObjectId="OpeningEnabledGarage" name="GarageDoorOpening" postalertTimeout="2.0" prealertTimeout="2.0" triggerValue="True" type="boolean" watchedObjectId="OpeningTriggerGarage">
+		<sensor activationDelay="5.0" alert="Intrusion" enabledObjectId="OpeningEnabledGarage" isClass="False" name="GarageDoorOpening" postalertTimeout="2.0" prealertTimeout="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerGarage">
 			<activationCriterion type="and">
 				<activationCriterion sensor="EntranceDoorOpening" type="sensor" whenTriggered="False"/>
 				<activationCriterion sensor="GarageDoorOpening" type="sensor" whenTriggered="False"/>
 			</activationCriterion>
 		</sensor>
-		<sensor activationDelay="1.0" alert="Intrusion" enabledObjectId="OpeningEnabledKitchen" name="KitchenWindowOpening" postalertTimeout="2.0" prealertTimeout="2.0" triggerValue="True" type="boolean" watchedObjectId="OpeningTriggerKitchen">
+		<sensor activationDelay="1.0" alert="Intrusion" enabledObjectId="OpeningEnabledKitchen" isClass="False" name="KitchenWindowOpening" postalertTimeout="2.0" prealertTimeout="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerKitchen">
 			<activationCriterion sensor="KitchenWindowOpening" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor alert="Intrusion" enabledObjectId="OpeningEnabledLivingRoom" name="LivingRoomWindowOpening" postalertTimeout="5.0" prealertTimeout="2.0" triggerValue="True" type="boolean" watchedObjectId="OpeningTriggerLivingRoom">
+		<sensor alert="Intrusion" enabledObjectId="OpeningEnabledLivingRoom" isClass="False" name="LivingRoomWindowOpening" postalertTimeout="5.0" prealertTimeout="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerLivingRoom">
 			<activationDelay>
 				<value mode="Night">3.0</value>
 				<value>1.0</value>
 			</activationDelay>
 			<activationCriterion sensor="LivingRoomWindowOpening" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="1.0" alert="Fire" enabledObjectId="SmokeEnabledBedroom" name="BedroomSmokeDetector" postalertTimeout="10.0" prealertTimeout="0.0" triggerValue="True" type="boolean" watchedObjectId="SmokeTriggerBedroom">
-			<activationCriterion sensor="BedroomSmokeDetector" type="sensor" whenTriggered="False"/>
+		<sensor activationDelay="1.0" alert="Fire" enabledObjectId="SmokeEnabledBedroom" isClass="False" name="BedroomSmokeSensor" postalertTimeout="10.0" prealertTimeout="0.0" triggerValue="True" type="SmokeSensor" watchedObjectId="SmokeTriggerBedroom">
+			<activationCriterion sensor="BedroomSmokeSensor" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="1.0" alert="Fire" enabledObjectId="SmokeEnabledKitchen" name="KitchenSmokeDetector" postalertTimeout="10.0" prealertTimeout="0.0" triggerValue="True" type="boolean" watchedObjectId="SmokeTriggerKitchen">
-			<activationCriterion sensor="KitchenSmokeDetector" type="sensor" whenTriggered="False"/>
+		<sensor activationDelay="1.0" alert="Fire" enabledObjectId="SmokeEnabledKitchen" isClass="False" name="KitchenSmokeSensor" postalertTimeout="10.0" prealertTimeout="0.0" triggerValue="True" type="SmokeSensor" watchedObjectId="SmokeTriggerKitchen">
+			<activationCriterion sensor="KitchenSmokeSensor" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="0" alert="Temperature" enabledObjectId="OutdoorTemperatureEnabled" hysteresis="2.0" lowerBound="0.0" name="OutdoorTemperature" postalertTimeout="0" prealertTimeout="0" type="float" upperBound="30.5" watchedObjectId="OutdoorTemperature">
+		<sensor activationDelay="0" alert="Temperature" enabledObjectId="OutdoorTemperatureEnabled" hysteresis="2.0" isClass="False" lowerBound="0.0" name="OutdoorTemperature" postalertTimeout="0" prealertTimeout="0" type="float" upperBound="30.5" watchedObjectId="OutdoorTemperature">
 			<activationCriterion sensor="OutdoorTemperature" type="sensor" whenTriggered="False"/>
 		</sensor>
 	</sensors>

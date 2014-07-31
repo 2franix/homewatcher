@@ -190,16 +190,16 @@ class Property(object):
                         # Create a default instance.
                         try:
                             newPropertyValue = self.type()
-                                self.type.PROPERTY_DEFINITIONS.readObjectFromXML(newPropertyValue, source)
+                            self.type.PROPERTY_DEFINITIONS.readObjectFromXML(newPropertyValue, source)
                         except:
                             logger.reportException('Type {type} has neither static fromXML(xmlElement) nor __init__() method. At least one is required to parse it properly.'.format(type=self.type))
-                                raise
+                            raise
 
-                                    # Assign attributes from XML.
-                                    if hasattr(newPropertyValue, 'attributes'):
-                                        for k, v in source.attributes.items():
-                                                newPropertyValue.attributes[k] = v
-                                        values.append(newPropertyValue)
+                    # Assign attributes from XML.
+                    if hasattr(newPropertyValue, 'attributes'):
+                        for k, v in source.attributes.items():
+                            newPropertyValue.attributes[k] = v
+                    values.append(newPropertyValue)
 
 
 
@@ -756,7 +756,9 @@ class Mode(object):
 class ModesRepository:
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('objectId', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
-    PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML="event", isCollection=True)
+    # Temporarily removed in version 1. Mode-independent events imply additional
+    # testing that is beyond the scope of the initial version.
+    # PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML="event", isCollection=True)
     PROPERTY_DEFINITIONS.addProperty('modes', isMandatory=False, type=Mode, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML="mode", isCollection=True)
 
     def __init__(self):
@@ -1017,12 +1019,17 @@ class Configuration(object):
             raise Exception('Missing text in element {0}'.format(elt.nodeName))
         return text
 
-    def getClassesInheritedBySensor(self, sensor):
-        s = sensor if type(sensor) == Sensor else getSensorByName(sensor)
+    def getClassesInheritedBySensor(self, sensor, includesBuiltIns=False):
+        s = sensor if type(sensor) == Sensor else self._getSensorOrClassByName(sensor)
         if s.isRootType():
             return []
         else:
-            return [self.getSensorByName(s.type) + self.getClassesInheritedBySensor(s.type)
+            inheritedClasses = self.getClassesInheritedBySensor(s.type, includesBuiltIns)
+            baseClass = self.getClassByName(s.type)
+            if baseClass.isBuiltIn and not includesBuiltIns:
+                return inheritedClasses
+            else:
+                return [baseClass] + inheritedClasses
 
     def doesSensorInherit(self, sensor, classs):
         if isinstance(sensor, Sensor):
