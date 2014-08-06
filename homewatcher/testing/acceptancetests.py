@@ -184,19 +184,47 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.assertTrue(kitchenWindow.isEnabled)
         self.assertTrue(livingWindow.isEnabled)
 
+        def assertAlertEvents(firedEvents, resetsToOff=True):
+            eventObjects = {}
+            eventObjects[configuration.AlertEvent.Type.ALERT_STARTED] = 'IntrusionAlertStarted'
+            eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = 'IntrusionAlertActivated'
+            eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = 'IntrusionAlertPaused'
+            eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = 'IntrusionAlertResumed'
+            eventObjects[configuration.AlertEvent.Type.ALERT_STOPPED] = 'IntrusionAlertStopped'
+            eventObjects[configuration.AlertEvent.Type.ALERT_JOINED] = 'IntrusionAlertSensorJoined'
+            eventObjects[configuration.AlertEvent.Type.ALERT_LEFT] = 'IntrusionAlertSensorLeft'
+
+            # Check all events are in the dictionary. If not, that denotes a
+            # coding error in the test.
+            for eventType in configuration.AlertEvent.Type.getAll():
+                self.assertTrue(eventType in eventObjects)
+
+            for eventType, eventObject in eventObjects.iteritems():
+                self.assertEqual(self.linknx.getObject(eventObject).value, eventType in firedEvents)
+                if resetsToOff: self.linknx.getObject(eventObject).value = False
+
         self.assertAlert([], [], [])
+        assertAlertEvents([])
 
         self.fail('Check that the various events are fired. Use an int object to hold a value dedicated to each state of the alert\'s lifecycle and set its value with actions executed during these events.')
+
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout(), 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[])], 0.2, 0.2)
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout(), 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([])], 0.2, 0.2)
+        self.assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED, configuration.AlertEvent.Type.ALERT_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert.
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + kitchenWindow.getPostalertTimeout() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow])], 0.2, 0.7)
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + kitchenWindow.getPostalertTimeout() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
+        self.assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_LEFT))
 
         # Paused.
         self.assertAlert([], [], [kitchenWindow])
+
+        # Stopped.
+        self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
+        self.waitDuring(0.4, 'Waiting for alert to stop.')
+        self.assertAlertEvents((configuration.AlertEvent.Type.ALERT_STOPPED,))
 
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
