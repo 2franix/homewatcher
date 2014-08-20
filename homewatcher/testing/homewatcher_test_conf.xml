@@ -37,14 +37,38 @@
 	</modes>
 	<alerts>
 		<alert name="Intrusion" persistenceObjectId="IntrusionPersistence" inhibitionObjectId="IntrusionInhibition">
+			<event type="started">
+				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
+			</event>
 			<event type="sensor joined">
 				<action type="send-email" to="intrusion@foo.com"/>
+				<action type="conditional">
+					<condition type="or">
+						<condition type="object" id="IntrusionAlertStarted" value="on"/>
+						<condition type="object" id="IntrusionAlertResumed" value="on"/>
+					</condition>
+					<action type="set-value" id="IntrusionSensorJoined" value="on"/>
+				</action>
+			</event>
+			<event type="sensor left">
+				<action type="set-value" id="IntrusionSensorLeft" value="on"/>
 			</event>
 			<event type="activated">
 				<action type="set-value" id="Siren" value="on"/>
+				<action type="set-value" id="IntrusionAlertActivated" value="on"/>
 			</event>
 			<event type="paused">
 				<action type="set-value" id="Siren" value="off"/>
+				<action type="conditional">
+					<condition type="object" id="IntrusionSensorLeft" value="on"/>
+					<action type="set-value" id="IntrusionAlertPaused" value="on"/>
+				</action>
+			</event>
+			<event type="resumed">
+				<action type="set-value" id="IntrusionAlertResumed" value="on"/>
+			</event>
+			<event type="stopped">
+				<action type="set-value" id="IntrusionAlertStopped" value="on"/>
 			</event>
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence" >

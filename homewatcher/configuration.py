@@ -192,7 +192,7 @@ class Property(object):
                             newPropertyValue = self.type()
                             self.type.PROPERTY_DEFINITIONS.readObjectFromXML(newPropertyValue, source)
                         except:
-                            logger.reportException('Type {type} has neither static fromXML(xmlElement) nor __init__() method. At least one is required to parse it properly.'.format(type=self.type))
+                            # logger.reportException('Type {type} has neither static fromXML(xmlElement) nor __init__() method. At least one is required to parse it properly.'.format(type=self.type))
                             raise
 
                     # Assign attributes from XML.
@@ -704,7 +704,8 @@ class Action(object):
 
 Action.PROPERTY_DEFINITIONS = PropertyCollection()
 Action.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
-# Action.PROPERTY_DEFINITIONS.addProperty('description', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
+# All actions are handled by linknx except send-email that has to be reworked by
+# Homewatcher to customize email text.
 isEmail = lambda context: context.object.type==Action.Type.SEND_EMAIL
 Action.PROPERTY_DEFINITIONS.addProperty('to', isMandatory=isEmail, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isCollection=True)
 Action.PROPERTY_DEFINITIONS.addProperty('subject', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
@@ -1011,9 +1012,9 @@ class Configuration(object):
         text = None
         for node in elt.childNodes:
             if node.nodeType == node.TEXT_NODE:
-                if text:
-                    raise Exception('Multiple text nodes in the same element are not supported.')
-                text = node.data
+                if not text:
+                    text = ''
+                text += node.data
 
         if mustFind and not text:
             raise Exception('Missing text in element {0}'.format(elt.nodeName))

@@ -39,8 +39,8 @@
 		<object flags="r" id="IntrusionAlertPaused" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionAlertResumed" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionAlertStopped" init="off" type="1.001"/>
-		<object flags="r" id="IntrusionAlertSensorJoined" init="off" type="1.001"/>
-		<object flags="r" id="IntrusionAlertSensorLeft" init="off" type="1.001"/>
+		<object flags="r" id="IntrusionSensorJoined" init="off" type="1.001"/>
+		<object flags="r" id="IntrusionSensorLeft" init="off" type="1.001"/>
 	</objects>
 	<logging level="DEBUG"/>
 </config>

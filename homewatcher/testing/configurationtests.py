@@ -213,17 +213,31 @@ class ConfigurationTestCase(base.TestCaseBase):
         </config>""", '"Event "sensor joined"" should define the property actions (cf. the "action" element in XML).')
 
         # # Test definition of actions.
-        # config = self.checkConfigFails("""
-        # <config>
-            # <modes objectId="foo"/>
-            # <alerts>
-                # <alert name="intrusion">
-                    # <event type="sensor joined">
-                        # <action type="foo"/>
-                    # </event>
-                # </alert>
-            # </alerts>
-        # </config>""", 'Property type (cf. the "type" attribute in XML) is invalid: A value in (\'email\', \'object\') is expected, foo found.')
+        config = self.checkConfigFails("""
+        <config>
+            <modes objectId="foo"/>
+            <alerts>
+                <alert name="intrusion">
+                    <event type="sensor joined"/>
+                </alert>
+            </alerts>
+    </config>""", '"Event "sensor joined"" should define the property actions (cf. the "action" element in XML).')
+        config = configuration.Configuration.parseString("""
+        <config>
+            <modes objectId="foo"/>
+            <alerts>
+                <alert name="intrusion">
+                    <event type="sensor joined">
+                        <action type="conditional">
+                            <condition type="object" id="Foo" value="on"/>
+                            <action type="set-value" id="Bar" value="off"/>
+                        </action>
+                    </event>
+                </alert>
+            </alerts>
+    </config>""")
+        config.checkIntegrity()
+        config.resolve()
 # 
         # config = self.checkConfigFails("""
         # <config>

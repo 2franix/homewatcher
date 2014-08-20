@@ -349,6 +349,7 @@ class Alert(object):
         self.fireEvent(configuration.AlertEvent.Type.SENSOR_LEFT)
 
     def fireEvent(self, eventType):
+        logger.reportInfo('Firing event {0} for {1}'.format(eventType, self))
         self.eventManager.fireEvent(eventType, 'Alert {0}: {1}'.format(self.name, eventType))
 
     def updateStatus(self):
@@ -393,6 +394,7 @@ class Alert(object):
         # Diff registered sensors.
         joiningSensors = self._sensorsInAlert - self._sensorsInAlertOnLastUpdateStatus
         leavingSensors = self._sensorsInAlertOnLastUpdateStatus- self._sensorsInAlert
+        logger.reportDebug('Updating status for {0}: joiningSensors={1}, leavingSensors={2}'.format(self, joiningSensors, leavingSensors))
 
         if newStatus == Alert.Status.ACTIVE:
             if self.persistenceObject != None: self.persistenceObject.value = True
@@ -639,6 +641,7 @@ class EventManager(object):
                     action = LinknxAction(self.daemon, actionConfig)
 
                 action.execute()
+        logger.reportDebug('Event {0} is now finished.'.format(description))
 
 class Mode(object):
     # ABSENCE = _ModeImpl('Absence', 0, [('Camille',SensorType.CAMERA), ('Simone',SensorType.CAMERA), ('FenetreSalon', SensorType.SWITCH), ('VoletsSalon', SensorType.SWITCH), ('PorteFenetreSAM', SensorType.SWITCH), ('VoletsSAM', SensorType.SWITCH), ('PorteFenetreCuisine', SensorType.SWITCH), ('VoletsCuisine', SensorType.SWITCH), ('PorteEntree', SensorType.SWITCH), ('PorteGarage', SensorType.SWITCH), ('PorteAbri', SensorType.SWITCH), ('DAAFCouloirRDC', SensorType.DAAF), ('DAAFSAM', SensorType.DAAF), ('DAAFGarage', SensorType.DAAF), ('AbriDeJardin', SensorType.TEMPERATURE_PROBE), ('ProsperSda', SensorType.TEMPERATURE_PROBE), ('ProsperCPU', SensorType.TEMPERATURE_PROBE)], False)
