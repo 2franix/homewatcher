@@ -202,11 +202,12 @@ class AcceptanceTestCase(base.TestCaseBase):
             for eventType, eventObject in eventObjects.items():
                 eventState = self.linknx.getObject(eventObject).value
                 expectedState = eventType in firedEvents
-                self.assertEqual(eventState, expectedState, 'Event object {0} is {1}, {2} was expected'.format(eventObject, eventState, expectedState))
+                self.assertEqual(eventState, expectedState, 'Event {0} should be {1}.\nState of all event objects is following:{2}'.format(eventObject, expectedState, dict([(objId, self.linknx.getObject(objId).value) for objId in eventObjects.values()])))
                 if resetsToOff: self.linknx.getObject(eventObject).value = False
-                # Clear email so that test does not complain about emails not
-                # been treated.
-                self.emailInfo = None
+
+            # Clear email so that test does not complain about emails not
+            # been treated.
+            self.emailInfo = None
 
         self.assertAlert([], [], [])
         assertAlertEvents([])
@@ -214,7 +215,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([])], 0.2, 0.4)
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 

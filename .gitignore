@@ -52,8 +52,9 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-# Vim tags
+# Vim files
 tags
+*.swp
 
 todo
 MANIFEST
