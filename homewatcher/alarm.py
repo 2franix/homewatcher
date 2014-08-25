@@ -292,12 +292,12 @@ class Alert(object):
         return self.status == Alert.Status.ACTIVE
 
     @property
-    def isStarted(self):
-        return self.status != Alert.Status.STOPPED
+    def isStopped(self):
+        return self.status == Alert.Status.STOPPED
 
     @property
     def isStarted(self):
-        return self.status == Alert.Status.STARTED
+        return not (self.isStopped or self.isPaused)
 
     @property
     def isPaused(self):
@@ -375,7 +375,7 @@ class Alert(object):
             # PAUSED status may only occur if persistence is supported.
             # Otherwise, as soon as last sensor leaves the alert, alert is
             # stopped and will start if a sensor gets triggered afterwards. This
-            # is not the most convenient behaviour but the user is free not to
+            # is not the most convenient behaviour but with it, the user is free not to
             # define persistence.
             newStatus = Alert.Status.PAUSED
         else:
@@ -419,9 +419,13 @@ class Alert(object):
                     logger.reportError('A sensor should have left the alert.')
                 else:
                     self.notifySensorLeft()
-                if newStatus == Alert.Status.PAUSED:
-                    self.notifyAlertPaused()
-                else:
+
+                # Always go through a 'paused' event, even if we switch directly from
+                # active to stop (occurs when manually stopping an active
+                # alert).
+                self.notifyAlertPaused()
+
+                if newStatus == Alert.Status.STOPPED:
                     self.notifyAlertStopped()
             else:
                 # Should not happen.
@@ -522,11 +526,13 @@ class Alert(object):
 
     def stop(self):
         with self._lock:
+            if self.isStopped: return
+
             logger.reportDebug('Stopping {0}: sensorsInPrealert={1} sensorsInAlert={2}'.format(self, self._sensorsInPrealert, self._sensorsInAlert))
             hasChanged = len(self._sensorsInPrealert) + len(self._sensorsInAlert) != 0
             self._sensorsInPrealert.clear()
             self._sensorsInAlert.clear()
-            if hasChanged: self.invalidateStatus()
+            self.invalidateStatus()
             self.updateStatus()
 
     def __repr__(self):

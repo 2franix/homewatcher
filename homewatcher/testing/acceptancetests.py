@@ -203,7 +203,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 eventState = self.linknx.getObject(eventObject).value
                 expectedState = eventType in firedEvents
                 self.assertEqual(eventState, expectedState, 'Event {0} should be {1}.\nState of all event objects is following:{2}'.format(eventObject, expectedState, dict([(objId, self.linknx.getObject(objId).value) for objId in eventObjects.values()])))
-                if resetsToOff: self.linknx.getObject(eventObject).value = False
+                if eventState and resetsToOff: self.linknx.getObject(eventObject).value = False
 
             # Clear email so that test does not complain about emails not
             # been treated.
@@ -230,6 +230,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         alertResumeTime = time.time()
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.3, 'Waiting for alert to resume', [])
+        kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_RESUMED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert.
@@ -243,6 +244,20 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_STOPPED,))
+
+        # Raise a new alert. Should begin with a prealert.
+        # Prealert.
+        prealertStartTime = time.time()
+        kitchenWindow.watchedObject.value = True
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
+        kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+
+        # Alert. Stop it in the middle of the postalert to test manual alert
+        # abortion.
+        self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
+        self.waitDuring(0.4, 'Waiting for alert to stop.')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_STOPPED))
 
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
