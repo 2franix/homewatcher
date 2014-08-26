@@ -87,6 +87,16 @@ class AcceptanceTestCase(base.TestCaseBase):
         # self.assertFalse(bedroomSmoke.isEnabled)
         # self.assertFalse(kitchenSmoke.isEnabled)
 # 
+    def changeAlarmMode(self, newMode, emailAddressesForNotification):
+        previousMode = self.linknx.getObject('Mode').value
+
+        base.TestCaseBase.changeAlarmMode(self, newMode, emailAddressesForNotification)
+
+        # Check object "Applied Mode" contains the new mode. This copy is
+        # operated by an action related to mode change event.
+        self.assertEqual(self.linknx.getObject('Mode').value, self.linknx.getObject('AppliedMode').value)
+        self.assertEqual(previousMode, self.linknx.getObject('PreviousMode').value)
+
     def testPostponedActivation(self):
         """ Test that exercises the postponing of the activation of a sensor whenever its canEnabled property returns False. """
 
@@ -479,10 +489,12 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Check mode objects are properly set up.
         for modeName in ('Presence', 'Away', 'Night'):
             mode = daemon.getMode(modeName)
-            self.assertEqual(len(mode.eventManager.eventConfigs), 1)
+            self.assertEqual(len(mode.eventManager.eventConfigs), 2)
             self.assertEqual(mode.eventManager.eventConfigs[0].type, 'entered')
             self.assertEqual(len(mode.eventManager.eventConfigs[0].actions), 2)
             self.assertEqual(mode.eventManager.eventConfigs[0].actions[0].type, configuration.Action.Type.SEND_EMAIL)
+            self.assertEqual(mode.eventManager.eventConfigs[1].type, 'left')
+            self.assertEqual(len(mode.eventManager.eventConfigs[1].actions), 1)
 
         # Prepare sensors involved in this test.
         entranceDoor = daemon.getSensorByName('EntranceDoorOpening')
@@ -526,8 +538,6 @@ class AcceptanceTestCase(base.TestCaseBase):
             for s in daemon.getAlertByName('Intrusion').sensors:
                 self.assertFalse(s.isEnabled, '{0} should now be disabled.'.format(s))
         self.waitDuring(4, 'Let little time go to test sensors\' state in the long run.', [checkAllSensorsEnabledState])
-
-        self.fail('Test mode-dependent events.')
 
     def testFloatSensors(self):
         daemon = self.alarmDaemon

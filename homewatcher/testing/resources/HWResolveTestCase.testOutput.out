@@ -7,6 +7,9 @@
 				<action to="notify@bar.com" type="send-email"/>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
+			<event type="left">
+				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
+			</event>
 		</mode>
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
@@ -20,6 +23,9 @@
 				<action to="notify@bar.com" type="send-email"/>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
+			<event type="left">
+				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
+			</event>
 		</mode>
 		<mode name="Night" value="3">
 			<sensor>EntranceDoorOpening</sensor>
@@ -29,18 +35,63 @@
 				<action to="notify@bar.com" type="send-email"/>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
+			<event type="left">
+				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
+			</event>
 		</mode>
 	</modes>
 	<alerts>
 		<alert inhibitionObjectId="IntrusionInhibition" name="Intrusion" persistenceObjectId="IntrusionPersistence">
+			<event type="started">
+				<action id="IntrusionAlertStarted" type="set-value" value="on"/>
+			</event>
 			<event type="sensor joined">
 				<action to="intrusion@foo.com" type="send-email"/>
+				<action type="conditional">
+					
+					
+					<condition type="or">
+						
+						
+						<condition id="IntrusionAlertStarted" type="object" value="on"/>
+						
+						
+						<condition id="IntrusionAlertResumed" type="object" value="on"/>
+						
+					
+					</condition>
+					
+					
+					<action id="IntrusionSensorJoined" type="set-value" value="on"/>
+					
+				
+				</action>
+			</event>
+			<event type="sensor left">
+				<action id="IntrusionSensorLeft" type="set-value" value="on"/>
 			</event>
 			<event type="activated">
 				<action id="Siren" type="set-value" value="on"/>
+				<action id="IntrusionAlertActivated" type="set-value" value="on"/>
 			</event>
 			<event type="paused">
 				<action id="Siren" type="set-value" value="off"/>
+				<action type="conditional">
+					
+					
+					<condition id="IntrusionSensorLeft" type="object" value="on"/>
+					
+					
+					<action id="IntrusionAlertPaused" type="set-value" value="on"/>
+					
+				
+				</action>
+			</event>
+			<event type="resumed">
+				<action id="IntrusionAlertResumed" type="set-value" value="on"/>
+			</event>
+			<event type="stopped">
+				<action id="IntrusionAlertStopped" type="set-value" value="on"/>
 			</event>
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence">

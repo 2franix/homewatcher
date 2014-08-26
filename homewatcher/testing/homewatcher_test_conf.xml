@@ -11,6 +11,9 @@
 				<action type="send-email" to="notify@bar.com"/>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
+			<event type="left">
+				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
+			</event>
 		</mode>
 		<mode name="Away" value="2">
 			<sensor>EntranceDoorOpening</sensor>
@@ -24,6 +27,9 @@
 				<action type="send-email" to="notify@bar.com"/>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
+			<event type="left">
+				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
+			</event>
 		</mode>
 		<mode name="Night" value="3">
 			<sensor>EntranceDoorOpening</sensor>
@@ -32,6 +38,9 @@
 			<event type="entered">
 				<action type="send-email" to="notify@bar.com"/>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
+			</event>
+			<event type="left">
+				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
 			</event>
 		</mode>
 	</modes>

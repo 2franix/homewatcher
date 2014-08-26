@@ -6,6 +6,7 @@
 		<object flags="wu" id="Siren" init="off" type="1.001"/>
 		<object flags="u" id="Mode" init="1" type="5.xxx"/>
 		<object flags="u" id="AppliedMode" init="1" type="5.xxx"/>
+		<object flags="u" id="PreviousMode" init="1" type="5.xxx"/>
 
 		<object flags="r"  id="CameraTrigger" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningTriggerEntrance" init="off" type="1.001"/> 
