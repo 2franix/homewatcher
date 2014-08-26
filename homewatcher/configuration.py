@@ -368,6 +368,24 @@ class PropertyCollection(object):
             else:
                 logger.reportDebug('not defined')
 
+    def generateDocumentation(self, classs, generatedClasses):
+        # Check for reentrance.
+        if classs in generatedClasses: return
+        generatedClasses.add(classs)
+
+        # Create a new file.
+        with open('__{0}Documentation.md'.format(classs.__name__), 'w') as f:
+            f.write('Documentation for {0}\n'.format(classs.__name__))
+            for property in self.properties:
+                f.write('# {0}\n'.format(property.name))
+                if property.isOfClassType():
+                    typeContent = '[{propType}](https://github.com/2franix/homewatcher/wiki/__{propType}Documentation)'.format(propType=property.type.__name__)
+                    if hasattr(property.type, 'PROPERTY_DEFINITIONS'):
+                        property.type.PROPERTY_DEFINITIONS.generateDocumentation(property.type, generatedClasses)
+                else:
+                    typeContent = property.type
+                f.write('type: {0}\n'.format(typeContent))
+
 class PyknxService(object):
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('host', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
@@ -993,6 +1011,10 @@ class Configuration(object):
                 raise Configuration.IntegrityException('Element {0} misses attribute {1}'.format(xmlElement.tagName, attributeName), xmlContext=xmlElement.toxml() )
             else:
                 return defaultValue
+
+    @staticmethod
+    def generateDocumentation():
+        Configuration.PROPERTY_DEFINITIONS.generateDocumentation(Configuration, set())
 
     @staticmethod
     def getElementsInConfig(config, sectionName, groupName):

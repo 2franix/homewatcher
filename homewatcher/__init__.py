@@ -24,4 +24,4 @@
 Homewatcher is a package that provides a daemon that plays the role of centralized home surveillance (the way an alarm system does). It exposes high level capabilities that drastically simplifies
 the configuration of the installation compared to one set up entirely with linknx functionality.
 """
-#__all__ = ['linknx', 'communicator']
+__all__ = ['alarm', 'configuration', 'configurator', 'sensor', 'timer']
