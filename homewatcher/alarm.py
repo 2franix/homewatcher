@@ -906,17 +906,18 @@ class Daemon(object):
             # logger.reportDebug('Lock released.')
 
     def onAlertInhibited(self, inhibitionObjectId):
-        # Identify alert that got inhibited.
-        alert = self.getAlertByInhibitionObjectId(inhibitionObjectId)
-
-        # Stop alert of all sensors that match this alert.
-        for sensor in self.sensors:
-            if sensor.alert == alert:
-                sensor.setAlertActiveRaw(False)
-
-        logger.reportDebug('onAlertInhibited, isIntrusionInhibited={0} isFireInhibited={1}'.format(isIntrusionInhibited, isFireInhibited))
-
-        alert.stop()
+        pass
+        # # Identify alert that got inhibited.
+        # alert = self.getAlertByInhibitionObjectId(inhibitionObjectId)
+# 
+        # # Stop alert of all sensors that match this alert.
+        # for sensor in self.sensors:
+            # if sensor.alert == alert:
+                # sensor.setAlertActiveRaw(False)
+# 
+        # logger.reportDebug('onAlertInhibited, isIntrusionInhibited={0} isFireInhibited={1}'.format(isIntrusionInhibited, isFireInhibited))
+# 
+        # alert.stop()
 
     def onModeValueChanged(self, value):
         logger.reportDebug('onModeValueChanged value={0}'.format(value))
