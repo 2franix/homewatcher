@@ -30,6 +30,51 @@ import itertools
 import re
 from functools import cmp_to_key
 
+class PropertyDocumentation(object):
+    def __init__(self, summary):
+        self.summary = summary
+
+class DocumentationCollector(object):
+    def __init__(self):
+        self.classOrder = []
+        self.classUsagesAsElements = {} # Keys are classes, values are a set of XML element names in XML.
+        self.classUsagesAsAttributes = {} # Keys are classes, values are a set of XML element names in XML.
+        self.classDocumentations = {}
+
+    def containsDocumentationForClass(self, classs):
+        return classs in self.classDocumentations
+
+    def collectUsagesOfConfigurationClass(self, classs):
+        if classs in self.classOrder: return
+        self.classOrder.append(classs)
+        self.classDocumentations[classs] = ''
+
+        if not 'PROPERTY_DEFINITIONS' in vars(classs): return
+        propertyCollection = vars(classs)['PROPERTY_DEFINITIONS']
+        for property in propertyCollection.properties:
+            if property.type == classs:
+                if (Property.XMLEntityTypes.CHILD_ELEMENT & property.xmlEntityType) != 0:
+                    self.classUsagesAsElements[classs].add(property.namesInXML[0])
+                if (Property.XMLEntityTypes.ATTRIBUTE & property.xmlEntityType) != 0:
+                    self.classUsagesAsAttributes[classs].add(property.namesInXML[0])
+                self.collectUsagesOfConfigurationClass(property.type)
+
+    def addDocumentationForClass(self, classs, docString, endsWithNewLine=True):
+        if docString == None: return
+
+        # Append documentation text.
+        self.classDocumentations[classs] += docString
+        if endsWithNewLine: self.classDocumentations[classs] += '  \n'
+
+    def writeFile(self, filename):
+        with open(filename, 'w') as f:
+            for classs in self.classOrder:
+                f.write('#<a name="{0}"/>{0}\n'.format(classs.__name__))
+                if classs.__doc__ != None:
+                    f.write(classs.__doc__ + '\n')
+                f.write(self.classDocumentations[classs])
+                f.write('\n')
+
 class Property(object):
     """
     Represents a property of an object which is part of the configuration.
@@ -57,6 +102,7 @@ class Property(object):
         self.isUnique = isUnique
         self.values = values # Collection of possible values. May be a callable (configuration object and property's owner object are passed as arguments). If None, no restriction on values.
         self.getter = getter # Optional method to call to retrieve property value. If set to None, the owner object's field named the same as this property is used.
+        self.documentation = PropertyDocumentation('Empty summary!') # Or is a PropertyDocumentation instance.
 
     def isOfPrimitiveType(self):
         return self.type in (str, int, float, bool)
@@ -107,7 +153,7 @@ class Property(object):
             return self.values
 
     def getValueFor(self, object, config):
-        if not self.isDefinedOn(object): return
+        if not self.isDefinedOn(object): return None
         if self.getter == None:
             return vars(object)[self.name]
         else:
@@ -368,25 +414,39 @@ class PropertyCollection(object):
             else:
                 logger.reportDebug('not defined')
 
-    def generateDocumentation(self, classs, generatedClasses):
-        # Check for reentrance.
-        if classs in generatedClasses: return
-        generatedClasses.add(classs)
-
-        # Create a new file.
-        with open('__{0}Documentation.md'.format(classs.__name__), 'w') as f:
-            f.write('Documentation for {0}\n'.format(classs.__name__))
-            for property in self.properties:
-                f.write('# {0}\n'.format(property.name))
-                if property.isOfClassType():
-                    typeContent = '[{propType}](https://github.com/2franix/homewatcher/wiki/__{propType}Documentation)'.format(propType=property.type.__name__)
-                    if hasattr(property.type, 'PROPERTY_DEFINITIONS'):
-                        property.type.PROPERTY_DEFINITIONS.generateDocumentation(property.type, generatedClasses)
-                else:
-                    typeContent = property.type
-                f.write('type: {0}\n'.format(typeContent))
+    # def generateDocumentation(self, classs, collector):
+        # # Check for reentrance.
+        # if collector.containsDocumentationForClass(classs): return
+# 
+        # # f.write('#{0}\n'.format(classs.__name__))
+        # for propertyGroup in self.propertyGroups:
+            # for header, entityType in [('Attributes', Property.XMLEntityTypes.ATTRIBUTE), ('Text', Property.XMLEntityTypes.INNER_TEXT), ('Children', Property.XMLEntityTypes.CHILD_ELEMENT)]:
+                # for property in propertyGroup.properties:
+                    # if entityType & property.xmlEntityType == 0: continue
+                    # collector.addDocumentationFor(class, '## {0}'.format(header))
+                    # if property.isOfClassType():
+                        # collector.addDocumentationFor(classs, '- [{0}](#{1}): {2}'.format(property.namesInXML[0], property.type, property.documentation.summary))
+                    # else:
+                        # collector.addDocumentationFor(classs, '- {0} ({1}): {2}'.format(property.namesInXML[0], property.type, property.documentation.summary))
+                 # if property.documentation != None:
+                    # collector.addDocumentationForClass(classs, property.documentation.summary +  '\n')
+                # if property.isOfClassType():
+                    # typeContent = '[{propType}](#{propType})'.format(propType=property.type.__name__)
+                    # if hasattr(property.type, 'PROPERTY_DEFINITIONS'):
+                        # property.type.PROPERTY_DEFINITIONS.generateDocumentation(property.type, collector)
+                # else:
+                    # typeContent = property.type.__name__
+                # if len(property.namesInXML) > 1: raise Exception('The documentation generator assumes that there is only a single XML tag name associated to each property.')
+                # collector.addDocumentationForClass(classs, 'Xml tag name: {0}'.format('`<{0}/>`'.format(property.namesInXML[0])))
+                # collector.addDocumentationForClass(classs, 'type: {0}'.format(typeContent))
+                # if property.values != None and not callable(property.values):
+                    # collector.addDocumentationForClass(classs, 'Accepted Values: {0}'.format(list(property.values)))
 
 class PyknxService(object):
+    """Represents the configuration for the communication with the hosting Pyknx daemon.
+
+    The Pyknx daemon is the underlying process for Homewatcher that handles the communication with the Linknx daemon.
+    """
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('host', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
     PROPERTY_DEFINITIONS.addProperty('port', isMandatory=False, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
@@ -603,7 +663,7 @@ class ActivationCriterion(object):
 
 # Define properties outside class because of a reference to the class itself.
 ActivationCriterion.PROPERTY_DEFINITIONS = PropertyCollection()
-ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, values=lambda configuration, owner:type(owner).Type.getAll())
+ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, values=ActivationCriterion.Type.getAll())
 isOfSensorType=lambda context: context.object.type==ActivationCriterion.Type.SENSOR
 ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('sensorName', isMandatory=isOfSensorType, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML='sensor')
 ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('whenTriggered', isMandatory=isOfSensorType, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
@@ -1011,10 +1071,6 @@ class Configuration(object):
                 raise Configuration.IntegrityException('Element {0} misses attribute {1}'.format(xmlElement.tagName, attributeName), xmlContext=xmlElement.toxml() )
             else:
                 return defaultValue
-
-    @staticmethod
-    def generateDocumentation():
-        Configuration.PROPERTY_DEFINITIONS.generateDocumentation(Configuration, set())
 
     @staticmethod
     def getElementsInConfig(config, sectionName, groupName):
