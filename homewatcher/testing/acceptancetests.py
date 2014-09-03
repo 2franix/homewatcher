@@ -618,9 +618,9 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Intrusion!
         triggerTime = time.time()
         intrusionSensor.watchedObject.value = True
-        self.waitUntil(triggerTime + intrusionSensor.getPrealertTimeout(), 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.2)
+        self.waitUntil(triggerTime + intrusionSensor.getPrealertTimeout() + 0.1, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
         self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
-        self.waitDuring(intrusionSensor.getPostalertTimeout(), 'Waiting for postalert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.2)
+        self.waitUntil(triggerTime + intrusionSensor.getPrealertTimeout() + intrusionSensor.getPostalertTimeout(), 'Waiting for postalert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.2)
         self.waitDuring(2, 'Checking siren is now off again.', [lambda: self.assertFalse(sirenObject.value)], 0.2, 0)
 
         # Check AppliedMode object has been synch'ed with Mode with a copy-value
