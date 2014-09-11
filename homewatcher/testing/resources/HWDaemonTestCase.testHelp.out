@@ -1,4 +1,6 @@
-usage: hwdaemon.py [-h] [--log-file LOGFILE] [-v LEVEL] HWCONF
+usage: hwdaemon.py [-h] [--log-file LOGFILE] [-d] [--pid-file PIDFILE]
+                   [-v LEVEL]
+                   HWCONF
 
 Standalone script used as a launcher for the Homewatcher daemon.
 
@@ -7,7 +9,9 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --log-file LOGFILE    output daemon's activity to LOGFILE rather than on
+  --log-file LOGFILE    output daemon's activity to LOGFILE rather than to
                         standard output.
+  -d, --daemonize       ask daemon to detach and run as a background daemon.
+  --pid-file PIDFILE    writes the PID of the daemon process to PIDFILE.
   -v LEVEL, --verbosity LEVEL
                         set verbosity level.

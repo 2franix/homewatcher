@@ -1,2 +1,4 @@
-usage: hwdaemon.py [-h] [--log-file LOGFILE] [-v LEVEL] HWCONF
+usage: hwdaemon.py [-h] [--log-file LOGFILE] [-d] [--pid-file PIDFILE]
+                   [-v LEVEL]
+                   HWCONF
 hwdaemon.py: error: the following arguments are required: HWCONF
