@@ -710,9 +710,7 @@ class Sensor(object):
     PROPERTY_DEFINITIONS.addProperty('hysteresis', isMandatory=isFloat, type=float, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 
     # Optional properties.
-    PROPERTY_DEFINITIONS.addProperty('description', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
     PROPERTY_DEFINITIONS.addProperty('persistenceObjectId', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
-    PROPERTY_DEFINITIONS.addProperty('baseURL', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 
     def __init__(self, type, name, isBuiltIn):
         self.type = type # Sensor type from Sensor.Type or base class name if class.

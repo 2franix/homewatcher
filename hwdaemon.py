@@ -38,6 +38,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('homewatcherConfig', help='use HWCONF as homewatcher configuration.', metavar='HWCONF')
     parser.add_argument('--log-file', dest='logFile', help='output daemon\'s activity to LOGFILE rather than on standard output.', metavar='LOGFILE', default=None)
+    parser.add_argument('-d', '--daemonize', help='ask daemon to detach and run as a background daemon.', action='store_true', default=False)
+    parser.add_argument('--pid-file', help='writes the PID of the daemon process to PIDFILE.', metavar='PIDFILE')
     parser.add_argument('-v', '--verbosity', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='info')
     args = parser.parse_args()
 
@@ -58,4 +60,4 @@ if __name__ == '__main__':
     communicatorAddress=('localhost', services.pyknx.port)
     logger.reportInfo('Starting Homewatcher at {communicatorAddr}, linked to linknx at {linknxAddr}'.format(communicatorAddr=communicatorAddress, linknxAddr=services.linknx.address))
     linknx = linknx.Linknx(services.linknx.host, services.linknx.port)
-    communicator.Communicator.runAndWait(linknxAddress=linknx.address, userFile=userScript, communicatorAddress=communicatorAddress, userScriptArgs=userScriptArgs, verbosityLevel=args.verbosityLevel, logFile=args.logFile)
+    communicator.Communicator.run(linknxAddress=linknx.address, userFile=userScript, communicatorAddress=communicatorAddress, userScriptArgs=userScriptArgs, verbosityLevel=args.verbosityLevel, logFile=args.logFile, daemonizes=args.daemonize, pidFile=args.pidFile)

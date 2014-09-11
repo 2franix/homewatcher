@@ -269,6 +269,8 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.waitDuring(0.4, 'Waiting for alert to stop.')
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_STOPPED))
 
+        self.fail('Test an alert without persistenceObjectId to check that the "paused" status never occurs.')
+
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
 
