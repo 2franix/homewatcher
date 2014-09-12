@@ -401,9 +401,11 @@ class Alert(object):
 
         # Handle consequences of status change.
         if self.status == Alert.Status.STOPPED:
-            if newStatus in (Alert.Status.STOPPED, Alert.Status.INITIALIZING):
+            if newStatus == Alert.Status.STOPPED:
                 # No change.
                 pass
+            elif newStatus == Alert.Status.INITIALIZING:
+                self.notifyAlertStarted()
             else:
                 # Should not happen.
                 logger.reportError('Unsupported switch from "{old}" to "{new}" for alert {alert}'.format(alert=self, old=self.status, new=newStatus))
@@ -449,7 +451,6 @@ class Alert(object):
                 pass
             elif newStatus == Alert.Status.ACTIVE:
                 # Events to raise: started, sensor-joined, activated.
-                self.notifyAlertStarted()
                 if not joiningSensors:
                     logger.reportError('A sensor should have joined the alert.')
                 else:

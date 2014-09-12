@@ -51,13 +51,7 @@
 			</event>
 			<event type="sensor joined">
 				<action type="send-email" to="intrusion@foo.com"/>
-				<action type="conditional">
-					<condition type="or">
-						<condition type="object" id="IntrusionAlertStarted" value="on"/>
-						<condition type="object" id="IntrusionAlertResumed" value="on"/>
-					</condition>
-					<action type="set-value" id="IntrusionSensorJoined" value="on"/>
-				</action>
+				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">
 				<action type="set-value" id="IntrusionSensorLeft" value="on"/>

@@ -225,9 +225,11 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
+        self.waitDuring(0.1, "Let 'alert started' event be raised.")
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
         self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert.
         self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + kitchenWindow.getPostalertTimeout() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
@@ -259,9 +261,11 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
+        self.waitDuring(0.1, "Let 'alert started' event be raised.")
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
         self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert. Stop it in the middle of the postalert to test manual alert
         # abortion.
