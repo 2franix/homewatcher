@@ -371,7 +371,7 @@ class Alert(object):
             newStatus = Alert.Status.ACTIVE
         elif self._sensorsInPrealert:
             newStatus = Alert.Status.INITIALIZING
-        elif self.persistenceObject != None and self.persistenceObject.value:
+        elif self.status == Alert.Status.ACTIVE and (self.persistenceObject != None and self.persistenceObject.value):
             # PAUSED status may only occur if persistence is supported.
             # Otherwise, as soon as last sensor leaves the alert, alert is
             # stopped and will start if a sensor gets triggered afterwards. This
