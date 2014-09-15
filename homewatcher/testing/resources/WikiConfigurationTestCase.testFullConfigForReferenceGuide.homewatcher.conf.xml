@@ -37,16 +37,16 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<sensor type="boolean" name="EntranceDoorOpening" location="Entrance" alert="Intrusion" enabledObjectId="EntranceDoorOpeningEnabled" watchedObjectId="EntranceDoorOpeningTrigger" postalertTimeout="10">
+		<sensor type="boolean" name="EntranceDoorOpening" location="Entrance" alert="Intrusion" enabledObjectId="EntranceDoorOpeningEnabled" watchedObjectId="EntranceDoorOpeningTrigger" alertDuration="10">
 			<activationDelay>
 				<value mode="Away">5</value>
 				<value mode="Night">3</value>
 			</activationDelay>
-			<prealertTimeout>
+			<prealertDuration>
 				<value mode="Away">6</value>
-			</prealertTimeout>
+			</prealertDuration>
 		</sensor>
-		<sensor isClass="true" type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertTimeout="0" postalertTimeout="10">
+		<sensor isClass="true" type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertDuration="0" alertDuration="10">
 			<activationCriterion type="sensor" sensor="{name}" whenTriggered="False"/>
 		</sensor>
 		<sensor type="OpeningSensor" name="LivingRoomWindowOpening" location="LivingRoom">

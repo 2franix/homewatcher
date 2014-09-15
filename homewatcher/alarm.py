@@ -263,7 +263,7 @@ class Alert(object):
         self._sensorsInAlert = set()
         self._sensorsInAlertOnLastUpdateStatus = set()
         self.status = Alert.Status.STOPPED
-        self._sensorTimers = {} # Timers indexed by sensors. Each timer represents the prealert or postalert timer for its associated sensor, depending on alert's current state.
+        self._sensorTimers = {} # Timers indexed by sensors. Each timer represents the prealert or alert timer for its associated sensor, depending on alert's current state.
         self.persistenceObject = daemon.linknx.getObject(config.persistenceObjectId) if config.persistenceObjectId != None else None
         self.inhibitionObject = daemon.linknx.getObject(config.inhibitionObjectId) if config.inhibitionObjectId != None else None
         self.eventManager = EventManager(daemon)
@@ -388,7 +388,7 @@ class Alert(object):
         if newStatus in (Alert.Status.ACTIVE, Alert.Status.PAUSED): # PAUSED is to be on the safe side as alert should always go through the ACTIVE state before going to PAUSED.
             for sensor in self._sensorsInPrealert:
                 if not sensor in self._sensorsInAlert:
-                    self._sensorsInAlert.add(sensor) # None at this point. Timers will be created later in this method.   # sensor.makePostalertTimer(onTimeoutReached=None, onTerminated=lambda: self.removeSensorFromAlert(sensor))
+                    self._sensorsInAlert.add(sensor) # None at this point. Timers will be created later in this method.   # sensor.makeAlertTimer(onTimeoutReached=None, onTerminated=lambda: self.removeSensorFromAlert(sensor))
             self._sensorsInPrealert = set()
 
         # Diff registered sensors.
@@ -473,7 +473,7 @@ class Alert(object):
         for sensor in self._sensorsInAlert.union(self._sensorsInPrealert):
             # Start a new timer?
             if newStatus in (Alert.Status.INITIALIZING, Alert.Status.ACTIVE) and self._sensorTimers.get(sensor) == None:
-                timer = sensor.makePrealertTimer() if newStatus == Alert.Status.INITIALIZING else sensor.makePostalertTimer()
+                timer = sensor.makePrealertTimer() if newStatus == Alert.Status.INITIALIZING else sensor.makeAlertTimer()
                 self._sensorTimers[sensor] = timer # Prealert timer has been deleted above if applicable.
                 timer.start()
 
@@ -962,10 +962,10 @@ class Daemon(object):
             for sensorId in self._currentMode.activeSensorIds:
                 sensor = self.getSensorByName(sensorId[0], sensorId[1])
                 if sensor.canBeEnabled():
-                    if sensor.getDelayedActivationTimeout() == 0:
+                    if sensor.getActivationDelay() == 0:
                         stateStr = 'est activé immédiatement'
                     else:
-                        stateStr = 'sera activé dans {0} secondes'.format(sensor.getDelayedActivationTimeout())
+                        stateStr = 'sera activé dans {0} secondes'.format(sensor.getActivationDelay())
                 else:
                     stateStr = 'ignoré tant que {0} retourne False.'.format(sensor.canBeEnabled)
                     ignoredSensors.append(sensor)

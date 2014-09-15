@@ -227,12 +227,12 @@ class AcceptanceTestCase(base.TestCaseBase):
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert.
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + kitchenWindow.getPostalertTimeout() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT))
 
         # Paused.
@@ -246,7 +246,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_RESUMED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
         # Alert.
-        self.waitUntil(alertResumeTime + kitchenWindow.getPostalertTimeout() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
+        self.waitUntil(alertResumeTime + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT))
 
         # Paused.
@@ -263,11 +263,11 @@ class AcceptanceTestCase(base.TestCaseBase):
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
         assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertTimeout() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
 
-        # Alert. Stop it in the middle of the postalert to test manual alert
+        # Alert. Stop it in the middle of the alert to test manual alert
         # abortion.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
@@ -310,10 +310,10 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.emailInfo = None # In case mode initialization has raised an email.
         self.changeAlarmMode('Away', 'notify@bar.com')
 
-        self.waitUntil(modeChangeTime + entranceSensor.getDelayedActivationTimeout() + 0.5, 'Waiting for door to be enabled.')
+        self.waitUntil(modeChangeTime + entranceSensor.getActivationDelay() + 0.5, 'Waiting for door to be enabled.')
         for sensor in (entranceSensor, livingRoomWindowSensor, kitchenWindowSensor):
             self.assertTrue(sensor.isEnabled, '{0} should now be enabled.'.format(sensor))
-        self.assertEqual(entranceSensor.getPrealertTimeout(), 6)
+        self.assertEqual(entranceSensor.getPrealertDuration(), 6)
 
         # Step inside home.
         firstTriggerTime = time.time()
@@ -323,7 +323,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         sensorsInAlert = []
         sensorsInPersistentAlert = []
         checkAlertStatus = lambda: self.assertAlert(sensorsInPrealert, sensorsInAlert, sensorsInPersistentAlert)
-        intermediaryDelay = entranceSensor.getPrealertTimeout() / 4
+        intermediaryDelay = entranceSensor.getPrealertDuration() / 4
         if togglesSensorBeforeEndOfPrealert:
             # Release sensor as quickly as possible.
             self.waitDuring(intermediaryDelay, [checkAlertStatus])
@@ -348,7 +348,7 @@ class AcceptanceTestCase(base.TestCaseBase):
 
             # Make sure alert is not raised after prealert delay of entrance
             # door.
-            self.waitUntil(firstTriggerTime + entranceSensor.getPrealertTimeout() + 1.5, 'Wait a few seconds to make sure no alert is being raised.', [checkAlertStatus])
+            self.waitUntil(firstTriggerTime + entranceSensor.getPrealertDuration() + 1.5, 'Wait a few seconds to make sure no alert is being raised.', [checkAlertStatus])
         else:
             if shuntsprealertWithFasterSensor:
                 # Prealert duration is driven by living room window, as it is a faster sensor
@@ -359,13 +359,13 @@ class AcceptanceTestCase(base.TestCaseBase):
                 # Check that living room window will raise alert faster than
                 # entrance door (the opposite would denote a configuration
                 # error).
-                remainingTimeBeforeDoorAlert = entranceSensor.getPrealertTimeout() - (time.time() - firstTriggerTime)
-                logger.reportDebug('Remaining time before door alert: {0}s, before living room alert: {1} (expected to be shorter in living room!)'.format(remainingTimeBeforeDoorAlert, livingRoomWindowSensor.getPrealertTimeout()))
-                self.assertLess(livingRoomWindowSensor.getPrealertTimeout(), remainingTimeBeforeDoorAlert, 'Living room window will not raise alert before entrance door, this test is not properly set up.')
-                self.waitDuring(livingRoomWindowSensor.getPrealertTimeout() + 1, 'Let living room window prealert pass.', [checkAlertStatus], 0.2, 1.2)
+                remainingTimeBeforeDoorAlert = entranceSensor.getPrealertDuration() - (time.time() - firstTriggerTime)
+                logger.reportDebug('Remaining time before door alert: {0}s, before living room alert: {1} (expected to be shorter in living room!)'.format(remainingTimeBeforeDoorAlert, livingRoomWindowSensor.getPrealertDuration()))
+                self.assertLess(livingRoomWindowSensor.getPrealertDuration(), remainingTimeBeforeDoorAlert, 'Living room window will not raise alert before entrance door, this test is not properly set up.')
+                self.waitDuring(livingRoomWindowSensor.getPrealertDuration() + 1, 'Let living room window prealert pass.', [checkAlertStatus], 0.2, 1.2)
             else:
                 # Normal prealert with entrance door.
-                self.waitUntil(firstTriggerTime + entranceSensor.getPrealertTimeout() + 1, 'Let prealert delay pass.', [checkAlertStatus], 0.5, 1.2)
+                self.waitUntil(firstTriggerTime + entranceSensor.getPrealertDuration() + 1, 'Let prealert delay pass.', [checkAlertStatus], 0.5, 1.2)
 
             # Whichever strategy should now lead to entrance door being in alert
             # (either because of its own prealert or because an intrusion alert has
@@ -376,14 +376,14 @@ class AcceptanceTestCase(base.TestCaseBase):
 
             # Wait for first sensor to quit alert. At this point, entranceSensor
             # should already have been in alert for 1 second.
-            self.assertTrue(entranceSensor.getPostalertTimeout() < livingRoomWindowSensor.getPostalertTimeout(), 'This test assumes that door\'s alert is shorter than kitchen\'s one.')
+            self.assertTrue(entranceSensor.getAlertDuration() < livingRoomWindowSensor.getAlertDuration(), 'This test assumes that door\'s alert is shorter than kitchen\'s one.')
             self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
-            self.waitDuring(entranceSensor.getPostalertTimeout() - 0.5, 'Wait for first sensor to quit alert.', [checkAlertStatus], 0, 1)
+            self.waitDuring(entranceSensor.getAlertDuration() - 0.5, 'Wait for first sensor to quit alert.', [checkAlertStatus], 0, 1)
             sensorsInAlert.remove(entranceSensor)
             self.assertFalse(entranceSensor.isAlertActive)
 
             # Wait for the end of second sensor's alert.
-            self.waitUntil(firstTriggerTime + intermediaryDelay + livingRoomWindowSensor.getPrealertTimeout() + livingRoomWindowSensor.getPostalertTimeout() + 1, 'Waiting for second sensor to quit alert.', [checkAlertStatus], 0, 1)
+            self.waitUntil(firstTriggerTime + intermediaryDelay + livingRoomWindowSensor.getPrealertDuration() + livingRoomWindowSensor.getAlertDuration() + 1, 'Waiting for second sensor to quit alert.', [checkAlertStatus], 0, 1)
             usesLivingWindow = livingRoomWindowSensor in sensorsInAlert
             if usesLivingWindow: sensorsInAlert.remove(livingRoomWindowSensor)
 
@@ -439,7 +439,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 kitchenWindowSensor.watchedObject.value = False
                 self.waitDuring(0.2, 'Closing kitchen window.')
                 kitchenWindowSensor.watchedObject.value = True
-                self.waitDuring(kitchenWindowSensor.getPrealertTimeout() + 1.5, 'Checking that opening sesnors do not fire alert anymore (alert is inhibited)...', [checkAlertStatus])
+                self.waitDuring(kitchenWindowSensor.getPrealertDuration() + 1.5, 'Checking that opening sesnors do not fire alert anymore (alert is inhibited)...', [checkAlertStatus])
 
                 # Remove inhibition: nothing should occur until a sensor gets
                 # triggered again (currently triggered sensors are still ignored).
@@ -452,12 +452,12 @@ class AcceptanceTestCase(base.TestCaseBase):
                 triggerTime = time.time()
                 kitchenWindowSensor.watchedObject.value = True
                 sensorsInPrealert.append(kitchenWindowSensor)
-                self.waitDuring(kitchenWindowSensor.getPrealertTimeout() + 0.2, 'Opening door again...', [checkAlertStatus], 0.2, 0.4)
+                self.waitDuring(kitchenWindowSensor.getPrealertDuration() + 0.2, 'Opening door again...', [checkAlertStatus], 0.2, 0.4)
                 sensorsInPrealert.remove(kitchenWindowSensor)
                 sensorsInAlert.append(kitchenWindowSensor)
                 sensorsInPersistentAlert.append(kitchenWindowSensor)
                 self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
-                self.waitUntil(triggerTime + kitchenWindowSensor.getPrealertTimeout() + kitchenWindowSensor.getPostalertTimeout(), 'Checking door alert...', [checkAlertStatus], 0.2, 0.2)
+                self.waitUntil(triggerTime + kitchenWindowSensor.getPrealertDuration() + kitchenWindowSensor.getAlertDuration(), 'Checking door alert...', [checkAlertStatus], 0.2, 0.2)
                 sensorsInAlert.remove(kitchenWindowSensor)
                 self.waitUntil(2, 'Alert should now be paused...', [checkAlertStatus], 0.2, 0)
 
@@ -476,12 +476,12 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.emailInfo = None # In case mode initialization has raised an email.
         self.changeAlarmMode('Away', 'notify@bar.com')
 
-        self.waitDuring(sensor.getDelayedActivationTimeout() + 0.5, 'Waiting for {0} to be enabled.'.format(sensor))
+        self.waitDuring(sensor.getActivationDelay() + 0.5, 'Waiting for {0} to be enabled.'.format(sensor))
         self.assertTrue(sensor.isEnabled, '{0} should now be enabled.'.format(sensor))
 
         # Trigger sensor and wait long enough to make sure no alert is raised.
         sensor.watchedObject.value = True
-        self.waitDuring(sensor.getPrealertTimeout() + 2, 'Wait to make sure no alert is raised.', [lambda: self.assertAlert([], [], [])], 0, 0)
+        self.waitDuring(sensor.getPrealertDuration() + 2, 'Wait to make sure no alert is raised.', [lambda: self.assertAlert([], [], [])], 0, 0)
         self.assertTrue(sensor.isTriggered, '{0} should still be triggered.'.format(sensor))
 
     def testModeChange(self):
@@ -563,7 +563,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         outdoorTemperature.watchedObject.value = 30.49 # Just below threshold.  
         self.waitDuring(1, 'Check alert is not fired.', [lambda: self.assertAlert([], [], [])], 0, 0)
         outdoorTemperature.watchedObject.value = 30.5 # Threshold.  
-        self.waitDuring(1.5, 'Check alert is fired.', [lambda: self.assertAlert([], [], [outdoorTemperature])], 0.5, 0) # Temperature probes' alert does not last. They switch to the postalert state quickly.
+        self.waitDuring(1.5, 'Check alert is fired.', [lambda: self.assertAlert([], [], [outdoorTemperature])], 0.5, 0) # Temperature probes' alert does not last. They switch to the alert state quickly.
 
         # Lower temperature below alert threshold to stop alert.
         outdoorTemperature.watchedObject.value = 28 # Less than threshold - hysteresis.
@@ -619,14 +619,14 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.emailInfo = None # In case mode initialization has raised an email.
         self.changeAlarmMode('Away', 'notify@bar.com')
 
-        self.waitUntil(modeChangeTime + intrusionSensor.getDelayedActivationTimeout() + 0.5, 'Waiting for sensor to activate.')
+        self.waitUntil(modeChangeTime + intrusionSensor.getActivationDelay() + 0.5, 'Waiting for sensor to activate.')
 
         # Intrusion!
         triggerTime = time.time()
         intrusionSensor.watchedObject.value = True
-        self.waitUntil(triggerTime + intrusionSensor.getPrealertTimeout() + 0.1, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
+        self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
         self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
-        self.waitUntil(triggerTime + intrusionSensor.getPrealertTimeout() + intrusionSensor.getPostalertTimeout(), 'Waiting for postalert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.2)
+        self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + intrusionSensor.getAlertDuration(), 'Waiting for alert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.1)
         self.waitDuring(2, 'Checking siren is now off again.', [lambda: self.assertFalse(sirenObject.value)], 0.2, 0)
 
         # Check AppliedMode object has been synch'ed with Mode with a copy-value

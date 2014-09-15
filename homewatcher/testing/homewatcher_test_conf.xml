@@ -92,17 +92,17 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<sensor isClass="true" name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertTimeout="2" postalertTimeout="2"/>
-		<sensor isClass="true" name="SmokeSensor" type="boolean" watchedObjectId="SmokeTrigger{location}" enabledObjectId="SmokeEnabled{location}" alert="Fire" activationDelay="1" prealertTimeout="0" postalertTimeout="10"/>
+		<sensor isClass="true" name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertDuration="2" alertDuration="2"/>
+		<sensor isClass="true" name="SmokeSensor" type="boolean" watchedObjectId="SmokeTrigger{location}" enabledObjectId="SmokeEnabled{location}" alert="Fire" activationDelay="1" prealertDuration="0" alertDuration="10"/>
 
 		<sensor name="EntranceDoorOpening" type="OpeningSensor" location="Entrance">
 			<activationDelay>
 				<value mode="Away">5</value>
 				<value mode="Night">3</value>
 			</activationDelay>
-			<prealertTimeout>
+			<prealertDuration>
 				<value mode="Away">6</value>
-			</prealertTimeout>
+			</prealertDuration>
 		</sensor>
 		<sensor name="GarageDoorOpening" type="OpeningSensor" location="Garage" activationDelay="5">
 			<activationCriterion type="and">
@@ -111,7 +111,7 @@
 			</activationCriterion>
 		</sensor>
 		<sensor name="KitchenWindowOpening" type="OpeningSensor" location="Kitchen"/>
-		<sensor name="LivingRoomWindowOpening" type="OpeningSensor" location="LivingRoom" postalertTimeout="5">
+		<sensor name="LivingRoomWindowOpening" type="OpeningSensor" location="LivingRoom" alertDuration="5">
 			<activationDelay>
 				<value mode="Night">3</value>
 			</activationDelay>

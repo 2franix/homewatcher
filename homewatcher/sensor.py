@@ -304,12 +304,12 @@ class Sensor(object):
     def makePrealertTimer(self):
         def onPrealertEnded(timer):
             self.alert.notifySensorPrealertExpired(self)
-        return timer.Timer(self, self.getPrealertTimeout(), 'Prealert timer', onTimeoutReached=onPrealertEnded, onTerminated=None)
+        return timer.Timer(self, self.getPrealertDuration(), 'Prealert timer', onTimeoutReached=onPrealertEnded, onTerminated=None)
 
-    def makePostalertTimer(self):
+    def makeAlertTimer(self):
         def onAlertEnded(timer):
             self.alert.removeSensorFromAlert(self)
-        return timer.Timer(self, self.getPostalertTimeout(), 'Postalert timer', onTimeoutReached=None, onTerminated=onAlertEnded)
+        return timer.Timer(self, self.getAlertDuration(), 'Alert timer', onTimeoutReached=None, onTerminated=onAlertEnded)
 
     def getUpdatedTriggerState(self):
         """
@@ -319,15 +319,15 @@ class Sensor(object):
         """
         return self.watchedObject.value
 
-    def getPrealertTimeout(self):
-        return self._config.prealertTimeout.getForMode(self.daemon.currentMode.name)
+    def getPrealertDuration(self):
+        return self._config.prealertDuration.getForMode(self.daemon.currentMode.name)
 
-    def getPostalertTimeout(self):
-        return self._config.postalertTimeout.getForMode(self.daemon.currentMode.name)
+    def getAlertDuration(self):
+        return self._config.alertDuration.getForMode(self.daemon.currentMode.name)
 
-    def getDelayedActivationTimeout(self):
+    def getActivationDelay(self):
         delay = self._config.activationDelay.getForMode(self.daemon.currentMode.name)
-        logger.reportDebug('getDelayedActivationTimeout of {2} for {0}, currentMode={1}'.format(self, self.daemon.currentMode, delay))
+        logger.reportDebug('getActivationDelay of {2} for {0}, currentMode={1}'.format(self, self.daemon.currentMode, delay))
         return delay
 
     def onEnabled(self):
@@ -360,7 +360,7 @@ class Sensor(object):
         if self.isActivationPending():
             logger.reportInfo('An activation timer for {0} is already running. Cancel it and start a new one.'.format(self))
             self._activationTimer.stop()
-        self._activationTimer = timer.Timer(self, self.getDelayedActivationTimeout(), 'Activation timer', onTimeoutReached=self._onActivationTimerTimeout, onIterate=self._onActivationTimerIterate)
+        self._activationTimer = timer.Timer(self, self.getActivationDelay(), 'Activation timer', onTimeoutReached=self._onActivationTimerTimeout, onIterate=self._onActivationTimerIterate)
         self._activationTimer.start()
 
     def stopActivationTimer(self):

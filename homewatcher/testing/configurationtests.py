@@ -405,16 +405,16 @@ class ConfigurationTestCase(base.TestCaseBase):
                                     </config>""", 'Property name (cf. the "name" attribute in XML) is invalid: Value sensor1 is already assigned to another object.')
 
         # Test multiple definition of the same property is forbidden
-        # (prealertTimeout is defined through an attribute AND through a child
+        # (prealertDuration is defined through an attribute AND through a child
         # element in the sample below).
         self.checkSensorConfigFails("""
         <config>
             <sensors>
-                <sensor name="sensor1" type="boolean" watchedObjectId="toto" enabledObjectId="titi" prealertTimeout="12">
-                    <prealertTimeout value="20"/>
+                <sensor name="sensor1" type="boolean" watchedObjectId="toto" enabledObjectId="titi" prealertDuration="12">
+                    <prealertDuration value="20"/>
                 </sensor>
             </sensors>
-        </config>""", 'Property prealertTimeout (cf. the "prealertTimeout" attribute or element in XML) is not a collection, it must have a single value.')
+        </config>""", 'Property prealertDuration (cf. the "prealertDuration" attribute or element in XML) is not a collection, it must have a single value.')
 
         # Test that a mode dependent delay cannot be defined twice for the same
         # mode.
@@ -422,10 +422,10 @@ class ConfigurationTestCase(base.TestCaseBase):
         <config>
             <sensors>
                 <sensor name="sensor1" type="boolean" watchedObjectId="toto" enabledObjectId="titi" alert="intrusion">
-                    <prealertTimeout value="20">
+                    <prealertDuration value="20">
                         <value mode="Away">30</value>
                         <value mode="Away">30</value>
-                    </prealertTimeout>
+                    </prealertDuration>
                 </sensor>
             </sensors>
         </config>""", 'Property modeName (cf. the "mode" attribute in XML) is invalid: Value Away is already assigned to another object.')
@@ -503,11 +503,11 @@ class ConfigurationTestCase(base.TestCaseBase):
                         <value mode="Away">5</value>
                         <value mode="Night">3</value>
                     </activationDelay>
-                    <prealertTimeout>
+                    <prealertDuration>
                         <value mode="Away">6</value>
-                    </prealertTimeout>
+                    </prealertDuration>
                 </sensor>
-                <sensor isClass="true" type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertTimeout="0" postalertTimeout="10">
+                <sensor isClass="true" type="boolean" name="OpeningSensor" watchedObjectId="OpeningTrigger{location}" enabledObjectId="{location}Enabled" alert="Intrusion" activationDelay="2" prealertDuration="0" alertDuration="10">
                     <activationCriterion type="sensor" sensor="{name}" whenTriggered="False"/>
                 </sensor>
                 <sensor type="OpeningSensor" name="LivingRoomWindowOpening" location="LivingRoom">
@@ -535,7 +535,7 @@ class ConfigurationTestCase(base.TestCaseBase):
         self.assertEqual(resolvedEntranceSensor.activationCriterion.sensorName, 'EntranceDoorOpening')
         self.assertFalse(resolvedEntranceSensor.activationCriterion.whenTriggered)
         self.assertEqual(resolvedEntranceSensor.activationCriterion.sensorName, resolvedEntranceSensor.name)
-        self.assertEqual(resolvedEntranceSensor.prealertTimeout.getForMode('Away'), 6)
+        self.assertEqual(resolvedEntranceSensor.prealertDuration.getForMode('Away'), 6)
 
 if __name__ == '__main__':
     unittest.main()

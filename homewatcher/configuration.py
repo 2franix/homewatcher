@@ -695,7 +695,7 @@ class Sensor(object):
     PROPERTY_DEFINITIONS.addProperty('alertName', isMandatory=isNotClass, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML='alert')
     PROPERTY_DEFINITIONS.addProperty('enabledObjectId', isMandatory=isNotClass, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
     PROPERTY_DEFINITIONS.addProperty('watchedObjectId', isMandatory=isNotClass, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
-    for propName in ['activationDelay', 'prealertTimeout', 'postalertTimeout']:
+    for propName in ['activationDelay', 'prealertDuration', 'alertDuration']:
         PROPERTY_DEFINITIONS.addProperty(propName, isMandatory=isNotClass, type=ModeDependentValue, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE | Property.XMLEntityTypes.CHILD_ELEMENT)
     PROPERTY_DEFINITIONS.addProperty('activationCriterion', isMandatory=isNotClass, type=ActivationCriterion, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT)
 
@@ -954,8 +954,8 @@ class Configuration(object):
         rootClass.isClass = True
         rootClass.activationDelay = ModeDependentValue(0)
         rootClass.activationCriterion = ActivationCriterion.makeSensorCriterion('{name}', False) # {name} is resolved for each sensor so that this criterion is true if the sensor is not triggered.
-        rootClass.prealertTimeout = ModeDependentValue(0)
-        rootClass.postalertTimeout = ModeDependentValue(0)
+        rootClass.prealertDuration = ModeDependentValue(0)
+        rootClass.alertDuration = ModeDependentValue(0)
         booleanClass = Sensor(Sensor.Type.ROOT, Sensor.Type.BOOLEAN, True)
         booleanClass.isClass = True
         booleanClass.triggerValue = True
