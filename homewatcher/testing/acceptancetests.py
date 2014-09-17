@@ -196,7 +196,7 @@ class AcceptanceTestCase(base.TestCaseBase):
 
         def assertAlertEvents(firedEvents, resetsToOff=True):
             eventObjects = {}
-            eventObjects[configuration.AlertEvent.Type.ALERT_STARTED] = 'IntrusionAlertStarted'
+            eventObjects[configuration.AlertEvent.Type.PREALERT_STARTED] = 'IntrusionAlertStarted'
             eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = 'IntrusionAlertActivated'
             eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = 'IntrusionAlertPaused'
             eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = 'IntrusionAlertResumed'
@@ -226,7 +226,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
+        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,))
         self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
@@ -262,7 +262,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STARTED,))
+        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,))
         self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))

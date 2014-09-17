@@ -857,7 +857,7 @@ class ModesRepository:
 
 class AlertEvent(Event):
     class Type:
-        ALERT_STARTED = 'started'
+        PREALERT_STARTED = 'prealert started'
         ALERT_ACTIVATED = 'activated'
         ALERT_PAUSED = 'paused'
         ALERT_RESUMED = 'resumed'
@@ -867,7 +867,7 @@ class AlertEvent(Event):
 
         @staticmethod
         def getAll():
-            return [AlertEvent.Type.ALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
+            return [AlertEvent.Type.PREALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
 
 class Alert(object):
     # Alert Lifecycle

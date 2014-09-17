@@ -328,7 +328,7 @@ class Alert(object):
             return False
 
     def notifyAlertStarted(self):
-        self.fireEvent(configuration.AlertEvent.Type.ALERT_STARTED)
+        self.fireEvent(configuration.AlertEvent.Type.PREALERT_STARTED)
 
     def notifyAlertActivated(self):
         self.fireEvent(configuration.AlertEvent.Type.ALERT_ACTIVATED)

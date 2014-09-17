@@ -46,7 +46,7 @@
 	</modes>
 	<alerts>
 		<alert name="Intrusion" persistenceObjectId="IntrusionPersistence" inhibitionObjectId="IntrusionInhibition">
-			<event type="started">
+			<event type="prealert started">
 				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
