@@ -149,7 +149,8 @@ class TestCaseBase(base.WithLinknxTestCase):
 
         # Check persistent alert.
         expectedPersistentValue = len(sensorsInPersistentAlert) > 0
-        self.assertEqual(persistentAlertObject.value, expectedPersistentValue, 'Persistence for "{1}" should be {2}={0}'.format(expectedPersistentValue, alert, persistentAlertObject))
+        if persistentAlertObject != None:
+            self.assertEqual(persistentAlertObject.value, expectedPersistentValue, 'Persistence for "{1}" should be {2}={0}'.format(expectedPersistentValue, alert, persistentAlertObject))
         if sensorsInPrealert:
             expectedStatus = Alert.Status.INITIALIZING
         elif sensorsInAlert:

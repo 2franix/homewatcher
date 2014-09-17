@@ -194,15 +194,15 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.assertTrue(kitchenWindow.isEnabled)
         self.assertTrue(livingWindow.isEnabled)
 
-        def assertAlertEvents(firedEvents, resetsToOff=True):
+        def assertAlertEvents(firedEvents, alertName, resetsToOff=True):
             eventObjects = {}
-            eventObjects[configuration.AlertEvent.Type.PREALERT_STARTED] = 'IntrusionAlertStarted'
-            eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = 'IntrusionAlertActivated'
-            eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = 'IntrusionAlertPaused'
-            eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = 'IntrusionAlertResumed'
-            eventObjects[configuration.AlertEvent.Type.ALERT_STOPPED] = 'IntrusionAlertStopped'
-            eventObjects[configuration.AlertEvent.Type.SENSOR_JOINED] = 'IntrusionSensorJoined'
-            eventObjects[configuration.AlertEvent.Type.SENSOR_LEFT] = 'IntrusionSensorLeft'
+            eventObjects[configuration.AlertEvent.Type.PREALERT_STARTED] = '{0}AlertStarted'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = '{0}AlertActivated'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = '{0}AlertPaused'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = '{0}AlertResumed'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.ALERT_STOPPED] = '{0}AlertStopped'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.SENSOR_JOINED] = '{0}SensorJoined'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.SENSOR_LEFT] = '{0}SensorLeft'.format(alertName)
 
             # Check all events are in the dictionary. If not, that denotes a
             # coding error in the test.
@@ -213,27 +213,29 @@ class AcceptanceTestCase(base.TestCaseBase):
                 eventState = self.linknx.getObject(eventObject).value
                 expectedState = eventType in firedEvents
                 self.assertEqual(eventState, expectedState, 'Event {0} should be {1}.\nState of all event objects is following:{2}'.format(eventObject, expectedState, dict([(objId, self.linknx.getObject(objId).value) for objId in eventObjects.values()])))
-                if eventState and resetsToOff: self.linknx.getObject(eventObject).value = False
+            if resetsToOff:
+                for eventType, eventObject in eventObjects.items():
+                    self.linknx.getObject(eventObject).value = False
 
             # Clear email so that test does not complain about emails not
             # been treated.
             self.emailInfo = None
 
         self.assertAlert([], [], [])
-        assertAlertEvents([])
+        assertAlertEvents([], 'Intrusion')
 
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
-        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,))
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
+        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,), 'Intrusion')
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], 'Intrusion', resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Intrusion')
 
         # Alert.
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT))
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([], 'Intrusion')], 0.2, 0.7)
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT), 'Intrusion')
 
         # Paused.
         self.assertAlert([], [], [kitchenWindow])
@@ -243,11 +245,11 @@ class AcceptanceTestCase(base.TestCaseBase):
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.3, 'Waiting for alert to resume', [])
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_RESUMED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_RESUMED, configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Intrusion')
 
         # Alert.
-        self.waitUntil(alertResumeTime + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([])], 0.2, 0.7)
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT))
+        self.waitUntil(alertResumeTime + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([], 'Intrusion')], 0.2, 0.7)
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT), 'Intrusion')
 
         # Paused.
         self.assertAlert([], [], [kitchenWindow])
@@ -255,25 +257,31 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Stopped.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STOPPED,))
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STOPPED,), 'Intrusion')
 
         # Raise a new alert. Should begin with a prealert.
         # Prealert.
         prealertStartTime = time.time()
         kitchenWindow.watchedObject.value = True
         self.waitDuring(0.1, "Let 'alert started' event be raised.")
-        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,))
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], resetsToOff=False)], 0.2, 0.4) 
+        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,), 'Intrusion')
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], 'Intrusion', resetsToOff=False)], 0.2, 0.4) 
         kitchenWindow.watchedObject.value = False # Release sensor trigger now to be able to trigger it again in a while.
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED))
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Intrusion')
 
         # Alert. Stop it in the middle of the alert to test manual alert
         # abortion.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_STOPPED))
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
 
-        self.fail('Test an alert without persistenceObjectId to check that the "paused" status never occurs.')
+        # Check with the Temperature alert that the paused event is raised
+        # even if we switch immediately to the Stopped status since there is no
+        # persistence for this alert.
+        temperatureSensor = self.alarmDaemon.getSensorByName('OutdoorTemperature')
+        temperatureSensor.watchedObject.value = 31.0
+        self.waitDuring(0.8, 'Let the Temperature alert be raised.')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.PREALERT_STARTED, configuration.AlertEvent.Type.ALERT_STOPPED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Temperature')
 
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
@@ -550,7 +558,6 @@ class AcceptanceTestCase(base.TestCaseBase):
 
         # Prepare sensors involved in this test.
         outdoorTemperature = daemon.getSensorByName('OutdoorTemperature')
-        persistentAlert = self.linknx.getObject('TemperaturePersistence')
 
         # Initialize state to a known one.
         self.alarmModeObject.value = 1 # Presence

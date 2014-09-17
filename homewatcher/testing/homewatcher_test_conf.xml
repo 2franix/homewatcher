@@ -85,9 +85,32 @@
 				<action type="set-value" id="FireSiren" value="off"/>
 			</event>
 		</alert>
-		<alert name="Temperature" persistenceObjectId="TemperaturePersistence" >
+		<alert name="Temperature">
+			<event type="prealert started">
+				<action type="set-value" id="TemperatureAlertStarted" value="on"/>
+			</event>
 			<event type="sensor joined">
 				<action type="send-email" to="fire@foo.com"/>
+				<action type="set-value" id="TemperatureSensorJoined" value="on"/>
+			</event>
+			<event type="sensor left">
+				<action type="set-value" id="TemperatureSensorLeft" value="on"/>
+			</event>
+			<event type="activated">
+				<action type="set-value" id="TemperatureAlertActivated" value="on"/>
+			</event>
+			<event type="paused">
+				<action type="set-value" id="Siren" value="off"/>
+				<action type="conditional">
+					<condition type="object" id="TemperatureSensorLeft" value="on"/>
+					<action type="set-value" id="TemperatureAlertPaused" value="on"/>
+				</action>
+			</event>
+			<event type="resumed">
+				<action type="set-value" id="TemperatureAlertResumed" value="on"/>
+			</event>
+			<event type="stopped">
+				<action type="set-value" id="TemperatureAlertStopped" value="on"/>
 			</event>
 		</alert>
 	</alerts>

@@ -42,6 +42,13 @@
 		<object flags="r" id="IntrusionAlertStopped" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionSensorJoined" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionSensorLeft" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertStarted" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertActivated" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertPaused" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertResumed" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertStopped" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureSensorJoined" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureSensorLeft" init="off" type="1.001"/>
 	</objects>
 	<logging level="DEBUG"/>
 </config>
