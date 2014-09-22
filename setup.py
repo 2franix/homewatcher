@@ -23,6 +23,7 @@
 from distutils.core import setup
 import pip
 import sys
+import homewatcher
 
 def installRequirement(requirementName):
     print('************************* IMPORTANT ******************************'.format(requirementName))
@@ -61,7 +62,7 @@ except ImportError:
 
 
 setup(name='homewatcher',
-      version='0.0.1b11',
+      version=homewatcher.__version__
       description='Alarm system built on top of Linknx',
       long_description=''.join(open('README.md').readlines()),
       author='Cyrille Defranoux',
@@ -73,4 +74,4 @@ setup(name='homewatcher',
       requires=['pyknx (>=2.0)', 'lxml'],
       packages=['homewatcher'],
       data_files=[('.', ['README.md'])],
-      scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py'])
+      scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py', 'hwversion.py'])

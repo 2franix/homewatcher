@@ -20,14 +20,28 @@
 # For any question, feature requests or bug reports, feel free to contact me at:
 # knx at aminate dot net
 
-from pyknx import Version
-
 """
-Homewatcher is a package that provides a daemon that plays the role of centralized home surveillance (the way an alarm system does). It exposes high level capabilities that drastically simplifies
-the configuration of the installation compared to one set up entirely with linknx functionality.
+Outputs the current version of the Homewatcher package.
 """
-__all__ = ['alarm', 'configuration', 'configurator', 'sensor', 'timer']
 
-version = Version(0, 0, 1, 'b', 12)
-__version__=str(version)
+# Check that pyknx is present as soon as possible.
+from homewatcher import ensurepyknx
 
+from homewatcher.configuration import Configuration
+import homewatcher
+import argparse
+import sys
+import logging
+import os
+from pyknx import logger
+
+__doc__ = __doc__.format(scriptname=os.path.basename(__file__))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    args = parser.parse_args()
+
+    # Configure logger.
+    logger.initLogger(None)
+
+    print(homewatcher.version)

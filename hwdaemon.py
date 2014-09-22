@@ -37,10 +37,11 @@ import os
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('homewatcherConfig', help='use HWCONF as homewatcher configuration.', metavar='HWCONF')
-    parser.add_argument('--log-file', dest='logFile', help='output daemon\'s activity to LOGFILE rather than to standard output.', metavar='LOGFILE', default=None)
     parser.add_argument('-d', '--daemonize', help='ask daemon to detach and run as a background daemon.', action='store_true', default=False)
-    parser.add_argument('--pid-file', help='writes the PID of the daemon process to PIDFILE.', metavar='PIDFILE')
+    parser.add_argument('--pid-file', help='write the PID of the daemon process to PIDFILE.', metavar='PIDFILE')
+    parser.add_argument('--log-file', dest='logFile', help='output daemon\'s activity to LOGFILE rather than to standard output.', metavar='LOGFILE', default=None)
     parser.add_argument('-v', '--verbosity', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='info')
+
     args = parser.parse_args()
 
     # Configure logger.
