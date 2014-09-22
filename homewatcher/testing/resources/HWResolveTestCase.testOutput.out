@@ -56,8 +56,11 @@
 				<action id="Siren" type="set-value" value="on"/>
 				<action id="IntrusionAlertActivated" type="set-value" value="on"/>
 			</event>
-			<event type="paused">
+			<event type="deactivated">
 				<action id="Siren" type="set-value" value="off"/>
+				<action id="IntrusionAlertDeactivated" type="set-value" value="on"/>
+			</event>
+			<event type="paused">
 				<action type="conditional">
 					
 					
@@ -101,8 +104,10 @@
 			<event type="activated">
 				<action id="TemperatureAlertActivated" type="set-value" value="on"/>
 			</event>
+			<event type="deactivated">
+				<action id="TemperatureAlertDeactivated" type="set-value" value="on"/>
+			</event>
 			<event type="paused">
-				<action id="Siren" type="set-value" value="off"/>
 				<action type="conditional">
 					
 					

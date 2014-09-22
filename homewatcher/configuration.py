@@ -813,7 +813,7 @@ class Mode(object):
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
     PROPERTY_DEFINITIONS.addProperty('value', isMandatory=True, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
-    PROPERTY_DEFINITIONS.addProperty('sensorNames', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='sensor', isCollection=True, values=lambda configuration, object: [s.name for s in configuration.sensorsAndClasses])
+    PROPERTY_DEFINITIONS.addProperty('sensorNames', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='sensor', isCollection=True, values=lambda configuration, object: [s.name for s in configuration.sensors])
     PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='event', isCollection=True)
 
     def __init__(self, name, value):
@@ -859,6 +859,7 @@ class AlertEvent(Event):
     class Type:
         PREALERT_STARTED = 'prealert started'
         ALERT_ACTIVATED = 'activated'
+        ALERT_DEACTIVATED = 'deactivated'
         ALERT_PAUSED = 'paused'
         ALERT_RESUMED = 'resumed'
         ALERT_STOPPED = 'stopped'
@@ -867,31 +868,9 @@ class AlertEvent(Event):
 
         @staticmethod
         def getAll():
-            return [AlertEvent.Type.PREALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
+            return [AlertEvent.Type.PREALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_DEACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
 
 class Alert(object):
-    # Alert Lifecycle
-    # ---------------
-    #
-    # Started --------<---------------------------<----------------------
-    #    |                                                              |
-    #   \|/                                                             |
-    # Sensor-joined --<-------------------------<------------           |
-    #    |                                                   |          |
-    #   \|/                                                  |          |
-    # Activated                                              |          |
-    #    |                                                  /|\        /|\
-    #   \|/                                                  |          | 
-    # Series of Sensor-joined and Sensor-left with           |          |
-    # at least as many joined than left.                     |          |
-    # Then, when last sensor leaves...                    Resumed       | 
-    #    |                                                  /|\        /|\
-    #   \|/                                                  |          |
-    # Paused ----->------------------------------>------------          |
-    #    |                                                              |
-    #   \|/                                                             |
-    # Stopped ----->------------------------------>----------------------
-
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
     PROPERTY_DEFINITIONS.addProperty('persistenceObjectId', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)

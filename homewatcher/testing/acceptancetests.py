@@ -198,6 +198,7 @@ class AcceptanceTestCase(base.TestCaseBase):
             eventObjects = {}
             eventObjects[configuration.AlertEvent.Type.PREALERT_STARTED] = '{0}AlertStarted'.format(alertName)
             eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = '{0}AlertActivated'.format(alertName)
+            eventObjects[configuration.AlertEvent.Type.ALERT_DEACTIVATED] = '{0}AlertDeactivated'.format(alertName)
             eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = '{0}AlertPaused'.format(alertName)
             eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = '{0}AlertResumed'.format(alertName)
             eventObjects[configuration.AlertEvent.Type.ALERT_STOPPED] = '{0}AlertStopped'.format(alertName)
@@ -234,8 +235,8 @@ class AcceptanceTestCase(base.TestCaseBase):
         assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Intrusion')
 
         # Alert.
-        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([], 'Intrusion')], 0.2, 0.7)
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT), 'Intrusion')
+        self.waitUntil(prealertStartTime + kitchenWindow.getPrealertDuration() + kitchenWindow.getAlertDuration() + 0.8, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([], 'Intrusion')], 0.2, 1.0)
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED), 'Intrusion')
 
         # Paused.
         self.assertAlert([], [], [kitchenWindow])
@@ -249,7 +250,7 @@ class AcceptanceTestCase(base.TestCaseBase):
 
         # Alert.
         self.waitUntil(alertResumeTime + kitchenWindow.getAlertDuration() + 0.5, 'Waiting for alert to expire', [lambda: self.assertAlert([],[kitchenWindow],[kitchenWindow]), lambda: assertAlertEvents([], 'Intrusion')], 0.2, 0.7)
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT), 'Intrusion')
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED), 'Intrusion')
 
         # Paused.
         self.assertAlert([], [], [kitchenWindow])
@@ -273,15 +274,13 @@ class AcceptanceTestCase(base.TestCaseBase):
         # abortion.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
 
-        # Check with the Temperature alert that the paused event is raised
-        # even if we switch immediately to the Stopped status since there is no
-        # persistence for this alert.
+        # Check the Temperature alert since it has no persistence.
         temperatureSensor = self.alarmDaemon.getSensorByName('OutdoorTemperature')
         temperatureSensor.watchedObject.value = 31.0
         self.waitDuring(0.8, 'Let the Temperature alert be raised.')
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_PAUSED, configuration.AlertEvent.Type.PREALERT_STARTED, configuration.AlertEvent.Type.ALERT_STOPPED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Temperature')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.PREALERT_STARTED, configuration.AlertEvent.Type.ALERT_STOPPED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Temperature')
 
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
@@ -570,11 +569,11 @@ class AcceptanceTestCase(base.TestCaseBase):
         outdoorTemperature.watchedObject.value = 30.49 # Just below threshold.  
         self.waitDuring(1, 'Check alert is not fired.', [lambda: self.assertAlert([], [], [])], 0, 0)
         outdoorTemperature.watchedObject.value = 30.5 # Threshold.  
-        self.waitDuring(1.5, 'Check alert is fired.', [lambda: self.assertAlert([], [], [outdoorTemperature])], 0.5, 0) # Temperature probes' alert does not last. They switch to the alert state quickly.
-
-        # Lower temperature below alert threshold to stop alert.
-        outdoorTemperature.watchedObject.value = 28 # Less than threshold - hysteresis.
-        self.waitDuring(1, 'Ending alert...', [lambda: self.assertAlert([], [], [outdoorTemperature])], 0, 0)
+        self.waitDuring(1.0, 'Let alert be raised and stopped.')
+        for id in ('TemperatureAlertStarted', 'TemperatureAlertActivated', 'TemperatureAlertDeactivated', 'TemperatureAlertStopped', 'TemperatureSensorJoined', 'TemperatureSensorLeft'):
+            self.assertTrue(self.linknx.getObject(id).value, 'id={0}'.format(id))
+        for id in ('TemperatureAlertPaused', 'TemperatureAlertResumed'):
+            self.assertFalse(self.linknx.getObject(id).value, 'id={0}'.format(id))
 
     # def testPurge(self):
         # daemon = self.alarmDaemon

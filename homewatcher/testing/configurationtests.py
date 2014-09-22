@@ -358,7 +358,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             <sensors>
                 <sensor name="s1" type="boolean" alert="intrusion" enabledObjectId="obj1" watchedObjectId="obj2"/>
             </sensors>
-        </config>""", "Property sensorNames (cf. the \"sensor\" element in XML) is invalid: A value in ['root', 'boolean', 'float', 's1'] is expected, Sensor1 found.")
+        </config>""", "Property sensorNames (cf. the \"sensor\" element in XML) is invalid: A value in ['s1'] is expected, Sensor1 found.")
 
     def testSensorIntegrityChecks(self):
         """ Exercises Configuration.checkIntegrity """

@@ -333,6 +333,9 @@ class Alert(object):
     def notifyAlertActivated(self):
         self.fireEvent(configuration.AlertEvent.Type.ALERT_ACTIVATED)
 
+    def notifyAlertDeactivated(self):
+        self.fireEvent(configuration.AlertEvent.Type.ALERT_DEACTIVATED)
+
     def notifyAlertPaused(self):
         self.fireEvent(configuration.AlertEvent.Type.ALERT_PAUSED)
 
@@ -422,13 +425,15 @@ class Alert(object):
                 else:
                     self.notifySensorLeft()
 
-                # Always go through a 'paused' event, even if we switch directly from
-                # active to stop (occurs when manually stopping an active
-                # alert).
-                self.notifyAlertPaused()
+                self.notifyAlertDeactivated()
 
                 if newStatus == Alert.Status.STOPPED:
                     self.notifyAlertStopped()
+                elif newStatus == Alert.Status.PAUSED:
+                    self.notifyAlertPaused()
+                else:
+                    raise Exception('Not implemented.')
+
             else:
                 # Should not happen.
                 logger.reportError('Unsupported switch from "{old}" to "{new}" for alert {alert}'.format(alert=self, old=self.status, new=newStatus))
