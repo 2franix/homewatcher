@@ -62,7 +62,7 @@ except ImportError:
 
 
 setup(name='homewatcher',
-      version=homewatcher.__version__
+      version=homewatcher.__version__,
       description='Alarm system built on top of Linknx',
       long_description=''.join(open('README.md').readlines()),
       author='Cyrille Defranoux',
