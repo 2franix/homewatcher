@@ -476,10 +476,12 @@ class LinknxService(object):
     hostProp = Property('host', type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
     portProp = Property('port', type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
     PROPERTY_DEFINITIONS.addPropertyGroup((hostProp, portProp))
+    PROPERTY_DEFINITIONS.addProperty('ignoreEmail', isMandatory=False, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 
     def __init__(self):
         self.host = 'localhost'
         self.port = 1028
+        self.ignoreEmail = False
 
     @property
     def address(self):

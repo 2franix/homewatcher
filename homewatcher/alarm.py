@@ -70,6 +70,8 @@ class Action(object):
     def __init__(self, daemon, config):
         self.daemon = daemon
         self._config = config
+        self.actionXml = xml.dom.minidom.Document()
+        self.actionXml.appendChild(self.actionXml.importNode(config.linknxActionXml, True))
 
     @property
     def description(self):
@@ -95,19 +97,18 @@ class SendEmailAction(Action):
         self.subject = self.subject.format(**context)
 
     def execute(self):
-        emailDescription = EmailDescriptor()
-        for sensor in self.daemon.sensorsInAlert:
-            emailDescription.setCurrentSensor(sensor)
-            sensor.implementEmail(emailDescription)
-            emailDescription.setCurrentSensor(None)
-        self.daemon.sendEmail(toAddr=self.to, subject=self.subject, text=emailDescription.text, attachments=list(emailDescription.attachments.values()))
+        # emailDescription = EmailDescriptor()
+        # for sensor in self.daemon.sensorsInAlert:
+            # emailDescription.setCurrentSensor(sensor)
+            # sensor.implementEmail(emailDescription)
+            # emailDescription.setCurrentSensor(None)
+        # self.daemon.sendEmail(toAddr=self.to, subject=self.subject, text=emailDescription.text, attachments=list(emailDescription.attachments.values()))
+        self.daemon.sendEmail(toAddr=self.to, subject=self.subject, text='', attachments=[], sourceXml=self.actionXml)
 
 class LinknxAction(Action):
     """ Action that sets the value of an object. """
     def __init__(self, daemon, config):
         Action.__init__(self, daemon, config)
-        self.actionXml = xml.dom.minidom.Document()
-        self.actionXml.appendChild(self.actionXml.importNode(config.linknxActionXml, True))
 
     def execute(self):
         self.daemon.linknx.executeAction(self.actionXml)
@@ -929,69 +930,73 @@ class Daemon(object):
         logger.reportDebug('onModeValueChanged value={0}'.format(value))
         self._updateModeFromLinknx()
 
-    def sendEmail(self, toAddr, subject, text, attachments=[]):
-        smtpConfig = self.linknx.emailServerInfo
-        if smtpConfig is None:
-            logger.reportError('No emailing capability has been set up for the linknx daemon.')
+    def sendEmail(self, toAddr, subject, text, attachments, sourceXml):
+        if self.configuration.servicesRepository.linknx.ignoreEmail:
             return
 
-        host, port, fromAddress = smtpConfig
-
-        msg = MIMEMultipart()
-        msg['From'] = fromAddress
-        msg['To'] = COMMASPACE.join(toAddr)
-        msg['Date'] = formatdate(localtime=True)
-        msg['Subject'] = '{0}'.format(email.header.Header(subject, 'utf-8'))
-        msg.attach( MIMEText(_text=text, _charset='utf-8') )
-
-        for file in attachments:
-            part = MIMEBase('application', "octet-stream")
-            part.set_payload( open(file,"rb").read() )
-            Encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment; filename="{0}"'.format(os.path.basename(file)))
-            msg.attach(part)
-
-        smtp = smtplib.SMTP(host=host, port=port)
-        smtp.sendmail(fromAddress, toAddr, msg.as_string())
-        logger.reportInfo('Email sent to {0} with subject {1} and {2} attachments.'.format(','.join(toAddr), subject, len(attachments)))
-        smtp.close()
-
-    def _sendModeChangedEmail(self):
-        ignoredSensors = []
-        text = '{0}\nLa maison est maintenant en mode {1}'.format(time.asctime(), self._currentMode)
-
-        # List sensors that are watched and those that can't be enabled
-        # immediately.
-        if self._currentMode.activeSensorIds:
-            text += '\n\nCapteurs surveillés :'
-            for sensorId in self._currentMode.activeSensorIds:
-                sensor = self.getSensorByName(sensorId[0], sensorId[1])
-                if sensor.canBeEnabled():
-                    if sensor.getActivationDelay() == 0:
-                        stateStr = 'est activé immédiatement'
-                    else:
-                        stateStr = 'sera activé dans {0} secondes'.format(sensor.getActivationDelay())
-                else:
-                    stateStr = 'ignoré tant que {0} retourne False.'.format(sensor.canBeEnabled)
-                    ignoredSensors.append(sensor)
-                text += '\n-{0} ({1}): {2}'.format(sensor, sensor.type, stateStr)
-        else:
-            text += '\n\nAucun capteur n\'est associé à ce mode.'
-
-        # List all sensors that are currently triggered (even if they do not
-        # participate in the current mode.
-        triggeredSensorNotices = []
-        for sensor in self.sensors:
-            if sensor.isTriggered:
-                triggeredSensorNotices.append('-{0} ({1})'.format(sensor.name, sensor.type))
-        if triggeredSensorNotices:
-            text += '\n\nListe des capteurs actuellement déclenchés :\n'
-            text += '\n'.join(triggeredSensorNotices)
-
-        subject='Nouveau mode : {0}'.format(self._currentMode)
-        if ignoredSensors:
-            subject += ' sans [' + (','.join([s.description for s in ignoredSensors])) + ']'
-        self.sendEmail(toAddr=self._infoAddresses, subject=subject, text=text)
+        self.linknx.executeAction(sourceXml)
+        # smtpConfig = self.linknx.emailServerInfo
+        # if smtpConfig is None:
+            # logger.reportError('No emailing capability has been set up for the linknx daemon.')
+            # return
+# 
+        # host, port, fromAddress = smtpConfig
+# 
+        # msg = MIMEMultipart()
+        # msg['From'] = fromAddress
+        # msg['To'] = COMMASPACE.join(toAddr)
+        # msg['Date'] = formatdate(localtime=True)
+        # msg['Subject'] = '{0}'.format(email.header.Header(subject, 'utf-8'))
+        # msg.attach( MIMEText(_text=text, _charset='utf-8') )
+# 
+        # for file in attachments:
+            # part = MIMEBase('application', "octet-stream")
+            # part.set_payload( open(file,"rb").read() )
+            # Encoders.encode_base64(part)
+            # part.add_header('Content-Disposition', 'attachment; filename="{0}"'.format(os.path.basename(file)))
+            # msg.attach(part)
+# 
+        # smtp = smtplib.SMTP(host=host, port=port)
+        # smtp.sendmail(fromAddress, toAddr, msg.as_string())
+        # logger.reportInfo('Email sent to {0} with subject {1} and {2} attachments.'.format(','.join(toAddr), subject, len(attachments)))
+        # smtp.close()
+# 
+    # def _sendModeChangedEmail(self):
+        # ignoredSensors = []
+        # text = '{0}\nLa maison est maintenant en mode {1}'.format(time.asctime(), self._currentMode)
+# 
+        # # List sensors that are watched and those that can't be enabled
+        # # immediately.
+        # if self._currentMode.activeSensorIds:
+            # text += '\n\nCapteurs surveillés :'
+            # for sensorId in self._currentMode.activeSensorIds:
+                # sensor = self.getSensorByName(sensorId[0], sensorId[1])
+                # if sensor.canBeEnabled():
+                    # if sensor.getActivationDelay() == 0:
+                        # stateStr = 'est activé immédiatement'
+                    # else:
+                        # stateStr = 'sera activé dans {0} secondes'.format(sensor.getActivationDelay())
+                # else:
+                    # stateStr = 'ignoré tant que {0} retourne False.'.format(sensor.canBeEnabled)
+                    # ignoredSensors.append(sensor)
+                # text += '\n-{0} ({1}): {2}'.format(sensor, sensor.type, stateStr)
+        # else:
+            # text += '\n\nAucun capteur n\'est associé à ce mode.'
+# 
+        # # List all sensors that are currently triggered (even if they do not
+        # # participate in the current mode.
+        # triggeredSensorNotices = []
+        # for sensor in self.sensors:
+            # if sensor.isTriggered:
+                # triggeredSensorNotices.append('-{0} ({1})'.format(sensor.name, sensor.type))
+        # if triggeredSensorNotices:
+            # text += '\n\nListe des capteurs actuellement déclenchés :\n'
+            # text += '\n'.join(triggeredSensorNotices)
+# 
+        # subject='Nouveau mode : {0}'.format(self._currentMode)
+        # if ignoredSensors:
+            # subject += ' sans [' + (','.join([s.description for s in ignoredSensors])) + ']'
+        # self.sendEmail(toAddr=self._infoAddresses, subject=subject, text=text)
 
     def _updateModeFromLinknx(self):
         """ Update integral mode to reflect the current mode in linknx.

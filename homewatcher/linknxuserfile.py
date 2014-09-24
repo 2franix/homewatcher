@@ -24,8 +24,7 @@
 from homewatcher import ensurepyknx
 
 from pyknx import logger
-import alarm
-import configuration
+from homewatcher import configuration, alarm
 
 alarmDaemon = None
 
@@ -40,7 +39,7 @@ def initializeUserScript(context):
     elif isinstance(context.hwconfig, configuration.Configuration):
         config = context.hwconfig
     else:
-        raise Exception('The hwconfig argument must be either a string or a homewatcher.configuration.Configuration object.')
+        raise Exception('The hwconfig argument must be either a string or a homewatcher.configuration.Configuration object. "{0}" was passed.'.format(type(context.hwconfig)))
 
     # Instanciate daemon.
     alarmDaemon = alarm.Daemon(context.communicator, config)

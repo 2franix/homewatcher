@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
 <config>
 	<services>
-		<linknx host="localhost" port="1030"/>
+		<linknx host="localhost" port="1030" ignoreEmail="true"/>
 		<daemon host="localhost" port="1031"/>
 	</services>
 	<modes objectId="Mode">
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com"/>
+				<action type="send-email" to="notify@bar.com">Test mail</action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -24,7 +24,7 @@
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com"/>
+				<action type="send-email" to="notify@bar.com">Test mail</action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -36,7 +36,7 @@
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com"/>
+				<action type="send-email" to="notify@bar.com">Test mail</action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -50,7 +50,7 @@
 				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action type="send-email" to="intrusion@foo.com"/>
+				<action type="send-email" to="intrusion@foo.com">Test mail</action>
 				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">
@@ -79,7 +79,7 @@
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence" >
 			<event type="sensor joined">
-				<action type="send-email" to="fire@foo.com"/>
+				<action type="send-email" to="fire@foo.com">Test mail</action>
 			</event>
 			<event type="activated">
 				<action type="set-value" id="FireSiren" value="on"/>
@@ -93,7 +93,7 @@
 				<action type="set-value" id="TemperatureAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action type="send-email" to="fire@foo.com"/>
+				<action type="send-email" to="fire@foo.com">Test mail</action>
 				<action type="set-value" id="TemperatureSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">

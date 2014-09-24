@@ -41,7 +41,7 @@ from homewatcher.sensor import *
 from homewatcher.alarm import *
 
 class TestCaseBase(base.WithLinknxTestCase):
-    def sendEmailMock(self, toAddr, subject, text, attachments=[]):
+    def sendEmailMock(self, toAddr, subject, text, attachments, sourceXml):
         logger.reportDebug('sendEmailMock: {0} {1}'.format(toAddr, subject))
         self.assertIsNone(self.emailInfo, 'An unconsumed email is about to be deleted. It is likely to be an unexpected email. Details are {0}'.format(self.emailInfo))
         self.emailInfo = {'to' : toAddr, 'subject' : subject, 'text' : text, 'attachments' : attachments, 'date' : time.ctime()}
@@ -76,7 +76,10 @@ class TestCaseBase(base.WithLinknxTestCase):
         try:
             # Redirect the emailing capability of the daemon.
             if self.alarmDaemon:
+                logger.reportInfo('Redirecting email capability of the alarm daemon to the mock for testing.')
                 self.alarmDaemon.sendEmail = self.sendEmailMock
+            else:
+                logger.reportInfo('No alarm daemon. Email redirection is not set.')
             self.emailInfo = None
         except:
             logger.reportException('Error in setUp.')
