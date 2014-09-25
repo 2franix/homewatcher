@@ -4,7 +4,7 @@
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action to="notify@bar.com" type="send-email"/>
+				<action to="notify@bar.com" type="send-email">Test mail</action>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
 			<event type="left">
@@ -20,7 +20,7 @@
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action to="notify@bar.com" type="send-email"/>
+				<action to="notify@bar.com" type="send-email">Test mail</action>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
 			<event type="left">
@@ -32,7 +32,7 @@
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action to="notify@bar.com" type="send-email"/>
+				<action to="notify@bar.com" type="send-email">Test mail</action>
 				<action from="Mode" to="AppliedMode" type="copy-value"/>
 			</event>
 			<event type="left">
@@ -46,7 +46,7 @@
 				<action id="IntrusionAlertStarted" type="set-value" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action to="intrusion@foo.com" type="send-email"/>
+				<action to="intrusion@foo.com" type="send-email">Test mail</action>
 				<action id="IntrusionSensorJoined" type="set-value" value="on"/>
 			</event>
 			<event type="sensor left">
@@ -81,7 +81,7 @@
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence">
 			<event type="sensor joined">
-				<action to="fire@foo.com" type="send-email"/>
+				<action to="fire@foo.com" type="send-email">Test mail</action>
 			</event>
 			<event type="activated">
 				<action id="FireSiren" type="set-value" value="on"/>
@@ -95,7 +95,7 @@
 				<action id="TemperatureAlertStarted" type="set-value" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action to="fire@foo.com" type="send-email"/>
+				<action to="fire@foo.com" type="send-email">Test mail</action>
 				<action id="TemperatureSensorJoined" type="set-value" value="on"/>
 			</event>
 			<event type="sensor left">
@@ -169,7 +169,7 @@
 		</sensor>
 	</sensors>
 	<services>
-		<linknx host="localhost" port="1030"/>
+		<linknx host="localhost" ignoreEmail="True" port="1030"/>
 		<daemon host="localhost" port="1031"/>
 	</services>
 </config>

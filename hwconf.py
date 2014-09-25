@@ -43,6 +43,8 @@ if __name__ == '__main__':
     parser.add_argument('linknxConfig', help='use LKNCONF as the source linknx configuration.', metavar='LKNCONF')
     parser.add_argument('-i', '--input-file', dest='homewatcherConfig', help='read homewatcher configuration from HWCONF rather than from standard input.', metavar='HWCONF')
     parser.add_argument('-o', '--output-file', dest='outputFile', help='write the modified linknx configuration to FILE rather than to standard output.', metavar='FILE')
+    parser.add_argument('--daemon-host', dest='daemonHost', help='hostname that Linknx will use to connect to Homewatcher. This argument is mandatory if Linknx and Homewatcher run on the same machine. Otherwise, it has to be provided explicitly as it cannot be guessed reliably.', default=None)
+    parser.add_argument('--daemon-port', dest='daemonPort', help='port that Linknx will use to connect to Homewatcher. See --daemon-host.', default=None)
     parser.add_argument('-v', '--verbose', dest='verbosityLevel', help='set verbosity level.', metavar='LEVEL', choices=[l.lower() for l in logger.getLevelsToString()], default='error')
     args = parser.parse_args()
 
@@ -50,7 +52,7 @@ if __name__ == '__main__':
     logger.initLogger(None, args.verbosityLevel.upper())
 
     # Start configurator.
-    configurator = Configurator(args.homewatcherConfig, args.linknxConfig, args.outputFile)
+    configurator = Configurator(args.homewatcherConfig, args.linknxConfig, args.outputFile, (args.daemonHost, args.daemonPort))
 
     # Generate config.
     try:
