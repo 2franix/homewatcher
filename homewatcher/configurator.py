@@ -65,7 +65,7 @@ class Configurator(pyknx.configurator.Configurator):
             if servicesRepo.daemon.host == servicesRepo.linknx.host:
                 daemonHost = servicesRepo.daemon.host
             else:
-                raise Configurator.ConfigurationException('Homewatcher is not configured to run on the same machine as Linknx. The address to be provided to Linknx in order to make it connect to Homewatcher cannot be guessed reliably.', '--daemon-addr')
+                raise Configurator.ConfigurationException('Homewatcher is not configured to run on the same machine as Linknx. The address to be provided to Linknx in order to make it connect to Homewatcher cannot be guessed reliably.', '--daemon-host')
         pyknx.configurator.Configurator.__init__(self, sourceFile, outputFile, (daemonHost, daemonPort), 'homewatcher')
 
     def addCallbackForObject(self, objectId, callbackName, callbackDestination):
