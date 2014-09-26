@@ -58,7 +58,7 @@ if __name__ == '__main__':
     logger.reportDebug('Pyknx\'s user script for homewatcher is {script}'.format(script=userScript))
     userScriptArgs = {'hwconfig' : config}
     services = config.servicesRepository
-    communicatorAddress=('localhost', services.daemon.port)
+    communicatorAddress=(services.daemon.host, services.daemon.port)
     logger.reportInfo('Starting Homewatcher at {communicatorAddr}, linked to linknx at {linknxAddr}'.format(communicatorAddr=communicatorAddress, linknxAddr=services.linknx.address))
     linknx = linknx.Linknx(services.linknx.host, services.linknx.port)
     communicator.Communicator.run(linknxAddress=linknx.address, userFile=userScript, communicatorAddress=communicatorAddress, userScriptArgs=userScriptArgs, verbosityLevel=args.verbosityLevel, logFile=args.logFile, daemonizes=args.daemonize, pidFile=args.pidFile)
