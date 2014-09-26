@@ -45,7 +45,7 @@ class Configurator(pyknx.configurator.Configurator):
                 return Exception.__str__(self)
 
     """ Object able to automatically patch the linknx configuration xml to add python callbacks. """
-    def __init__(self, homewatcherConfig, sourceFile, outputFile, daemonAddr=None):
+    def __init__(self, homewatcherConfig, sourceFile, outputFile):
         if homewatcherConfig is None:
             self._homewatcherConfig = configuration.Configuration.parseString(self.readFileFromStdIn())
         elif isinstance(homewatcherConfig, str):
@@ -57,16 +57,8 @@ class Configurator(pyknx.configurator.Configurator):
         self._homewatcherConfig.resolve()
 
         servicesRepo = self._homewatcherConfig.servicesRepository
-        daemonHost = daemonAddr[0] if daemonAddr[0] != None else None
-        daemonPort = daemonAddr[1] if daemonAddr[1] != None else servicesRepo.daemon.port
-        if daemonHost == None:
-            # We can deduce the daemon host to be given to linknx if both are
-            # designed to run on the same machine.
-            if servicesRepo.daemon.host == servicesRepo.linknx.host:
-                daemonHost = servicesRepo.daemon.host
-            else:
-                raise Configurator.ConfigurationException('Homewatcher is not configured to run on the same machine as Linknx. The address to be provided to Linknx in order to make it connect to Homewatcher cannot be guessed reliably.', '--daemon-host')
-        pyknx.configurator.Configurator.__init__(self, sourceFile, outputFile, (daemonHost, daemonPort), 'homewatcher')
+        daemonAddress = (servicesRepo.daemon.host, servicesRepo.daemon.port)
+        pyknx.configurator.Configurator.__init__(self, sourceFile, outputFile, daemonAddress, 'homewatcher')
 
     def addCallbackForObject(self, objectId, callbackName, callbackDestination):
         if objectId == None or objectId == '':
