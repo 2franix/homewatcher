@@ -71,7 +71,7 @@ setup(name='homewatcher',
       maintainer_email='knx@aminate.net',
       license='GNU Public General License',
       url='https://github.com/2franix/homewatcher/',
-      requires=['pyknx (>=2.0)', 'lxml'],
+      requires=['pyknx (>=2.0)'],
       packages=['homewatcher'],
       data_files=[('.', ['README.md'])],
       scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py', 'hwversion.py'])
