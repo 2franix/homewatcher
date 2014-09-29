@@ -1,6 +1,8 @@
-homewatcher
+Homewatcher
 ===========
 
-Alarm system built on top of Linknx.
+Homewatcher is a free software that implements an alarm system built on top of Linknx.
 
-See the [Wiki Pages](https://github.com/2franix/homewatcher/wiki) to learn more about how to install, configure and use Homewatcher.
+Take advantage of your KNX motion or opening sensors to put your home under surveillance!
+
+See the <a href="https://github.com/2franix/homewatcher/wiki">Wiki Pages</a> to learn more about how to install, configure and use Homewatcher.
