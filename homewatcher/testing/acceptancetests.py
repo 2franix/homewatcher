@@ -195,28 +195,31 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.assertTrue(livingWindow.isEnabled)
 
         def assertAlertEvents(firedEvents, alertName, resetsToOff=True):
-            eventObjects = {}
-            eventObjects[configuration.AlertEvent.Type.PREALERT_STARTED] = '{0}AlertStarted'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.ALERT_ACTIVATED] = '{0}AlertActivated'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.ALERT_DEACTIVATED] = '{0}AlertDeactivated'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.ALERT_PAUSED] = '{0}AlertPaused'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.ALERT_RESUMED] = '{0}AlertResumed'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.ALERT_STOPPED] = '{0}AlertStopped'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.SENSOR_JOINED] = '{0}SensorJoined'.format(alertName)
-            eventObjects[configuration.AlertEvent.Type.SENSOR_LEFT] = '{0}SensorLeft'.format(alertName)
+            eventObjectIds = {}
+            eventObjectIds[configuration.AlertEvent.Type.PREALERT_STARTED] = '{0}AlertStarted'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_ACTIVATED] = '{0}AlertActivated'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_DEACTIVATED] = '{0}AlertDeactivated'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_PAUSED] = '{0}AlertPaused'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_RESUMED] = '{0}AlertResumed'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_STOPPED] = '{0}AlertStopped'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.SENSOR_JOINED] = '{0}SensorJoined'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.SENSOR_LEFT] = '{0}SensorLeft'.format(alertName)
+
+            eventObjects = self.linknx.getObjects(objectIds=eventObjectIds.values())
+            eventObjectValues = eventObjects.getValues()
 
             # Check all events are in the dictionary. If not, that denotes a
             # coding error in the test.
             for eventType in configuration.AlertEvent.Type.getAll():
-                self.assertTrue(eventType in eventObjects)
+                self.assertTrue(eventType in eventObjectIds)
 
-            for eventType, eventObject in eventObjects.items():
-                eventState = self.linknx.getObject(eventObject).value
+            for eventType, eventObjectId in eventObjectIds.items():
+                eventState = eventObjectValues[eventObjectId]
                 expectedState = eventType in firedEvents
-                self.assertEqual(eventState, expectedState, 'Event {0} should be {1}.\nState of all event objects is following:{2}'.format(eventObject, expectedState, dict([(objId, self.linknx.getObject(objId).value) for objId in eventObjects.values()])))
+                self.assertEqual(eventState, expectedState, 'Event {0} should be {1}.\nState of all event objects is following:{2}'.format(eventObjectId, expectedState, eventObjectValues))
             if resetsToOff:
-                for eventType, eventObject in eventObjects.items():
-                    self.linknx.getObject(eventObject).value = False
+                for eventType, eventObjectId in eventObjectIds.items():
+                    self.linknx.getObject(eventObjectId).value = False
 
             # Clear email so that test does not complain about emails not
             # been treated.
