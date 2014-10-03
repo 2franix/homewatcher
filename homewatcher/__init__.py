@@ -20,6 +20,7 @@
 # For any question, feature requests or bug reports, feel free to contact me at:
 # knx at aminate dot net
 
+from homewatcher import ensurepyknx
 from pyknx import Version
 
 """

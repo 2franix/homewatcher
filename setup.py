@@ -21,7 +21,6 @@
 # knx at aminate dot net
 
 from distutils.core import setup
-import pip
 import sys
 import homewatcher
 
@@ -30,19 +29,6 @@ def installRequirement(requirementName):
     print('The {0} package is required and is not installed on this machine.'.format(requirementName))
     print('You should install {0} first using for instance "pip3 install {0}"'.format(requirementName))
     print('******************************************************************'.format(requirementName))
-    # print('Do you want to abort installation of homewatcher in order to complete this required step? (yes/no)')
-    # answer = None
-    # while not answer:
-        # answer = sys.stdin.readline().lower().strip()
-        # if not answer in ('yes', 'no'):
-            # print('Please answer either yes or no.')
-            # answer = None
-    # if answer == 'yes':
-        # exit(2)
-    # args = ['install']
-    # if canGetPreVersion: args.append('--pre')
-    # args.append(requirementName)
-    # pip.main(args)
 
 if sys.version_info.major < 3:
     print('This package is compatible with Python 3 and above.')
