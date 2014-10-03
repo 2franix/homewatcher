@@ -95,8 +95,27 @@ class SendEmailAction(Action):
         self.to = config.to
         self.subject = config.subject if config.subject != None else defaultSubject
         self.subject = self.subject.format(**context)
+        self.blocks = []
+
+        # Parse action's config to get blocks of text.
+        for(childNode in self.actionXml.childNodes):
+            if childNode.nodeType == Element.TEXT_NODE:
+                self.blocks.append(childNode.data)
+            elif childNode.nodeType == Element.ELEMENT_NODE:
+                tagName = childNode.tagName
+                if tagName == 'br':
+                    self.blocks.append('\n')
+                elif tagName == 'context':
+                    self.blocks.append(contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode))
 
     def execute(self):
+        # Create text.
+        text = ''
+        for block in self.blocks:
+            if isinstance(block, str):
+                text += block
+            elif isinstance(block, contexthandlers.ContextHandler):
+                block.analyzeContext(
         # emailDescription = EmailDescriptor()
         # for sensor in self.daemon.sensorsInAlert:
             # emailDescription.setCurrentSensor(sensor)
