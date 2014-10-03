@@ -21,6 +21,7 @@
 # knx at aminate dot net
 
 from homewatcher import ensurepyknx
+
 from pyknx import Version
 
 """
@@ -29,6 +30,6 @@ the configuration of the installation compared to one set up entirely with linkn
 """
 __all__ = ['alarm', 'configuration', 'configurator', 'sensor', 'timer']
 
-version = Version(1, 0, 0, 'b', 6)
+version = Version(1, 0, 1, 'b', 1)
 __version__=str(version)
 
