@@ -30,3 +30,13 @@ try:
 except ImportError:
     print('Could not import package "pyknx". Make sure it is installed before continuing. You can install it from PyPI with "pip3 install pyknx"')
     exit(1)
+
+# Even if Pyknx is successfully installed, we have to check that its version is
+# >=2 or Homewatcher will not work.
+pyknxVersion = None
+if hasattr(pyknx, 'version'):
+    pyknxVersion = pyknx.version
+
+if pyknxVersion == None:
+    print('The installed version of Pyknx is too old to be compatible with Homewatcher. Please upgrade it with, for instance, "pip3 install --pre --upgrade pyknx"')
+    exit(2)
