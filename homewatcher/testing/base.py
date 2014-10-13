@@ -41,18 +41,14 @@ from homewatcher.sensor import *
 from homewatcher.alarm import *
 
 class TestCaseBase(base.WithLinknxTestCase):
-    def sendEmailMock(self, toAddr, subject, text, attachments, sourceXml):
-        logger.reportDebug('sendEmailMock: {0} {1}'.format(toAddr, subject))
+    def sendEmailMock(self, actionXml):
+        logger.reportDebug('sendEmailMock: {0}'.format(actionXml.toxml()))
         self.assertIsNone(self.emailInfo, 'An unconsumed email is about to be deleted. It is likely to be an unexpected email. Details are {0}'.format(self.emailInfo))
-        self.emailInfo = {'to' : toAddr, 'subject' : subject, 'text' : text, 'attachments' : attachments, 'date' : time.ctime()}
+        self.emailInfo = {'action' : actionXml, 'date' : time.ctime()}
         logger.reportInfo('sendEmail mock received {0}'.format(self.emailInfo))
 
     def assertEmail(self, purpose, to, subject, attachments, consumesEmail=True):
         self.assertIsNotNone(self.emailInfo, 'No email has been sent for {0}.'.format(purpose))
-        if not isinstance(to, list): to=[to]
-        self.assertEqual(self.emailInfo['to'], to, 'Wrong recipient list.')
-        self.assertEqual(self.emailInfo['subject'][:len(subject)], subject, 'Subject is incorrect.')
-        self.assertEqual(self.emailInfo['attachments'], attachments)
         if consumesEmail: self.emailInfo = None
 
     def setUp(self, linknxConfFile='linknx_test_conf.xml', usesCommunicator=True,  hwConfigFile=os.path.join(os.path.dirname(__file__), 'homewatcher_test_conf.xml')):

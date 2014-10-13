@@ -754,15 +754,12 @@ class Sensor(object):
         return '{classOrSensor} {name}'.format(classOrSensor='Class' if self.isClass else 'Sensor', name=self.name)
 
 class Action(object):
-    class Type:
-        SEND_EMAIL = 'send-email'
-
-        @staticmethod
-        def getAll():
-            return (Action.Type.SEND_EMAIL, Action.Type.CHANGE_OBJECT)
-
     def __init__(self, type, eventName):
         pass
+
+    @property
+    def type(self):
+        return self.linknxActionXml.getAttribute('type')
 
     @staticmethod
     def fromXML(xmlElement):
@@ -779,16 +776,12 @@ class Action(object):
         xmlElement.appendChild(linknxActionClone)
 
     def __repr__(self):
-        return 'Action of type={type}'.format(**vars(self))
+        return 'Action of type={type}'.format(type=self.type)
 
 Action.PROPERTY_DEFINITIONS = PropertyCollection()
 Action.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 # All actions are handled by linknx except send-email that has to be reworked by
 # Homewatcher to customize email text.
-isEmail = lambda context: context.object.type==Action.Type.SEND_EMAIL
-Action.PROPERTY_DEFINITIONS.addProperty('to', isMandatory=isEmail, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isCollection=True)
-Action.PROPERTY_DEFINITIONS.addProperty('subject', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
-Action.PROPERTY_DEFINITIONS.addProperty('text', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.INNER_TEXT)
 # for propName in ('objectId', 'value'):
     # Action.PROPERTY_DEFINITIONS.addProperty(propName, isMandatory=lambda context: context.object.type==Action.Type.CHANGE_OBJECT, type=str, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT|Property.XMLEntityTypes.ATTRIBUTE)
 

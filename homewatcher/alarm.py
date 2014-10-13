@@ -34,7 +34,7 @@ import smtplib
 import ftplib
 import datetime
 import shutil
-from homewatcher import sensor, configuration
+from homewatcher import sensor, configuration, contexthandlers
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -92,37 +92,27 @@ class SendEmailAction(Action):
     """ Action that notifies of the alert by email. """
     def __init__(self, daemon, config, defaultSubject, context={}):
         Action.__init__(self, daemon, config)
-        self.to = config.to
-        self.subject = config.subject if config.subject != None else defaultSubject
-        self.subject = self.subject.format(**context)
         self.blocks = []
 
+    def execute(self, context):
+        linknxActionXml = xml.dom.minidom.Document()
+        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml, True))
+
         # Parse action's config to get blocks of text.
-        for(childNode in self.actionXml.childNodes):
-            if childNode.nodeType == Element.TEXT_NODE:
-                self.blocks.append(childNode.data)
-            elif childNode.nodeType == Element.ELEMENT_NODE:
+        actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
+        for childNode in actionXmlNode.childNodes:
+            text = None
+            if childNode.nodeType == Element.ELEMENT_NODE:
                 tagName = childNode.tagName
                 if tagName == 'br':
-                    self.blocks.append('\n')
+                    text = '\n'
                 elif tagName == 'context':
-                    self.blocks.append(contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode))
+                    text = contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode)
 
-    def execute(self):
-        # Create text.
-        text = ''
-        for block in self.blocks:
-            if isinstance(block, str):
-                text += block
-            elif isinstance(block, contexthandlers.ContextHandler):
-                block.analyzeContext(
-        # emailDescription = EmailDescriptor()
-        # for sensor in self.daemon.sensorsInAlert:
-            # emailDescription.setCurrentSensor(sensor)
-            # sensor.implementEmail(emailDescription)
-            # emailDescription.setCurrentSensor(None)
-        # self.daemon.sendEmail(toAddr=self.to, subject=self.subject, text=emailDescription.text, attachments=list(emailDescription.attachments.values()))
-        self.daemon.sendEmail(toAddr=self.to, subject=self.subject, text='', attachments=[], sourceXml=self.actionXml)
+            if text != None:
+                actionXmlNode.replaceChild(linknxActionXml.createTextNode(text), childNode)
+
+        self.daemon.sendEmail(linknxActionXml)
 
 class LinknxAction(Action):
     """ Action that sets the value of an object. """
@@ -949,11 +939,11 @@ class Daemon(object):
         logger.reportDebug('onModeValueChanged value={0}'.format(value))
         self._updateModeFromLinknx()
 
-    def sendEmail(self, toAddr, subject, text, attachments, sourceXml):
+    def sendEmail(self, actionXml):
         if self.configuration.servicesRepository.linknx.ignoreEmail:
             return
 
-        self.linknx.executeAction(sourceXml)
+        self.linknx.executeAction(actionXml)
         # smtpConfig = self.linknx.emailServerInfo
         # if smtpConfig is None:
             # logger.reportError('No emailing capability has been set up for the linknx daemon.')

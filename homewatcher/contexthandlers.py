@@ -26,6 +26,8 @@ from homewatcher import ensurepyknx
 from pyknx import logger
 
 class ContextHandler(object):
+    __contextHandlerName__ = None
+
     def __init__(self, xmlConfig):
         self._xmlConfig
 
@@ -40,12 +42,12 @@ class ContextHandlerFactory(object):
 
     @staticmethod
     def getInstance():
-        if _INSTANCE == None:
+        if ContextHandlerFactory._INSTANCE == None:
             _INSTANCE = ContextHandlerFactory()
         return _INSTANCE
 
-    def registerHandler(self, handlerName, handlerClass):
-        self._handlerDefinitions[handlerName] = handlerClass
+    def registerHandler(self, handlerClass):
+        self._handlerDefinitions[handlerClass.__contextHandlerName__] = handlerClass
 
     def makeHandler(self, handlerXMLConfig):
         handlerName = handlerXMLConfig.getAttribute('type')
