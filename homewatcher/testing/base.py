@@ -47,8 +47,24 @@ class TestCaseBase(base.WithLinknxTestCase):
         self.emailInfo = {'action' : actionXml, 'date' : time.ctime()}
         logger.reportInfo('sendEmail mock received {0}'.format(self.emailInfo))
 
-    def assertEmail(self, purpose, to, subject, attachments, consumesEmail=True):
+    def assertEmail(self, purpose, to, subject, attachments, body=None, consumesEmail=True):
         self.assertIsNotNone(self.emailInfo, 'No email has been sent for {0}.'.format(purpose))
+
+        if isinstance(to, list):
+            if len(to) > 1:
+                self.fail('Multiple recipients are not allowed.')
+            else:
+                recipient = to[0]
+        else:
+            recipient = to
+
+        actionXml = self.emailInfo['action']
+        actionNode = actionXml.getElementsByTagName('action')[0]
+        self.assertEqual(actionNode.getAttribute('to'), recipient)
+        self.assertEqual(actionNode.getAttribute('subject'), subject)
+        if body != None:
+            self.assertEqual(configuration.Configuration.getTextInElement(actionNode), body)
+
         if consumesEmail: self.emailInfo = None
 
     def setUp(self, linknxConfFile='linknx_test_conf.xml', usesCommunicator=True,  hwConfigFile=os.path.join(os.path.dirname(__file__), 'homewatcher_test_conf.xml')):
@@ -116,7 +132,7 @@ class TestCaseBase(base.WithLinknxTestCase):
         # Check email notification.
         expectedSubjectStart = 'Entered mode {0}'.format(newMode)
         self.waitDuring(1, 'Waiting for email notification')
-        if emailAddressesForNotification != None: self.assertEmail('mode change', emailAddressesForNotification, expectedSubjectStart, [])
+        if emailAddressesForNotification != None: self.assertEmail('mode change', emailAddressesForNotification, expectedSubjectStart, [], body=None)
 
     def assertAlert(self, sensorsInPrealert, sensorsInAlert, sensorsInPersistentAlert):
         # Sort sensors by alert types.

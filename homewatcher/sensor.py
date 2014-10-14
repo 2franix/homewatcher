@@ -383,7 +383,10 @@ class Sensor(object):
             logger.reportInfo('{0}\'s trigger is released.'.format(self.name))
 
     def __repr__(self):
-        return '{name} ({description})'.format(name=self.name, description=self.description if self.description != None else 'No description')
+        if self.description != None and len(self.description) > 0:
+            return '{name} ({description})'.format(name=self.name, description=self.description)
+        else:
+            return '{name}'.format(name=self.name)
 
 class FloatSensor(Sensor):
     def __init__(self, daemon, config):

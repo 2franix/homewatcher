@@ -81,7 +81,7 @@ class Action(object):
     def type(self):
         return self._config.type
 
-    def execute(self):
+    def execute(self, context):
         """ Implements the concrete job of the action. """
         raise Exception('Action\'s job is not implemented.')
 
@@ -92,22 +92,21 @@ class SendEmailAction(Action):
     """ Action that notifies of the alert by email. """
     def __init__(self, daemon, config, defaultSubject, context={}):
         Action.__init__(self, daemon, config)
-        self.blocks = []
 
     def execute(self, context):
         linknxActionXml = xml.dom.minidom.Document()
-        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml, True))
+        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml.childNodes[0], True))
 
         # Parse action's config to get blocks of text.
         actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
         for childNode in actionXmlNode.childNodes:
             text = None
-            if childNode.nodeType == Element.ELEMENT_NODE:
+            if childNode.nodeType == xml.dom.minidom.Element.ELEMENT_NODE:
                 tagName = childNode.tagName
                 if tagName == 'br':
                     text = '\n'
                 elif tagName == 'context':
-                    text = contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode)
+                    text = contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode).analyzeContext(context)
 
             if text != None:
                 actionXmlNode.replaceChild(linknxActionXml.createTextNode(text), childNode)
@@ -119,7 +118,7 @@ class LinknxAction(Action):
     def __init__(self, daemon, config):
         Action.__init__(self, daemon, config)
 
-    def execute(self):
+    def execute(self, context):
         self.daemon.linknx.executeAction(self.actionXml)
 # 
 # class FTPSender(threading.Thread):
@@ -363,7 +362,7 @@ class Alert(object):
 
     def fireEvent(self, eventType):
         logger.reportInfo('Firing event {0} for {1}'.format(eventType, self))
-        self.eventManager.fireEvent(eventType, 'Alert {0}: {1}'.format(self.name, eventType))
+        self.eventManager.fireEvent(eventType, 'Alert {0}: {1}'.format(self.name, eventType), self)
 
     def updateStatus(self):
         """
@@ -647,7 +646,7 @@ class EventManager(object):
     def addEvent(self, eventConfig):
         self.eventConfigs.append(eventConfig)
 
-    def fireEvent(self, eventType, description, context={}):
+    def fireEvent(self, eventType, description, context):
         """ Raises event (i.e executes every action related to this event). """
         logger.reportDebug('Firing event {0}'.format(description))
         for event in self.eventConfigs:
@@ -656,13 +655,13 @@ class EventManager(object):
             # Set up the various actions for that event type.
             logger.reportDebug('Executing actions {0}'.format(event.actions))
             for actionConfig in event.actions:
-                if actionConfig.type == configuration.Action.Type.SEND_EMAIL:
+                if actionConfig.type == 'send-email':
                     action = SendEmailAction(self.daemon, actionConfig, defaultSubject=description, context=context)
                 else:
                     # Delegate execution to linknx.
                     action = LinknxAction(self.daemon, actionConfig)
 
-                action.execute()
+                action.execute(context)
         logger.reportDebug('Event {0} is now finished.'.format(description))
 
 class Mode(object):
@@ -673,6 +672,7 @@ class Mode(object):
 
     def __init__(self, daemon, config):
         self._config = config
+        self.daemon = daemon
         self.eventManager = EventManager(daemon)
 
         for eventConfig in daemon._config.modesRepository.events + config.events:
@@ -694,10 +694,10 @@ class Mode(object):
         return {'mode' : self.name}
 
     def notifyEntered(self):
-        self.eventManager.fireEvent(configuration.ModeEvent.Type.ENTERED, description='Entered mode {mode}', context=self.makeEventContext())
+        self.eventManager.fireEvent(configuration.ModeEvent.Type.ENTERED, description='Entered mode {mode}', context=self)
 
     def notifyLeft(self):
-        self.eventManager.fireEvent(configuration.ModeEvent.Type.LEFT, description='Left mode {mode}', context=self.makeEventContext())
+        self.eventManager.fireEvent(configuration.ModeEvent.Type.LEFT, description='Left mode {mode}', context=self)
 
     def __repr__(self):
         return '{0} (value={1})'.format(self.name, self.value)

@@ -8,7 +8,7 @@
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com">Test mail</action>
+				<action type="send-email" to="notify@bar.com" subject="Entered mode Presence">New mode. <context type="mode.enabled-sensors"/></action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -24,7 +24,7 @@
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com">Test mail</action>
+				<action type="send-email" to="notify@bar.com" subject="Entered mode Away">New mode. <context type="mode.enabled-sensors"/></action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -36,7 +36,7 @@
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
 			<event type="entered">
-				<action type="send-email" to="notify@bar.com">Test mail</action>
+				<action type="send-email" to="notify@bar.com" subject="Entered mode Night">New mode. <context type="mode.enabled-sensors"/></action>
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
@@ -50,7 +50,7 @@
 				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action type="send-email" to="intrusion@foo.com">Test mail</action>
+				<action type="send-email" to="intrusion@foo.com" subject="Sensor joined">A sensor joined alert. <context type="alert.sensors-status"/></action>
 				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">

@@ -25,13 +25,14 @@ import glob
 import importlib
 from pyknx import logger
 import homewatcher.plugin
+import logging
 
 """
 Homewatcher subpackage that contains the dynamically loaded plugins.
 """
 
 _plugins = []
-logger.initLogger()
+logger.initLogger(stdoutLogLevel=logging.ERROR)
 
 def loadPlugins():
     global _plugins

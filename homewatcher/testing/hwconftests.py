@@ -59,7 +59,7 @@ class HWConfTestCase(homewatcher.testing.base.TestCaseBase):
 
         # Read from file, output to file.
         outputFile = self.getOutputFullName('outputConfig')
-        self.assertShellCommand([self.hwConfPyFile, '-i', inputHWConfig, '-o', outputFile, inputLinknxConfig])
+        self.assertShellCommand([self.hwConfPyFile, '-i', inputHWConfig, '-o', outputFile, '-v', 'error', inputLinknxConfig])
         self.assertFilesAreEqual(outputFile, expectedOutput)
 
         # Read from stdin, output to stdout.

@@ -29,7 +29,7 @@ class ContextHandler(object):
     __contextHandlerName__ = None
 
     def __init__(self, xmlConfig):
-        self._xmlConfig
+        self.xmlConfig = xmlConfig
 
     def analyzeContext(self, context):
         pass
@@ -43,8 +43,8 @@ class ContextHandlerFactory(object):
     @staticmethod
     def getInstance():
         if ContextHandlerFactory._INSTANCE == None:
-            _INSTANCE = ContextHandlerFactory()
-        return _INSTANCE
+            ContextHandlerFactory._INSTANCE = ContextHandlerFactory()
+        return ContextHandlerFactory._INSTANCE
 
     def registerHandler(self, handlerClass):
         self._handlerDefinitions[handlerClass.__contextHandlerName__] = handlerClass
