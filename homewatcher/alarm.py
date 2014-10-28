@@ -93,23 +93,46 @@ class SendEmailAction(Action):
     def __init__(self, daemon, config, defaultSubject, context={}):
         Action.__init__(self, daemon, config)
 
-    def execute(self, context):
-        linknxActionXml = xml.dom.minidom.Document()
-        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml.childNodes[0], True))
-
-        # Parse action's config to get blocks of text.
-        actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
-        for childNode in actionXmlNode.childNodes:
-            text = None
+    def parseParameterizableString(self, parameterizedStringXml, context):
+        text = ''
+        for childNode in parameterizedStringXml.childNodes:
             if childNode.nodeType == xml.dom.minidom.Element.ELEMENT_NODE:
                 tagName = childNode.tagName
                 if tagName == 'br':
-                    text = '\n'
+                    text += '\n'
                 elif tagName == 'context':
-                    text = contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode).analyzeContext(context)
+                    text += contexthandlers.ContextHandlerFactory.getInstance().makeHandler(childNode).analyzeContext(context)
+            elif childNode.nodeType == xml.dom.minidom.Element.TEXT_NODE:
+                text += childNode.data
+        return text
 
-            if text != None:
-                actionXmlNode.replaceChild(linknxActionXml.createTextNode(text), childNode)
+    def execute(self, context):
+        # Initialize the XML to send to linknx with the XML from homewatcher
+        # configuration. That will duplicate the static subject and body, if
+        # defined.
+        linknxActionXml = xml.dom.minidom.Document()
+        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml.childNodes[0], True))
+
+        # As a second step, interpret any parameterizable block.
+        actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
+        parameterizedBody = None
+        for childNode in actionXmlNode.childNodes:
+            if childNode.nodeType == xml.dom.minidom.Element.ELEMENT_NODE:
+                tagName = childNode.tagName
+                if tagName == 'subject':
+                    actionXmlNode.setAttribute('subject', self.parseParameterizableString(childNode, context))
+                elif tagName == 'body':
+                    parameterizedBody = self.parseParameterizableString(childNode, context)
+
+        # If parameterizable body is used, allow for adding carriage returns and
+        # tabulations inside the <action> element to enhance the text layout. To
+        # do so, we have to delete inner text nodes of the initial XML data.
+        if parameterizedBody != None:
+            for childNode in actionXmlNode.childNodes:
+                actionXmlNode.removeChild(childNode)
+
+            textNode = linknxActionXml.createTextNode(parameterizedBody)
+            actionXmlNode.appendChild(textNode)
 
         self.daemon.sendEmail(linknxActionXml)
 
@@ -325,6 +348,15 @@ class Alert(object):
     @property
     def sensorsInAlert(self):
         return self._sensorsInAlert
+
+    @property
+    def pausedSensors(self):
+        def isSensorPaused(sensor):
+            persistenceObject = sensor.persistenceObject
+            if persistenceObject == None or not persistenceObject.value:
+                return False
+            return not sensor in self.sensorsInAlert # Cannot be in prealert if persistence object is true.
+        return [s for s in self.sensors if isSensorPaused(s)]
 
     # def resetPersistence(self):
         # self.persistenceObject.value = False

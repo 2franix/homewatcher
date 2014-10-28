@@ -30,51 +30,6 @@ import itertools
 import re
 from functools import cmp_to_key
 
-class PropertyDocumentation(object):
-    def __init__(self, summary):
-        self.summary = summary
-
-class DocumentationCollector(object):
-    def __init__(self):
-        self.classOrder = []
-        self.classUsagesAsElements = {} # Keys are classes, values are a set of XML element names in XML.
-        self.classUsagesAsAttributes = {} # Keys are classes, values are a set of XML element names in XML.
-        self.classDocumentations = {}
-
-    def containsDocumentationForClass(self, classs):
-        return classs in self.classDocumentations
-
-    def collectUsagesOfConfigurationClass(self, classs):
-        if classs in self.classOrder: return
-        self.classOrder.append(classs)
-        self.classDocumentations[classs] = ''
-
-        if not 'PROPERTY_DEFINITIONS' in vars(classs): return
-        propertyCollection = vars(classs)['PROPERTY_DEFINITIONS']
-        for property in propertyCollection.properties:
-            if property.type == classs:
-                if (Property.XMLEntityTypes.CHILD_ELEMENT & property.xmlEntityType) != 0:
-                    self.classUsagesAsElements[classs].add(property.namesInXML[0])
-                if (Property.XMLEntityTypes.ATTRIBUTE & property.xmlEntityType) != 0:
-                    self.classUsagesAsAttributes[classs].add(property.namesInXML[0])
-                self.collectUsagesOfConfigurationClass(property.type)
-
-    def addDocumentationForClass(self, classs, docString, endsWithNewLine=True):
-        if docString == None: return
-
-        # Append documentation text.
-        self.classDocumentations[classs] += docString
-        if endsWithNewLine: self.classDocumentations[classs] += '  \n'
-
-    def writeFile(self, filename):
-        with open(filename, 'w') as f:
-            for classs in self.classOrder:
-                f.write('#<a name="{0}"/>{0}\n'.format(classs.__name__))
-                if classs.__doc__ != None:
-                    f.write(classs.__doc__ + '\n')
-                f.write(self.classDocumentations[classs])
-                f.write('\n')
-
 class Property(object):
     """
     Represents a property of an object which is part of the configuration.
@@ -102,7 +57,6 @@ class Property(object):
         self.isUnique = isUnique
         self.values = values # Collection of possible values. May be a callable (configuration object and property's owner object are passed as arguments). If None, no restriction on values.
         self.getter = getter # Optional method to call to retrieve property value. If set to None, the owner object's field named the same as this property is used.
-        self.documentation = PropertyDocumentation('Empty summary!') # Or is a PropertyDocumentation instance.
 
     def isOfPrimitiveType(self):
         return self.type in (str, int, float, bool)
@@ -236,7 +190,8 @@ class Property(object):
                         # Create a default instance.
                         try:
                             newPropertyValue = self.type()
-                            self.type.PROPERTY_DEFINITIONS.readObjectFromXML(newPropertyValue, source)
+                            if hasattr(self.type, 'PROPERTY_DEFINITIONS'):
+                                self.type.PROPERTY_DEFINITIONS.readObjectFromXML(newPropertyValue, source)
                         except:
                             # logger.reportException('Type {type} has neither static fromXML(xmlElement) nor __init__() method. At least one is required to parse it properly.'.format(type=self.type))
                             raise
@@ -408,7 +363,7 @@ class PropertyCollection(object):
 
     def toXml(self, config, propertyOwner, xmlDoc, xmlElement):
         for prop in self.properties:
-            logger.reportDebug('toXmli {0} on {1}'.format(prop, propertyOwner))
+            logger.reportDebug('toXml {0} on {1}'.format(prop, propertyOwner))
             if prop.isDefinedOn(propertyOwner):
                 prop.toXml(config, propertyOwner, xmlDoc, xmlElement)
             else:
@@ -441,6 +396,15 @@ class PropertyCollection(object):
                 # collector.addDocumentationForClass(classs, 'type: {0}'.format(typeContent))
                 # if property.values != None and not callable(property.values):
                     # collector.addDocumentationForClass(classs, 'Accepted Values: {0}'.format(list(property.values)))
+
+class ParameterizableString(object):
+    """
+    Represents a string in the XML configuration that can be parameterized with <context> children.
+
+    Refer to the 'context handler' concept to understand how parameterization can take place with those children.
+    This class is quite useless but is required to have an object that holds the automatically-created xmlSource property.
+    """
+    pass
 
 class PyknxService(object):
     """Represents the configuration for the communication with the hosting Pyknx daemon.
@@ -780,6 +744,18 @@ class Action(object):
 
 Action.PROPERTY_DEFINITIONS = PropertyCollection()
 Action.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
+
+# Subject properties: one for the static, Linknx-defined "subject" attribute,
+# one for a Homewatcher-specific, dynamic "subject" element.
+staticSubjectProp = Property('staticSubject', type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML=('subject',))
+parameterizableSubjectProp = Property('parameterizableSubject', type=ParameterizableString, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('subject'))
+Action.PROPERTY_DEFINITIONS.addPropertyGroup((staticSubjectProp, parameterizableSubjectProp), isGroupMandatory=lambda context: context.object.type == 'send-email')
+
+# Body properties: one for the static, Linknx-defined inner text of the <action>
+# element, one for a Homewatcher-specific, dynamic "body" element.
+staticBodyProp = Property('staticBody', type=str, xmlEntityType=Property.XMLEntityTypes.INNER_TEXT)
+parameterizableBodyProp = Property('parameterizableBody', type=ParameterizableString, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('body'))
+Action.PROPERTY_DEFINITIONS.addPropertyGroup((staticBodyProp, parameterizableBodyProp), isGroupMandatory=lambda context: context.object.type == 'send-email')
 # All actions are handled by linknx except send-email that has to be reworked by
 # Homewatcher to customize email text.
 # for propName in ('objectId', 'value'):

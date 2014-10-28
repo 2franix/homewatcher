@@ -11,11 +11,10 @@ class SensorsStatusContextHandler(homewatcher.contexthandlers.ContextHandler):
     def analyzeContext(self, context):
         message = ""
         if isinstance(context, homewatcher.alarm.Alert):
-            for header, sensorCollection in (('Sensors in prealert', context.sensorsInPrealert), ('Sensors in alert', context.sensorsInAlert), ('Sensors paused', context.sensorsPaused)):
+            for header, sensorCollection in (('Sensors in prealert', list(context.sensorsInPrealert)), ('Sensors in alert', list(context.sensorsInAlert)), ('Sensors paused', context.pausedSensors)):
                 if not sensorCollection: continue
                 sensorCollection.sort(key=lambda sensor: sensor.name)
-                message += '{header}:{sensors}'.format(header, '\n-'.join([str(s) for s in sensorCollection]))
-                message += '\n'
+                message += '{header}:\n-{sensors}'.format(header=header, sensors='\n-'.join([str(s) for s in sensorCollection]))
 
         return message
 
@@ -34,6 +33,14 @@ class EnabledSensorsContextHandler(homewatcher.contexthandlers.ContextHandler):
 
         return message
 
+class CurrentModeContextHandler(homewatcher.contexthandlers.ContextHandler):
+    __contextHandlerName__ = 'mode.current'
+    def __init__(self, xmlConfig):
+        homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
+
+    def analyzeContext(self, context):
+        return context.daemon.currentMode.name
+
 class CorePlugin(homewatcher.plugin.Plugin):
     """
     Core plugin that is part of the standard homewatcher package.
@@ -44,3 +51,4 @@ class CorePlugin(homewatcher.plugin.Plugin):
         contextHandlerFactory = homewatcher.contexthandlers.ContextHandlerFactory.getInstance()
         contextHandlerFactory.registerHandler(SensorsStatusContextHandler)
         contextHandlerFactory.registerHandler(EnabledSensorsContextHandler)
+        contextHandlerFactory.registerHandler(CurrentModeContextHandler)
