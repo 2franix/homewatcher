@@ -81,18 +81,6 @@ class Action(object):
     def type(self):
         return self._config.type
 
-    def execute(self, context):
-        """ Implements the concrete job of the action. """
-        raise Exception('Action\'s job is not implemented.')
-
-    def __repr__(self):
-        return self.description
-
-class SendEmailAction(Action):
-    """ Action that notifies of the alert by email. """
-    def __init__(self, daemon, config, defaultSubject, context={}):
-        Action.__init__(self, daemon, config)
-
     def parseParameterizableString(self, parameterizedStringXml, context):
         text = ''
         for childNode in parameterizedStringXml.childNodes:
@@ -105,6 +93,18 @@ class SendEmailAction(Action):
             elif childNode.nodeType == xml.dom.minidom.Element.TEXT_NODE:
                 text += childNode.data
         return text
+
+    def execute(self, context):
+        """ Implements the concrete job of the action. """
+        raise Exception('Action\'s job is not implemented.')
+
+    def __repr__(self):
+        return self.description
+
+class SendEmailAction(Action):
+    """ Action that notifies of the alert by email. """
+    def __init__(self, daemon, config):
+        Action.__init__(self, daemon, config)
 
     def execute(self, context):
         # Initialize the XML to send to linknx with the XML from homewatcher
@@ -135,6 +135,28 @@ class SendEmailAction(Action):
             actionXmlNode.appendChild(textNode)
 
         self.daemon.sendEmail(linknxActionXml)
+
+class SendSMSAction(Action):
+    """ Action that notifies of the alert by SMS. """
+    def __init__(self, daemon, config):
+        Action.__init__(self, daemon, config)
+
+    def execute(self, context):
+        # Initialize the XML to send to linknx with the XML from homewatcher
+        # configuration. That will duplicate the static subject and body, if
+        # defined.
+        linknxActionXml = xml.dom.minidom.Document()
+        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml.childNodes[0], True))
+
+        # As a second step, interpret any parameterizable block.
+        actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
+        for childNode in actionXmlNode.childNodes:
+            if childNode.nodeType == xml.dom.minidom.Element.ELEMENT_NODE:
+                if childNode.tagName == 'value':
+                    actionXmlNode.setAttribute('value', self.parseParameterizableString(childNode, context))
+                    actionXmlNode.removeChild(childNode)
+
+        self.daemon.linknx.executeAction(linknxActionXml)
 
 class LinknxAction(Action):
     """ Action that sets the value of an object. """
@@ -688,7 +710,9 @@ class EventManager(object):
             logger.reportDebug('Executing actions {0}'.format(event.actions))
             for actionConfig in event.actions:
                 if actionConfig.type == 'send-email':
-                    action = SendEmailAction(self.daemon, actionConfig, defaultSubject=description, context=context)
+                    action = SendEmailAction(self.daemon, actionConfig)
+                elif actionConfig.type == 'send-sms':
+                    action = SendSMSAction(self.daemon, actionConfig)
                 else:
                     # Delegate execution to linknx.
                     action = LinknxAction(self.daemon, actionConfig)

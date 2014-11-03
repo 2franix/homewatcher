@@ -756,6 +756,10 @@ Action.PROPERTY_DEFINITIONS.addPropertyGroup((staticSubjectProp, parameterizable
 staticBodyProp = Property('staticBody', type=str, xmlEntityType=Property.XMLEntityTypes.INNER_TEXT)
 parameterizableBodyProp = Property('parameterizableBody', type=ParameterizableString, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('body'))
 Action.PROPERTY_DEFINITIONS.addPropertyGroup((staticBodyProp, parameterizableBodyProp), isGroupMandatory=lambda context: context.object.type == 'send-email')
+
+staticValueProp = Property('staticValue', type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML=('value',))
+parameterizableValueProp = Property('parameterizableValue', type=ParameterizableString, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('value'))
+Action.PROPERTY_DEFINITIONS.addPropertyGroup((staticValueProp, parameterizableValueProp), isGroupMandatory=lambda context: context.object.type == 'send-sms')
 # All actions are handled by linknx except send-email that has to be reworked by
 # Homewatcher to customize email text.
 # for propName in ('objectId', 'value'):

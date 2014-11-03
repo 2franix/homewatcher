@@ -12,6 +12,9 @@
 					<subject>Entered mode <context type="mode.current"/></subject>
 					<body>New mode. <context type="mode.enabled-sensors"/></body>
 				</action>
+				<!--<action type="send-sms">
+					<value>Current mode is now <context type="mode.current"/></value>
+				</action>-->
 				<action type="copy-value" from="Mode" to="AppliedMode"/>
 			</event>
 			<event type="left">
