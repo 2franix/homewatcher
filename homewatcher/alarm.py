@@ -134,6 +134,13 @@ class SendEmailAction(Action):
             textNode = linknxActionXml.createTextNode(parameterizedBody)
             actionXmlNode.appendChild(textNode)
 
+        # Append footer.
+        footer = """
+
+--------------------------------------------------------
+This email was sent by Homewatcher v{0} on {1}""".format(homewatcher.__version__, datetime.datetime.now()))
+        footerNode = linknxActionXml.createTextNode(footer)
+
         self.daemon.sendEmail(linknxActionXml)
 
 class SendSMSAction(Action):
