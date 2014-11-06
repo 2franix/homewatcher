@@ -51,5 +51,7 @@ class ContextHandlerFactory(object):
 
     def makeHandler(self, handlerXMLConfig):
         handlerName = handlerXMLConfig.getAttribute('type')
+        if not handlerName in self._handlerDefinitions:
+           raise Exception('No context handler named {0} is registered.'.format(handlerName)) 
         handler = self._handlerDefinitions[handlerName](handlerXMLConfig)
         return handler

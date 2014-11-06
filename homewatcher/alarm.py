@@ -34,6 +34,7 @@ import smtplib
 import ftplib
 import datetime
 import shutil
+import homewatcher
 from homewatcher import sensor, configuration, contexthandlers
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -138,7 +139,7 @@ class SendEmailAction(Action):
         footer = """
 
 --------------------------------------------------------
-This email was sent by Homewatcher v{0} on {1}""".format(homewatcher.__version__, datetime.datetime.now()))
+This email was sent by Homewatcher v{0} on {1}""".format(homewatcher.__version__, datetime.datetime.now())
         footerNode = linknxActionXml.createTextNode(footer)
 
         self.daemon.sendEmail(linknxActionXml)

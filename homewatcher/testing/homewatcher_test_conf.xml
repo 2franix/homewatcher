@@ -5,18 +5,17 @@
 		<daemon host="localhost" port="1031"/>
 	</services>
 	<modes objectId="Mode">
+		<event type="entered">
+			<action type="send-email" to="notify@bar.com">
+				<subject>Entered mode <context type="mode.current"/></subject>
+				<body>New mode. <context type="mode.enabled-sensors"/></body>
+			</action>
+			<action type="copy-value" from="Mode" to="AppliedMode"/>
+		</event>
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action type="send-email" to="notify@bar.com">
-					<subject>Entered mode <context type="mode.current"/></subject>
-					<body>New mode. <context type="mode.enabled-sensors"/></body>
-				</action>
-				<!--<action type="send-sms">
-					<value>Current mode is now <context type="mode.current"/></value>
-				</action>-->
-				<action type="copy-value" from="Mode" to="AppliedMode"/>
-			</event>
+			<!-- This event could be moved to the global events section but leave it here,
+				 copied in every mode so that we have a mix of local and global events. -->
 			<event type="left">
 				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
 			</event>
@@ -29,10 +28,6 @@
 			<sensor>KitchenSmokeSensor</sensor>
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action type="send-email" to="notify@bar.com" subject="Entered mode Away"><body>New mode. <context type="mode.enabled-sensors"/></body></action>
-				<action type="copy-value" from="Mode" to="AppliedMode"/>
-			</event>
 			<event type="left">
 				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
 			</event>
@@ -41,10 +36,6 @@
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action type="send-email" to="notify@bar.com" subject="Entered mode Night"><body>New mode. <context type="mode.enabled-sensors"/></body></action>
-				<action type="copy-value" from="Mode" to="AppliedMode"/>
-			</event>
 			<event type="left">
 				<action type="copy-value" from="AppliedMode" to="PreviousMode"/>
 			</event>
@@ -56,7 +47,9 @@
 				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action type="send-email" to="intrusion@foo.com" subject="Sensor joined"><body>A sensor joined alert. <context type="alert.sensors-status"/></body></action>
+				<action type="send-email" to="intrusion@foo.com">
+					<subject>Alert <context type="alert.name"/>: sensor joined</subject>
+					<body>A sensor joined alert. <context type="alert.sensors-status"/></body></action>
 				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">
@@ -85,7 +78,10 @@
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence" >
 			<event type="sensor joined">
-				<action type="send-email" to="fire@foo.com" subject="Sensor joined">Test mail</action>
+				<action type="send-email" to="fire@foo.com">
+					<subject>Alert <context type="alert.name"/>: sensor joined</subject>
+					<body>Test mail</body>
+				</action>
 			</event>
 			<event type="activated">
 				<action type="set-value" id="FireSiren" value="on"/>

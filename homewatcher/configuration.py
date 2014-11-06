@@ -813,6 +813,7 @@ class ModesRepository:
     # testing that is beyond the scope of the initial version.
     # PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML="event", isCollection=True)
     PROPERTY_DEFINITIONS.addProperty('modes', isMandatory=False, type=Mode, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML="mode", isCollection=True)
+    PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='event', isCollection=True)
 
     def __init__(self):
         self.events = []

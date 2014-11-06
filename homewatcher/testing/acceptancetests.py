@@ -634,7 +634,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         triggerTime = time.time()
         intrusionSensor.watchedObject.value = True
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
-        self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Sensor joined', [], body='A sensor joined alert. Sensors in alert:\n-{0}'.format(intrusionSensor))
+        self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [], body='A sensor joined alert. Sensors in alert:\n-{0}'.format(intrusionSensor))
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + intrusionSensor.getAlertDuration(), 'Waiting for alert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.1)
         self.waitDuring(2, 'Checking siren is now off again.', [lambda: self.assertFalse(sirenObject.value)], 0.2, 0)
 

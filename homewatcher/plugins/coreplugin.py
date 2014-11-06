@@ -41,6 +41,17 @@ class CurrentModeContextHandler(homewatcher.contexthandlers.ContextHandler):
     def analyzeContext(self, context):
         return context.daemon.currentMode.name
 
+class AlertNameContextHandler(homewatcher.contexthandlers.ContextHandler):
+    __contextHandlerName__ = 'alert.name'
+    def __init__(self, xmlConfig):
+        homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
+
+    def analyzeContext(self, context):
+        if isinstance(context, homewatcher.alarm.Alert):
+            return context.name
+        else:
+            raise Exception('This context handler cannot be used in the context of "{0}"'.format(context))
+
 class CorePlugin(homewatcher.plugin.Plugin):
     """
     Core plugin that is part of the standard homewatcher package.
@@ -52,3 +63,4 @@ class CorePlugin(homewatcher.plugin.Plugin):
         contextHandlerFactory.registerHandler(SensorsStatusContextHandler)
         contextHandlerFactory.registerHandler(EnabledSensorsContextHandler)
         contextHandlerFactory.registerHandler(CurrentModeContextHandler)
+        contextHandlerFactory.registerHandler(AlertNameContextHandler)

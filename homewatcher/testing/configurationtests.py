@@ -448,6 +448,29 @@ class ConfigurationTestCase(base.TestCaseBase):
         atHomeMode = config.getModeByName('At home')
         self.assertEqual(atHomeMode.sensorNames, [])
 
+    def testModeEvents(self):
+        """ Exercises the definition of local and global mode events. """
+        config = configuration.Configuration.parseString("""<config><modes>
+                <event type="left">
+                    <action type="copy-value" from="ObjectId" to="OtherObjectId"/>
+                </event>
+                <mode name="Away" value="1">
+                    <event type="entered">
+                        <action type="set-value" id="ObjectId" value="on"/>
+                    </event>
+                </mode>
+                </modes></config>""")
+        awayMode = config.modesRepository.modes[0]
+        self.assertEqual(1, len(awayMode.events))
+        self.assertEqual("entered", awayMode.events[0].type)
+        self.assertEqual(1, len(awayMode.events[0].actions))
+        self.assertEqual("set-value", awayMode.events[0].actions[0].type)
+
+        self.assertEqual(1, len(config.modesRepository.events))
+        self.assertEqual("left", config.modesRepository.events[0].type)
+        self.assertEqual(1, len(config.modesRepository.events[0].actions))
+        self.assertEqual("copy-value", config.modesRepository.events[0].actions[0].type)
+
     def testSensorAttributesResolution(self):
         """ Exercises the parameterized attributes of a sensor. """
         # Define two sensors with an equivalent config but with attributes
