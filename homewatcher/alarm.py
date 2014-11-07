@@ -330,7 +330,7 @@ class Alert(object):
         self.inhibitionObject = daemon.linknx.getObject(config.inhibitionObjectId) if config.inhibitionObjectId != None else None
         self.eventManager = EventManager(daemon)
         self.isStatusDirty = False
-        for eventConfig in self._config.events:
+        for eventConfig in self.daemon.configuration.alerts.events + self._config.events:
             self.eventManager.addEvent(eventConfig)
 
     @property

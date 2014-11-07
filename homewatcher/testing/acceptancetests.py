@@ -387,7 +387,7 @@ class AcceptanceTestCase(base.TestCaseBase):
             # Wait for first sensor to quit alert. At this point, entranceSensor
             # should already have been in alert for 1 second.
             self.assertTrue(entranceSensor.getAlertDuration() < livingRoomWindowSensor.getAlertDuration(), 'This test assumes that door\'s alert is shorter than kitchen\'s one.')
-            self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
+            self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
             self.waitDuring(entranceSensor.getAlertDuration() - 0.5, 'Wait for first sensor to quit alert.', [checkAlertStatus], 0, 1)
             sensorsInAlert.remove(entranceSensor)
             self.assertFalse(entranceSensor.isAlertActive)
@@ -413,7 +413,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 self.waitDuring(0.2, 'Closing entrance door.')
                 entranceSensor.watchedObject.value = True
                 self.waitDuring(0.5, 'Waiting for alert to be reraised...')
-                self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
+                self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
                 checkAlertStatus()
 
                 # Stop current alert without inhibiting for now.
@@ -431,7 +431,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 entranceSensor.watchedObject.value = False
                 sensorsInPrealert.append(entranceSensor)
                 self.waitDuring(5.9, 'Waiting for alert to be reraised...', [checkAlertStatus], 0.5, 0.2)
-                self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
+                self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
                 sensorsInPrealert.remove(entranceSensor)
                 sensorsInAlert.append(entranceSensor)
                 sensorsInPersistentAlert.append(entranceSensor)
@@ -466,7 +466,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 sensorsInPrealert.remove(kitchenWindowSensor)
                 sensorsInAlert.append(kitchenWindowSensor)
                 sensorsInPersistentAlert.append(kitchenWindowSensor)
-                self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [])
+                self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
                 self.waitUntil(triggerTime + kitchenWindowSensor.getPrealertDuration() + kitchenWindowSensor.getAlertDuration(), 'Checking door alert...', [checkAlertStatus], 0.2, 0.2)
                 sensorsInAlert.remove(kitchenWindowSensor)
                 self.waitUntil(2, 'Alert should now be paused...', [checkAlertStatus], 0.2, 0)
@@ -634,7 +634,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         triggerTime = time.time()
         intrusionSensor.watchedObject.value = True
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
-        self.assertEmail('Sensor joined', ['intrusion@foo.com'], 'Alert Intrusion: sensor joined', [], body='A sensor joined alert. Sensors in alert:\n-{0}'.format(intrusionSensor))
+        self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [], body='A sensor joined alert. Sensors in alert:\n-{0}'.format(intrusionSensor))
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + intrusionSensor.getAlertDuration(), 'Waiting for alert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.1)
         self.waitDuring(2, 'Checking siren is now off again.', [lambda: self.assertFalse(sirenObject.value)], 0.2, 0)
 

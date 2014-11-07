@@ -448,7 +448,30 @@ class ConfigurationTestCase(base.TestCaseBase):
         atHomeMode = config.getModeByName('At home')
         self.assertEqual(atHomeMode.sensorNames, [])
 
-    def testModeEvents(self):
+    def testGlobalAndLocalAlertEvents(self):
+        """ Exercises the definition of local and global alert events. """
+        config = configuration.Configuration.parseString("""<config><alerts>
+                <event type="sensor left">
+                    <action type="copy-value" from="ObjectId" to="OtherObjectId"/>
+                </event>
+                <alert name="Intrusion">
+                    <event type="sensor joined">
+                        <action type="set-value" id="ObjectId" value="on"/>
+                    </event>
+                </alert>
+                </alerts></config>""")
+        intrusionAlert = config.alerts[0]
+        self.assertEqual(1, len(intrusionAlert.events))
+        self.assertEqual("sensor joined", intrusionAlert.events[0].type)
+        self.assertEqual(1, len(intrusionAlert.events[0].actions))
+        self.assertEqual("set-value", intrusionAlert.events[0].actions[0].type)
+
+        self.assertEqual(1, len(config.alerts.events))
+        self.assertEqual("sensor left", config.alerts.events[0].type)
+        self.assertEqual(1, len(config.alerts.events[0].actions))
+        self.assertEqual("copy-value", config.alerts.events[0].actions[0].type)
+
+    def testGlobalAndLocalModeEvents(self):
         """ Exercises the definition of local and global mode events. """
         config = configuration.Configuration.parseString("""<config><modes>
                 <event type="left">

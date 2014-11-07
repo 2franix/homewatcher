@@ -3,10 +3,6 @@
 	<modes objectId="Mode">
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action to="notify@bar.com" type="send-email">Test mail</action>
-				<action from="Mode" to="AppliedMode" type="copy-value"/>
-			</event>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
@@ -19,10 +15,6 @@
 			<sensor>KitchenSmokeSensor</sensor>
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action to="notify@bar.com" type="send-email">Test mail</action>
-				<action from="Mode" to="AppliedMode" type="copy-value"/>
-			</event>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
@@ -31,23 +23,37 @@
 			<sensor>EntranceDoorOpening</sensor>
 			<sensor>LivingRoomWindowOpening</sensor>
 			<sensor>OutdoorTemperature</sensor>
-			<event type="entered">
-				<action to="notify@bar.com" type="send-email">Test mail</action>
-				<action from="Mode" to="AppliedMode" type="copy-value"/>
-			</event>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
 		</mode>
+		<event type="entered">
+			<action to="notify@bar.com" type="send-email">
+				
+				
+				<subject>
+					Entered mode 
+					<context type="mode.current"/>
+				</subject>
+				
+				
+				<body>
+					New mode. 
+					<context type="mode.enabled-sensors"/>
+				</body>
+				
+			
+			</action>
+			<action from="Mode" to="AppliedMode" type="copy-value"/>
+		</event>
 	</modes>
 	<alerts>
 		<alert inhibitionObjectId="IntrusionInhibition" name="Intrusion" persistenceObjectId="IntrusionPersistence">
+			<event type="sensor joined">
+				<action id="IntrusionSensorJoined" type="set-value" value="on"/>
+			</event>
 			<event type="prealert started">
 				<action id="IntrusionAlertStarted" type="set-value" value="on"/>
-			</event>
-			<event type="sensor joined">
-				<action to="intrusion@foo.com" type="send-email">Test mail</action>
-				<action id="IntrusionSensorJoined" type="set-value" value="on"/>
 			</event>
 			<event type="sensor left">
 				<action id="IntrusionSensorLeft" type="set-value" value="on"/>
@@ -81,7 +87,7 @@
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence">
 			<event type="sensor joined">
-				<action to="fire@foo.com" type="send-email">Test mail</action>
+				<action id="FireSensorJoined" type="set-value" value="on"/>
 			</event>
 			<event type="activated">
 				<action id="FireSiren" type="set-value" value="on"/>
@@ -95,7 +101,6 @@
 				<action id="TemperatureAlertStarted" type="set-value" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action to="fire@foo.com" type="send-email">Test mail</action>
 				<action id="TemperatureSensorJoined" type="set-value" value="on"/>
 			</event>
 			<event type="sensor left">
@@ -126,6 +131,25 @@
 				<action id="TemperatureAlertStopped" type="set-value" value="on"/>
 			</event>
 		</alert>
+		<event type="sensor joined">
+			<action to="alert@foo.com" type="send-email">
+				
+				
+				<subject>
+					Alert 
+					<context type="alert.name"/>
+					: sensor joined
+				</subject>
+				
+				
+				<body>
+					A sensor joined alert. 
+					<context type="alert.sensors-status"/>
+				</body>
+				
+			
+			</action>
+		</event>
 	</alerts>
 	<sensors>
 		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabled{location}" isClass="True" name="OpeningSensor" prealertDuration="2.0" type="boolean" watchedObjectId="OpeningTrigger{location}"/>

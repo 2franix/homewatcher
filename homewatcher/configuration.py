@@ -828,6 +828,9 @@ class ModesRepository:
     def __len__(self):
         return len(self.modes)
 
+    def __getitem__(self, index):
+        return self.modes[index]
+
     def __repr__(self):
         return 'ModesRepository({0})'.format(self.modes)
 
@@ -865,6 +868,30 @@ class Alert(object):
     def __repr__(self):
         return 'Alert {name}'.format(**vars(self))
 
+class AlertsRepository(object):
+    PROPERTY_DEFINITIONS = PropertyCollection()
+    PROPERTY_DEFINITIONS.addProperty('alerts', isMandatory=True, type=Alert, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='alert', isCollection=True)
+    PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=AlertEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='event', isCollection=True)
+
+    def __init__(self):
+        self.alerts = []
+        self.events = []
+
+    def __iter__(self):
+        if AlertsRepository.PROPERTY_DEFINITIONS.getProperty('alerts').isDefinedOn(self):
+            return self.alerts.__iter__()
+        else:
+            return [].__iter__()
+
+    def __len__(self):
+        return len(self.alerts)
+
+    def __getitem__(self, index):
+        return self.alerts[index]
+
+    def __repr__(self):
+        return 'AlertsRepository({0})'.format(self.alerts)
+
 class Configuration(object):
     class IntegrityException(Exception):
         def __init__(self, message, cause = None, problematicObject=None, xmlContext=None):
@@ -896,7 +923,7 @@ class Configuration(object):
 
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('modesRepository', isMandatory=True, type=ModesRepository, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='modes')
-    PROPERTY_DEFINITIONS.addProperty('alerts', isMandatory=True, type=Alert, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='alert', groupNameInXML='alerts', isCollection=True)
+    PROPERTY_DEFINITIONS.addProperty('alerts', isMandatory=True, type=AlertsRepository, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT)
     PROPERTY_DEFINITIONS.addProperty('sensorsAndClasses', isMandatory=True, type=Sensor, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML=('sensor',), groupNameInXML='sensors', isCollection=True, getter=lambda config, configAgain: config.sensorsAndClassesWithoutBuiltIns)
     PROPERTY_DEFINITIONS.addProperty('servicesRepository', isMandatory=False, type=ServicesRepository, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='services')
 

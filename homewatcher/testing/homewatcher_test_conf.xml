@@ -42,15 +42,18 @@
 		</mode>
 	</modes>
 	<alerts>
+		<event type="sensor joined">
+			<action type="send-email" to="alert@foo.com">
+				<subject>Alert <context type="alert.name"/>: sensor joined</subject>
+				<body>A sensor joined alert. <context type="alert.sensors-status"/></body>
+			</action>
+		</event>
 		<alert name="Intrusion" persistenceObjectId="IntrusionPersistence" inhibitionObjectId="IntrusionInhibition">
+			<event type="sensor joined">
+				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
+			</event>
 			<event type="prealert started">
 				<action type="set-value" id="IntrusionAlertStarted" value="on"/>
-			</event>
-			<event type="sensor joined">
-				<action type="send-email" to="intrusion@foo.com">
-					<subject>Alert <context type="alert.name"/>: sensor joined</subject>
-					<body>A sensor joined alert. <context type="alert.sensors-status"/></body></action>
-				<action type="set-value" id="IntrusionSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">
 				<action type="set-value" id="IntrusionSensorLeft" value="on"/>
@@ -78,10 +81,7 @@
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence" >
 			<event type="sensor joined">
-				<action type="send-email" to="fire@foo.com">
-					<subject>Alert <context type="alert.name"/>: sensor joined</subject>
-					<body>Test mail</body>
-				</action>
+				<action type="set-value" id="FireSensorJoined" value="on"/>
 			</event>
 			<event type="activated">
 				<action type="set-value" id="FireSiren" value="on"/>
@@ -95,7 +95,6 @@
 				<action type="set-value" id="TemperatureAlertStarted" value="on"/>
 			</event>
 			<event type="sensor joined">
-				<action type="send-email" to="fire@foo.com" subject="Sensor joined">Test mail</action>
 				<action type="set-value" id="TemperatureSensorJoined" value="on"/>
 			</event>
 			<event type="sensor left">
