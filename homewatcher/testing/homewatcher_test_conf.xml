@@ -45,7 +45,7 @@
 		<event type="sensor joined">
 			<action type="send-email" to="alert@foo.com">
 				<subject>Alert <context type="alert.name"/>: sensor joined</subject>
-				<body>A sensor joined alert. <context type="alert.sensors-status"/></body>
+				<body>A sensor joined alert. Sensors in alert:<br/><context type="alert.sensors-status" inPrealert="false" inPause="false" format="bulleted"/></body>
 			</action>
 		</event>
 		<alert name="Intrusion" persistenceObjectId="IntrusionPersistence" inhibitionObjectId="IntrusionInhibition">

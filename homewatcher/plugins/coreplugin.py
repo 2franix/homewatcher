@@ -3,35 +3,60 @@ import homewatcher.alarm
 import homewatcher.contexthandlers
 from pyknx import logger
 
-class SensorsStatusContextHandler(homewatcher.contexthandlers.ContextHandler):
+class SensorListContextHandler(homewatcher.contexthandlers.ContextHandler):
+    def __init__(self, xmlConfig):
+        homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
+        self.format = 'inline'
+        if xmlConfig.hasAttribute('format'):
+            formatAttribute = xmlConfig.getAttribute('format')
+            if not formatAttribute in ('inline', 'bulleted'):
+                raise Exception('Unsupported format "{0}" for {1}'.format(formatAttribute, self.__class__.__contextHandlerName__))
+            self.format = formatAttribute
+
+    def formatSensorList(self, sensors):
+        message = ''
+        for sensor in sensors:
+            if self.format == 'inline':
+                if message:
+                    message += ','
+                message += str(sensor)
+            elif self.format == 'bulleted':
+                if message:
+                    message += '\n'
+                message += '-{0}'.format(sensor)
+        return message
+
+class SensorsStatusContextHandler(SensorListContextHandler):
     __contextHandlerName__ = 'alert.sensors-status'
     def __init__(self, xmlConfig):
-        homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
+        SensorListContextHandler.__init__(self, xmlConfig)
+        self.targetedTypes = []
+        for attrName in ['inPrealert', 'inAlert', 'inPause']:
+            if not xmlConfig.hasAttribute(attrName) or xmlConfig.getAttribute(attrName) == 'true':
+                self.targetedTypes.append(attrName)
 
     def analyzeContext(self, context):
-        message = ""
         if isinstance(context, homewatcher.alarm.Alert):
-            for header, sensorCollection in (('Sensors in prealert', list(context.sensorsInPrealert)), ('Sensors in alert', list(context.sensorsInAlert)), ('Sensors paused', context.pausedSensors)):
-                if not sensorCollection: continue
-                sensorCollection.sort(key=lambda sensor: sensor.name)
-                message += '{header}:\n-{sensors}'.format(header=header, sensors='\n-'.join([str(s) for s in sensorCollection]))
+            sensors = []
+            if 'inPrealert' in self.targetedTypes:
+                sensors.extend(context.sensorsInPrealert)
+            if 'inAlert' in self.targetedTypes:
+                sensors.extend(context.sensorsInAlert)
+            if 'paused' in self.targetedTypes:
+                sensors.extend(context.pausedSensors)
 
-        return message
+            return self.formatSensorList(sensors)
+        else:
+            return ''
 
-class EnabledSensorsContextHandler(homewatcher.contexthandlers.ContextHandler):
+class EnabledSensorsContextHandler(SensorListContextHandler):
     __contextHandlerName__ = 'mode.enabled-sensors'
     def __init__(self, xmlConfig):
-        homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
+        SensorListContextHandler.__init__(self, xmlConfig)
 
     def analyzeContext(self, context):
-        message = ""
-
         enabledSensors = [s for s in context.daemon.sensors if s.isEnabled]
-        if enabledSensors:
-            enabledSensors.sort(key=lambda sensor: sensor.name)
-            message += '-{0}'.format('\n-'.join([str(s) for s in enabledSensors]))
-
-        return message
+        return self.formatSensorList(enabledSensors)
 
 class CurrentModeContextHandler(homewatcher.contexthandlers.ContextHandler):
     __contextHandlerName__ = 'mode.current'
