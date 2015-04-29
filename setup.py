@@ -58,6 +58,6 @@ setup(name='homewatcher',
       license='GNU Public General License',
       url='https://github.com/2franix/homewatcher/',
       requires=['pyknx (>=2.0)'],
-      packages=['homewatcher'],
+      packages=['homewatcher', 'homewatcher.plugins'],
       data_files=[('.', ['README.md'])],
       scripts=['hwconf.py', 'hwdaemon.py', 'hwresolve.py', 'hwversion.py'])
