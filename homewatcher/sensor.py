@@ -126,13 +126,16 @@ class Sensor(object):
         self._daemon = daemon
         self._config = config
         self.linknx = daemon.linknx
-        self._isTriggered = False # Sensor behaviour is implemented in getUpdatedTriggerState.
+        self._isTriggered = None # Is initialized at the end of __init__, once all data members are set.
         self._activationTimer = None
         self._enabledObject = self.linknx.getObject(config.enabledObjectId)
         self._watchedObject = self.linknx.getObject(config.watchedObjectId)
         self._persistenceObject = self.linknx.getObject(config.persistenceObjectId)
         self.alert = self._daemon.getAlertByName(config.alertName)
         self.activationCriterion = ActivationCriterion.makeNew(self, config.activationCriterion)
+
+        # Compute the initial trigger state.
+        self._isTriggered = self.getUpdatedTriggerState()
 
     def isRequiredByCurrentMode(self):
         if self._daemon._isTerminated: return False

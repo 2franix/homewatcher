@@ -41,52 +41,8 @@ import shutil
 
 class AcceptanceTestCase(base.TestCaseBase):
     def setUp(self):
-        # Initialize alert state.
-        self.sensorsInPersistentAlertOnLastCheck = []
-
         base.TestCaseBase.setUp(self, usesCommunicator=True)
 
-    # @property
-    # def alarmModeObject(self):
-        # return self.linknx.getObject('Protection_Alarme_ModeDemande')
-
-    # def testClassesActivationInModes(self):
-        # """ Exercises the inclusion of classes in Mode objects.
-# 
-            # When doing so, all sensors that inherit those classes should be active. """
-        # daemon = self.alarmDaemon
-# 
-        # # Prepare useful sensors.
-        # bedroomSmoke = daemon.getSensorByName('BedroomSmokeSensor')
-        # kitchenSmoke = daemon.getSensorByName('KitchenSmokeSensor')
-# 
-        # # Initialize state to a known one.
-        # self.emailInfo = None
-        # self.alarmModeObject.value = 3 # Night.
-        # self.waitDuring(0.5, 'Initialization.')
-# 
-        # # Check smoke sensors are inactive.
-        # self.assertFalse(bedroomSmoke.isEnabled)
-        # self.assertFalse(kitchenSmoke.isEnabled)
-# 
-        # # Go to Presence mode.
-        # self.emailInfo = None
-        # self.alarmModeObject.value = 1 # Presence.
-        # self.waitDuring(0.5, 'Switching to Presence.')
-# 
-        # # Check smoke sensors are now active.
-        # self.assertTrue(bedroomSmoke.isEnabled)
-        # self.assertTrue(kitchenSmoke.isEnabled)
-# 
-        # # Go to Night mode again.
-        # self.emailInfo = None
-        # self.alarmModeObject.value = 3 # Night.
-        # self.waitDuring(0.5, 'Switching back to Night.')
-# 
-        # # Check smoke sensors are inactive again.
-        # self.assertFalse(bedroomSmoke.isEnabled)
-        # self.assertFalse(kitchenSmoke.isEnabled)
-# 
     def changeAlarmMode(self, newMode, emailAddressesForNotification):
         previousMode = self.linknx.getObject('Mode').value
 
@@ -645,6 +601,30 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Change mode again.
         self.changeAlarmMode('Presence', 'notify@bar.com')
         self.assertEqual(appliedModeObject.value, modeObject.value)
+
+    def testIssue22NonRegression(self):
+        daemon = self.alarmDaemon
+
+        # Prepare useful sensors.
+        problematicSensor = daemon.getSensorByName('SensorForIssue22')
+
+        # Initialize state to a known one.
+        self.alarmModeObject.value = 1 # Presence.
+
+        self.waitDuring(1, 'Initialization.')
+
+        # Check sensor is known as triggered (this is its true state according
+        # to linknx).
+        self.assertTrue(problematicSensor.isTriggered)
+
+        # Switch to Away mode.
+        self.emailInfo = None # In case mode initialization has raised an email.
+        self.changeAlarmMode('Away', 'notify@bar.com')
+
+        # The sensor must no be enabled.
+        def assertNotEnabled():
+            self.assertFalse(problematicSensor.isEnabled, '{0} should not be enabled since it is open.'.format(problematicSensor))
+        self.waitDuring(4, 'Wait for a while to make sure problematic sensor does not get enabled.', assertions=[assertNotEnabled])
 
 if __name__ == '__main__':
     unittest.main()
