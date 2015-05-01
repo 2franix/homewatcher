@@ -181,29 +181,3 @@ class TestCaseBase(base.WithLinknxTestCase):
             if s.persistenceObject != None:
                 self.assertEqual(s.persistenceObject.value, s in sensorsInPersistentAlert, '{0} persistent alert should be {1}'.format(s, s in sensorsInPersistentAlert))
             self.assertEqual(s.isInPrealert, s in sensorsInPrealert, '{0}\'s prealert should be {1}'.format(s, s in sensorsInPrealert))
-
-        # # Determine whether notifications should have been sent.
-        # newSensorsInAlert = [s for s in sensorsInAlert if not s in self.sensorsInPersistentAlertOnLastCheck[alertType]]
-        # sendsSMS = alertType != Daemon.TEMPERATURE and sensorsInAlert and not self.sensorsInPersistentAlertOnLastCheck[alertType]
-        # alertSubject = 'Alerte {0}'.format(alertType)
-        # if newSensorsInAlert:
-            # purpose = 'alert "{1}" due to {0}'.format(newSensorsInAlert, alertType)
-            # self.assertEmail(purpose, ['knx.protection.alerte@youplaboum.fr'], alertSubject, [])
-        # else:
-            # if not self.emailInfo is None:
-                # # An email is possible if it is not for our alert type.
-                # self.assertIsNot(self.emailInfo['subject'], alertSubject, 'No alert email is expected for "{0}".'.format(alertType))
-# 
-        # smsMessage = 'Alerte {0} !'.format(alertType)
-        # if sendsSMS:
-            # self.assertSMS('0652259392', smsMessage)
-            # self.assertSMS('0660074615', smsMessage)
-        # else:
-            # if self.smsInfos:
-                # # Only sms that are not for our alert type are expected.
-                # for sms in self.smsInfos:
-                    # self.assertIsNot(sms['message'], smsMessage, 'No alert SMS is expected for "{0}".'.format(alertType))
-
-        # # Track current sensors.
-        # self.sensorsInPersistentAlertOnLastCheck[alertType] = []
-        # self.sensorsInPersistentAlertOnLastCheck[alertType].extend(sensorsInPersistentAlert)
