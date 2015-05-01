@@ -125,6 +125,45 @@ class AcceptanceTestCase(base.TestCaseBase):
         self.assertFalse(entranceDoor.isActivationPending(), 'Activation timer should now be released.')
         self.assertFalse(garageDoor.isActivationPending(), 'Activation timer should now be released.')
 
+    def testActivationTimerCancellation(self):
+        """ Test that exercises the cancellation of the delayed activation when the mode is changed before the sensor gets enabled. """
+
+        daemon = self.alarmDaemon
+
+        # Prepare useful sensors.
+        entranceDoor = daemon.getSensorByName('EntranceDoorOpening')
+
+        def doTest(opensDoor):
+            # Initialize state to a known one.
+            self.alarmModeObject.value = 1 # Presence.
+            entranceDoor.watchedObject.value = opensDoor
+
+            self.waitDuring(1, 'Initialization.')
+
+            # Go to away mode.
+            self.emailInfo = None # In case mode initialization has raised an email.
+            self.changeAlarmMode('Away', 'notify@bar.com')
+
+            # Neither door nor garage should be active for now.
+            def assertNotEnabled():
+                self.assertFalse(entranceDoor.isEnabled, '{0} should not be enabled because its activation delay is not over.'.format(entranceDoor))
+            self.waitDuring(entranceDoor.getActivationDelay()/2, 'Let a fraction of the activation timeout pass.', assertions=[assertNotEnabled])
+
+            # Close door to make sure it has no impact on the behaviour.
+            entranceDoor.watchedObject.value = False
+
+            # Go back to Presence, so that door is no more to be enabled.
+            self.emailInfo = None # In case mode initialization has raised an email.
+            self.changeAlarmMode('Presence', 'notify@bar.com')
+
+            # Wait long enough to be sure it will not be enabled. Waiting for
+            # the entire activation delay is more than enough since we already have
+            # consumed half of it before.
+            self.waitDuring(entranceDoor.getActivationDelay(), 'Wait enough to be 100% sure the sensor is not enabled.', assertions=[assertNotEnabled])
+
+        doTest(False)
+        doTest(True)
+
     def testAlertLifeCycle(self):
         logger.reportInfo('\n\n*********INITIALIZE testAlertLifeCycle ********************')
 
