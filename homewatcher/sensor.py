@@ -133,6 +133,7 @@ class Sensor(object):
         self._persistenceObject = self.linknx.getObject(config.persistenceObjectId)
         self.alert = self._daemon.getAlertByName(config.alertName)
         self.activationCriterion = ActivationCriterion.makeNew(self, config.activationCriterion)
+        self._lock = threading.RLock()
 
         # Compute the initial trigger state.
         self._isTriggered = self.getUpdatedTriggerState()
@@ -275,31 +276,33 @@ class Sensor(object):
 
     @isEnabled.setter
     def isEnabled(self, value):
-        logger.reportDebug('isEnabled={0} for {1}, activationTimer is {2}'.format(value, self, self._activationTimer))
-        if not value:
-            self.stopActivationTimer()
+        with self._lock:
+            logger.reportDebug('{1}.isEnabled={0}, activationTimer is {2}'.format(value, self, self._activationTimer))
+            if not value:
+                self.stopActivationTimer()
 
-        if self._enabledObject.value == value: return
-        self._enabledObject.value = value
+            if self._enabledObject.value == value: return
 
-        if value:
-            try:
-                if self.persistenceObject != None:
-                    self.persistenceObject.value = False
-                self.onEnabled()
-            except Exception as e:
-                self._enabledObject.value = False
-                logger.reportException()
-        else:
-            # Sensor may currently be in alert.
-            self.alert.removeSensorFromAlert(self)
-            self.onDisabled()
+            # Make sure this sensor is still required by the current mode.
+            # Safer in case of data race between the thread that runs
+            # updateModeFromLinknx and the one that runs the activation timer.
+            if self.isRequiredByCurrentMode() or not value:
+                self._enabledObject.value = value
 
-        logger.reportInfo('Sensor {0} is now {1}'.format(self.name, 'enabled' if value else 'disabled'))
+            if value:
+                try:
+                    if self.persistenceObject != None:
+                        self.persistenceObject.value = False
+                    self.onEnabled()
+                except Exception as e:
+                    self._enabledObject.value = False
+                    logger.reportException()
+            else:
+                # Sensor may currently be in alert.
+                self.alert.removeSensorFromAlert(self)
+                self.onDisabled()
 
-    # def hasAlertAlreadyBeenTriggered(self):
-        # """ Tell whether this sensor has already participated in any of the current alerts. """
-        # return self in self.daemon._triggeredSensorsSinceModeChanged
+            logger.reportInfo('Sensor {0} is now {1}'.format(self.name, 'enabled' if value else 'disabled'))
 
     def getInheritedClassNames(self):
             return [sensorConfig.name for sensorConfig in self.daemon.configuration.getInheritedClassNames(self.config)]
@@ -343,7 +346,8 @@ class Sensor(object):
         return self._activationTimer != None and self._activationTimer.isAlive() and not self._activationTimer.isTerminating
 
     def _onActivationTimerTimeout(self, timer):
-        self.isEnabled = True
+        if not timer.isCancelled:
+            self.isEnabled = True
 
     def _onActivationTimerIterate(self, timer):
         if self.activationCriterion != None and not self.activationCriterion.isValid():
@@ -368,7 +372,7 @@ class Sensor(object):
 
     def stopActivationTimer(self):
         if self._activationTimer != None:
-            self._activationTimer.stop
+            self._activationTimer.stop()
             self._activationTimer = None
 
     def notifyWatchedObjectChanged(self):

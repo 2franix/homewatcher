@@ -36,6 +36,7 @@ class Timer(threading.Thread):
         self.timeout = timeout
         self.reset()
         self.isTerminating = False
+        self.isCancelled = False
         self.isTerminated = False # Mainly for unit testing.
         self.onIterate = onIterate
         self.onTimeoutReached = onTimeoutReached
@@ -71,6 +72,7 @@ class Timer(threading.Thread):
             if callable(self.onTerminated): self.onTerminated(self)
             logger.reportDebug('{0} is now terminated.'.format(self))
             self.isTerminated = True
+            self.isTerminating = False
 
     def forceTimeout(self):
         logger.reportDebug('Forcing timeout of {0}'.format(self))
@@ -80,9 +82,10 @@ class Timer(threading.Thread):
         self.isPaused = True
 
     def stop(self):
-        if not self.isTerminating:
+        if not self.isCancelled:
+            self.isCancelled = True
             self.isTerminating = True
-            logger.reportDebug('Stopping {0}.'.format(self))
+            logger.reportDebug('Cancelling {0}.'.format(self))
 
     def reset(self):
         self.endTime = None

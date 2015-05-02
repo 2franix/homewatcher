@@ -729,11 +729,6 @@ class EventManager(object):
         logger.reportDebug('Event {0} is now finished.'.format(description))
 
 class Mode(object):
-    # ABSENCE = _ModeImpl('Absence', 0, [('Camille',SensorType.CAMERA), ('Simone',SensorType.CAMERA), ('FenetreSalon', SensorType.SWITCH), ('VoletsSalon', SensorType.SWITCH), ('PorteFenetreSAM', SensorType.SWITCH), ('VoletsSAM', SensorType.SWITCH), ('PorteFenetreCuisine', SensorType.SWITCH), ('VoletsCuisine', SensorType.SWITCH), ('PorteEntree', SensorType.SWITCH), ('PorteGarage', SensorType.SWITCH), ('PorteAbri', SensorType.SWITCH), ('DAAFCouloirRDC', SensorType.DAAF), ('DAAFSAM', SensorType.DAAF), ('DAAFGarage', SensorType.DAAF), ('AbriDeJardin', SensorType.TEMPERATURE_PROBE), ('ProsperSda', SensorType.TEMPERATURE_PROBE), ('ProsperCPU', SensorType.TEMPERATURE_PROBE)], False)
-    # PRESENCE = _ModeImpl('Présence', 1, [('DAAFCouloirRDC', SensorType.DAAF), ('DAAFSAM', SensorType.DAAF), ('DAAFGarage', SensorType.DAAF), ('AbriDeJardin', SensorType.TEMPERATURE_PROBE), ('ProsperSda', SensorType.TEMPERATURE_PROBE), ('ProsperCPU', SensorType.TEMPERATURE_PROBE)], True)
-    # HOUSEKEEPING = _ModeImpl('Intervention Oméga Service', 2, [('PorteGarage', SensorType.SWITCH), ('PorteAbri', SensorType.SWITCH), ('DAAFCouloirRDC', SensorType.DAAF), ('DAAFSAM', SensorType.DAAF), ('DAAFGarage', SensorType.DAAF), ('AbriDeJardin', SensorType.TEMPERATURE_PROBE), ('ProsperSda', SensorType.TEMPERATURE_PROBE), ('ProsperCPU', SensorType.TEMPERATURE_PROBE)], True)
-    # NIGHT = _ModeImpl('Nuit', 3, [('FenetreSalon', SensorType.SWITCH), ('VoletsSalon', SensorType.SWITCH), ('PorteFenetreSAM', SensorType.SWITCH), ('VoletsSAM', SensorType.SWITCH), ('PorteFenetreCuisine', SensorType.SWITCH), ('VoletsCuisine', SensorType.SWITCH), ('PorteEntree', SensorType.SWITCH), ('PorteGarage', SensorType.SWITCH), ('PorteAbri', SensorType.SWITCH), ('DAAFCouloirRDC', SensorType.DAAF), ('DAAFSAM', SensorType.DAAF), ('DAAFGarage', SensorType.DAAF), ('AbriDeJardin', SensorType.TEMPERATURE_PROBE), ('ProsperSda', SensorType.TEMPERATURE_PROBE), ('ProsperCPU', SensorType.TEMPERATURE_PROBE)], True)
-
     def __init__(self, daemon, config):
         self._config = config
         self.daemon = daemon
@@ -787,21 +782,6 @@ class Daemon(object):
         self._isTerminated = False
 
         self._currentMode = None
-
-        # # Start FTP backup thread if applicable.
-        # self._ftpBackupThread = None
-        # if self.cameras and configuration.servicesRepository.motion != None:
-            # backupLocURL = configuration.servicesRepository.motion.backupLocation
-            # if backupLocURL != None:
-                # url = urllib.parse(backupLocURL)
-                # if url.scheme != 'ftp':
-                    # raise Exception('Backup location URL does only support FTP protocol.')
-                # self._ftpBackupThread = FTPSender(self, url)
-                # self._ftpBackupThread.start()
-            # else:
-                # logger.reportInfo('No backup location is specified for Motion taken by motion.')
-        # else:
-            # logger.reportInfo('Motion is not used by this configuration.')
 
         self._updateModeFromLinknx()
 
@@ -1100,10 +1080,9 @@ class Daemon(object):
 
             # Update sensors enabled state.
             for sensor in self.sensors:
-                # Enable sensor immediately unless currently triggered (that
-                # would fire alarm immediately!)
                 if sensor.isRequiredByCurrentMode():
                     if not sensor.isEnabled:
                         sensor.startActivationTimer()
                 else:
+                    sensor.stopActivationTimer() # Issue 23: to help prevent data race with the activation timer.
                     sensor.isEnabled = False

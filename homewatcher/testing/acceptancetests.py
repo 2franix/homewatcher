@@ -146,8 +146,9 @@ class AcceptanceTestCase(base.TestCaseBase):
 
             # Neither door nor garage should be active for now.
             def assertNotEnabled():
-                self.assertFalse(entranceDoor.isEnabled, '{0} should not be enabled because its activation delay is not over.'.format(entranceDoor))
-            self.waitDuring(entranceDoor.getActivationDelay()/2, 'Let a fraction of the activation timeout pass.', assertions=[assertNotEnabled])
+                self.assertFalse(entranceDoor.isEnabled, '{0} should not be enabled.'.format(entranceDoor))
+            activationDelayForAway = entranceDoor.getActivationDelay()
+            self.waitDuring(activationDelayForAway/2.0, 'Let a fraction of the activation timeout pass.', assertions=[assertNotEnabled])
 
             # Close door to make sure it has no impact on the behaviour.
             entranceDoor.watchedObject.value = False
@@ -159,7 +160,9 @@ class AcceptanceTestCase(base.TestCaseBase):
             # Wait long enough to be sure it will not be enabled. Waiting for
             # the entire activation delay is more than enough since we already have
             # consumed half of it before.
-            self.waitDuring(entranceDoor.getActivationDelay(), 'Wait enough to be 100% sure the sensor is not enabled.', assertions=[assertNotEnabled])
+            # Warning: do not call getActivationDelay() again since mode has
+            # changed and this sensor has a mode-dependent activation delay!
+            self.waitDuring(activationDelayForAway, 'Wait enough to be 100% sure the sensor is not enabled.', assertions=[assertNotEnabled])
 
         doTest(False)
         doTest(True)
