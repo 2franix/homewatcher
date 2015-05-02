@@ -122,8 +122,10 @@ class SendEmailAction(Action):
                 tagName = childNode.tagName
                 if tagName == 'subject':
                     actionXmlNode.setAttribute('subject', self.parseParameterizableString(childNode, context))
+                    actionXmlNode.removeChild(childNode)
                 elif tagName == 'body':
                     parameterizedBody = self.parseParameterizableString(childNode, context)
+                    actionXmlNode.removeChild(childNode)
 
         # If parameterizable body is used, allow for adding carriage returns and
         # tabulations inside the <action> element to enhance the text layout. To
