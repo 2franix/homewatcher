@@ -15,6 +15,7 @@
 			<sensor>KitchenSmokeSensor</sensor>
 			<sensor>BedroomSmokeSensor</sensor>
 			<sensor>OutdoorTemperature</sensor>
+			<sensor>SensorForIssue22</sensor>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
@@ -143,8 +144,9 @@
 				
 				
 				<body>
-					A sensor joined alert. 
-					<context type="alert.sensors-status"/>
+					A sensor joined alert. Sensors in alert:
+					<br/>
+					<context format="bulleted" inPause="false" inPrealert="false" type="alert.sensors-status"/>
 				</body>
 				
 			
@@ -190,6 +192,9 @@
 		</sensor>
 		<sensor activationDelay="0" alert="Temperature" alertDuration="0" enabledObjectId="OutdoorTemperatureEnabled" hysteresis="2.0" isClass="False" lowerBound="0.0" name="OutdoorTemperature" prealertDuration="0" type="float" upperBound="30.5" watchedObjectId="OutdoorTemperature">
 			<activationCriterion sensor="OutdoorTemperature" type="sensor" whenTriggered="False"/>
+		</sensor>
+		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledForIssue22" isClass="False" name="SensorForIssue22" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerForIssue22">
+			<activationCriterion sensor="SensorForIssue22" type="sensor" whenTriggered="False"/>
 		</sensor>
 	</sensors>
 	<services>
