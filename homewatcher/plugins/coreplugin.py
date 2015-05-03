@@ -8,7 +8,7 @@ class SensorListContextHandler(homewatcher.contexthandlers.ContextHandler):
         homewatcher.contexthandlers.ContextHandler.__init__(self, xmlConfig)
         self.format = 'inline'
         if xmlConfig.hasAttribute('format'):
-            formatAttribute = xmlConfig.getAttribute('format')
+            formatAttribute = xmlConfig.getAttribute('format').lower()
             if not formatAttribute in ('inline', 'bulleted'):
                 raise Exception('Unsupported format "{0}" for {1}'.format(formatAttribute, self.__class__.__contextHandlerName__))
             self.format = formatAttribute
@@ -32,7 +32,7 @@ class SensorsStatusContextHandler(SensorListContextHandler):
         SensorListContextHandler.__init__(self, xmlConfig)
         self.targetedTypes = []
         for attrName in ['inPrealert', 'inAlert', 'inPause']:
-            if not xmlConfig.hasAttribute(attrName) or xmlConfig.getAttribute(attrName) == 'true':
+            if not xmlConfig.hasAttribute(attrName) or xmlConfig.getAttribute(attrName).lower() == 'true':
                 self.targetedTypes.append(attrName)
 
     def analyzeContext(self, context):
@@ -53,9 +53,13 @@ class EnabledSensorsContextHandler(SensorListContextHandler):
     __contextHandlerName__ = 'mode.enabled-sensors'
     def __init__(self, xmlConfig):
         SensorListContextHandler.__init__(self, xmlConfig)
+        self.includesPending = False
+        attrName = 'includesPending'
+        if xmlConfig.hasAttribute(attrName):
+            self.includesPending = xmlConfig.getAttribute(attrName).lower() == 'true'
 
     def analyzeContext(self, context):
-        enabledSensors = [s for s in context.daemon.sensors if s.isEnabled]
+        enabledSensors = [s for s in context.daemon.sensors if s.isEnabled or (self.includesPending and s.isActivationPending())]
         return self.formatSensorList(enabledSensors)
 
 class CurrentModeContextHandler(homewatcher.contexthandlers.ContextHandler):
