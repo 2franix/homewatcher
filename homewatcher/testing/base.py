@@ -63,7 +63,9 @@ class TestCaseBase(base.WithLinknxTestCase):
         self.assertEqual(actionNode.getAttribute('to'), recipient)
         self.assertEqual(actionNode.getAttribute('subject'), subject)
         if body != None:
-            self.assertEqual(configuration.Configuration.getTextInElement(actionNode), body)
+            # Check first child only, so that we do not take the footer which is
+            # not significant enough to deserve testing.
+            self.assertEqual(actionNode.childNodes[0].data, body)
 
         if consumesEmail: self.emailInfo = None
 

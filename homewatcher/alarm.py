@@ -128,11 +128,11 @@ class SendEmailAction(Action):
                     actionXmlNode.removeChild(childNode)
 
         # If parameterizable body is used, allow for adding carriage returns and
-        # tabulations inside the <action> element to enhance the text layout. To
+        # tabulations inside the <action> element to enhance XML text layout. To
         # do so, we have to delete inner text nodes of the initial XML data.
         if parameterizedBody != None:
-            for childNode in actionXmlNode.childNodes:
-                actionXmlNode.removeChild(childNode)
+            while actionXmlNode.childNodes:
+                actionXmlNode.removeChild(actionXmlNode.childNodes[0])
 
             textNode = linknxActionXml.createTextNode(parameterizedBody)
             actionXmlNode.appendChild(textNode)
@@ -143,6 +143,7 @@ class SendEmailAction(Action):
 --------------------------------------------------------
 This email was sent by Homewatcher v{0} on {1}""".format(homewatcher.__version__, datetime.datetime.now())
         footerNode = linknxActionXml.createTextNode(footer)
+        actionXmlNode.appendChild(footerNode)
 
         self.daemon.sendEmail(linknxActionXml)
 
