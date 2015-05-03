@@ -1076,10 +1076,6 @@ class Daemon(object):
             self._currentMode = newMode
             logger.reportInfo('Current alarm mode is now {0}'.format(self._currentMode))
 
-            # Mode entered event.
-            if self._currentMode != None:
-                self._currentMode.notifyEntered()
-
             # Update sensors enabled state.
             for sensor in self.sensors:
                 if sensor.isRequiredByCurrentMode():
@@ -1088,3 +1084,8 @@ class Daemon(object):
                 else:
                     sensor.stopActivationTimer() # Issue 23: to help prevent data race with the activation timer.
                     sensor.isEnabled = False
+            
+            # Mode entered event.
+            if self._currentMode != None:
+                self._currentMode.notifyEntered()
+
