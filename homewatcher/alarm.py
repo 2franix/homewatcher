@@ -556,6 +556,11 @@ class Alert(object):
                 self._sensorTimers[sensor] = timer # Prealert timer has been deleted above if applicable.
                 timer.start()
 
+        # Update persistence objects for all sensors.
+        for s in self._sensorsInAlert:
+            if s.persistenceObject != None:
+                s.persistenceObject.value = True
+
         # Store current status.
         self._sensorsInAlertOnLastUpdateStatus = self._sensorsInAlert.copy()
         self.status = newStatus

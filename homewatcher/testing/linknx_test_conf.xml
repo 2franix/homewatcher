@@ -11,14 +11,19 @@
 		<object flags="r"  id="CameraTrigger" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningTriggerEntrance" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningEnabledEntrance" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningPersistenceEntrance" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningTriggerLivingRoom" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningPersistenceLivingRoom" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningTriggerKitchen" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningPersistenceKitchen" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningEnabledLivingRoom" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningEnabledKitchen" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningTriggerGarage" init="off" type="1.001"/> 
+		<object flags="r"  id="OpeningPersistenceGarage" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningEnabledGarage" init="off" type="1.001"/> 
 		<!-- The object below must be on by default in order to reproduce issue 22 easily. -->
 		<object flags="r"  id="OpeningTriggerForIssue22" init="on" type="1.001"/> 
+		<object flags="r"  id="OpeningPersistenceForIssue22" init="off" type="1.001"/> 
 		<object flags="r"  id="OpeningEnabledForIssue22" init="off" type="1.001"/> 
 		<object flags="r"  id="SmokeTriggerBedroom" init="off" type="1.001"/> 
 		<object flags="r"  id="SmokeEnabledBedroom" init="off" type="1.001"/> 

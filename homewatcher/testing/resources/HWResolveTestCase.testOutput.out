@@ -154,9 +154,9 @@
 		</event>
 	</alerts>
 	<sensors>
-		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabled{location}" isClass="True" name="OpeningSensor" prealertDuration="2.0" type="boolean" watchedObjectId="OpeningTrigger{location}"/>
+		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabled{location}" isClass="True" name="OpeningSensor" persistenceObjectId="OpeningPersistence{location}" prealertDuration="2.0" type="boolean" watchedObjectId="OpeningTrigger{location}"/>
 		<sensor activationDelay="1.0" alert="Fire" alertDuration="10.0" enabledObjectId="SmokeEnabled{location}" isClass="True" name="SmokeSensor" prealertDuration="0.0" type="boolean" watchedObjectId="SmokeTrigger{location}"/>
-		<sensor alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledEntrance" isClass="False" name="EntranceDoorOpening" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerEntrance">
+		<sensor alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledEntrance" isClass="False" name="EntranceDoorOpening" persistenceObjectId="OpeningPersistenceEntrance" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerEntrance">
 			<activationDelay>
 				<value mode="Away">5.0</value>
 				<value mode="Night">3.0</value>
@@ -168,16 +168,16 @@
 			</prealertDuration>
 			<activationCriterion sensor="EntranceDoorOpening" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="5.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledGarage" isClass="False" name="GarageDoorOpening" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerGarage">
+		<sensor activationDelay="5.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledGarage" isClass="False" name="GarageDoorOpening" persistenceObjectId="OpeningPersistenceGarage" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerGarage">
 			<activationCriterion type="and">
 				<activationCriterion sensor="EntranceDoorOpening" type="sensor" whenTriggered="False"/>
 				<activationCriterion sensor="GarageDoorOpening" type="sensor" whenTriggered="False"/>
 			</activationCriterion>
 		</sensor>
-		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledKitchen" isClass="False" name="KitchenWindowOpening" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerKitchen">
+		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledKitchen" isClass="False" name="KitchenWindowOpening" persistenceObjectId="OpeningPersistenceKitchen" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerKitchen">
 			<activationCriterion sensor="KitchenWindowOpening" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor alert="Intrusion" alertDuration="5.0" enabledObjectId="OpeningEnabledLivingRoom" isClass="False" name="LivingRoomWindowOpening" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerLivingRoom">
+		<sensor alert="Intrusion" alertDuration="5.0" enabledObjectId="OpeningEnabledLivingRoom" isClass="False" name="LivingRoomWindowOpening" persistenceObjectId="OpeningPersistenceLivingRoom" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerLivingRoom">
 			<activationDelay>
 				<value mode="Night">3.0</value>
 				<value>1.0</value>
@@ -193,7 +193,7 @@
 		<sensor activationDelay="0" alert="Temperature" alertDuration="0" enabledObjectId="OutdoorTemperatureEnabled" hysteresis="2.0" isClass="False" lowerBound="0.0" name="OutdoorTemperature" prealertDuration="0" type="float" upperBound="30.5" watchedObjectId="OutdoorTemperature">
 			<activationCriterion sensor="OutdoorTemperature" type="sensor" whenTriggered="False"/>
 		</sensor>
-		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledForIssue22" isClass="False" name="SensorForIssue22" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerForIssue22">
+		<sensor activationDelay="1.0" alert="Intrusion" alertDuration="2.0" enabledObjectId="OpeningEnabledForIssue22" isClass="False" name="SensorForIssue22" persistenceObjectId="OpeningPersistenceForIssue22" prealertDuration="2.0" triggerValue="True" type="OpeningSensor" watchedObjectId="OpeningTriggerForIssue22">
 			<activationCriterion sensor="SensorForIssue22" type="sensor" whenTriggered="False"/>
 		</sensor>
 	</sensors>

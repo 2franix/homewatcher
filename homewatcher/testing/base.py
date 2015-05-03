@@ -180,6 +180,5 @@ class TestCaseBase(base.WithLinknxTestCase):
         for s in self.alarmDaemon.sensors:
             if s.alert != alert: continue
             self.assertEqual(s.isAlertActive, s in sensorsInAlert, '{0} alert should be {1}'.format(s, s in sensorsInAlert))
-            if s.persistenceObject != None:
-                self.assertEqual(s.persistenceObject.value, s in sensorsInPersistentAlert, '{0} persistent alert should be {1}'.format(s, s in sensorsInPersistentAlert))
+            self.assertEqual(s.persistenceObject != None and s.persistenceObject.value, s in sensorsInPersistentAlert, '{0} persistent alert should be {1}'.format(s, s in sensorsInPersistentAlert))
             self.assertEqual(s.isInPrealert, s in sensorsInPrealert, '{0}\'s prealert should be {1}'.format(s, s in sensorsInPrealert))

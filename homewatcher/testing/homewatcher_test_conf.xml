@@ -122,7 +122,7 @@
 		</alert>
 	</alerts>
 	<sensors>
-		<sensor isClass="true" name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertDuration="2" alertDuration="2"/>
+		<sensor isClass="true" name="OpeningSensor" type="boolean" watchedObjectId="OpeningTrigger{location}" enabledObjectId="OpeningEnabled{location}" alert="Intrusion" activationDelay="1" prealertDuration="2" alertDuration="2" persistenceObjectId="OpeningPersistence{location}"/>
 		<sensor isClass="true" name="SmokeSensor" type="boolean" watchedObjectId="SmokeTrigger{location}" enabledObjectId="SmokeEnabled{location}" alert="Fire" activationDelay="1" prealertDuration="0" alertDuration="10"/>
 
 		<sensor name="EntranceDoorOpening" type="OpeningSensor" location="Entrance">
