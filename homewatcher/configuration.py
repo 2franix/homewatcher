@@ -842,12 +842,14 @@ class AlertEvent(Event):
         ALERT_PAUSED = 'paused'
         ALERT_RESUMED = 'resumed'
         ALERT_STOPPED = 'stopped'
+        ALERT_ABORTED = 'aborted'
+        ALERT_RESET = 'reset'
         SENSOR_JOINED = 'sensor joined'
         SENSOR_LEFT = 'sensor left'
 
         @staticmethod
         def getAll():
-            return [AlertEvent.Type.PREALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_DEACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
+            return [AlertEvent.Type.PREALERT_STARTED, AlertEvent.Type.ALERT_ACTIVATED, AlertEvent.Type.ALERT_DEACTIVATED, AlertEvent.Type.ALERT_PAUSED, AlertEvent.Type.ALERT_RESUMED, AlertEvent.Type.ALERT_STOPPED, AlertEvent.Type.ALERT_ABORTED, AlertEvent.Type.ALERT_RESET, AlertEvent.Type.SENSOR_JOINED, AlertEvent.Type.SENSOR_LEFT]
 
 class Alert(object):
     PROPERTY_DEFINITIONS = PropertyCollection()

@@ -49,6 +49,8 @@
 		<object flags="r" id="IntrusionAlertPaused" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionAlertResumed" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionAlertStopped" init="off" type="1.001"/>
+		<object flags="r" id="IntrusionAlertAborted" init="off" type="1.001"/>
+		<object flags="r" id="IntrusionAlertReset" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionSensorJoined" init="off" type="1.001"/>
 		<object flags="r" id="IntrusionSensorLeft" init="off" type="1.001"/>
 		<object flags="r" id="TemperatureAlertStarted" init="off" type="1.001"/>
@@ -57,6 +59,8 @@
 		<object flags="r" id="TemperatureAlertPaused" init="off" type="1.001"/>
 		<object flags="r" id="TemperatureAlertResumed" init="off" type="1.001"/>
 		<object flags="r" id="TemperatureAlertStopped" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertAborted" init="off" type="1.001"/>
+		<object flags="r" id="TemperatureAlertReset" init="off" type="1.001"/>
 		<object flags="r" id="TemperatureSensorJoined" init="off" type="1.001"/>
 		<object flags="r" id="TemperatureSensorLeft" init="off" type="1.001"/>
 	</objects>

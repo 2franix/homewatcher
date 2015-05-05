@@ -79,6 +79,12 @@
 			<event type="stopped">
 				<action type="set-value" id="IntrusionAlertStopped" value="on"/>
 			</event>
+			<event type="aborted">
+				<action type="set-value" id="IntrusionAlertAborted" value="on"/>
+			</event>
+			<event type="reset">
+				<action type="set-value" id="IntrusionAlertReset" value="on"/>
+			</event>
 		</alert>
 		<alert name="Fire" persistenceObjectId="FirePersistence" >
 			<event type="sensor joined">
@@ -118,6 +124,12 @@
 			</event>
 			<event type="stopped">
 				<action type="set-value" id="TemperatureAlertStopped" value="on"/>
+			</event>
+			<event type="aborted">
+				<action type="set-value" id="TemperatureAlertAborted" value="on"/>
+			</event>
+			<event type="reset">
+				<action type="set-value" id="TemperatureAlertReset" value="on"/>
 			</event>
 		</alert>
 	</alerts>

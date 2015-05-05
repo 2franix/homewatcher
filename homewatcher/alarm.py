@@ -416,6 +416,12 @@ class Alert(object):
     def notifyAlertResumed(self):
         self.fireEvent(configuration.AlertEvent.Type.ALERT_RESUMED)
 
+    def notifyAlertAborted(self):
+        self.fireEvent(configuration.AlertEvent.Type.ALERT_ABORTED)
+
+    def notifyAlertReset(self):
+        self.fireEvent(configuration.AlertEvent.Type.ALERT_RESET)
+
     def notifyAlertStopped(self):
         self.fireEvent(configuration.AlertEvent.Type.ALERT_STOPPED)
 
@@ -502,6 +508,7 @@ class Alert(object):
                 self.notifyAlertDeactivated()
 
                 if newStatus == Alert.Status.STOPPED:
+                    self.notifyAlertReset()
                     self.notifyAlertStopped()
                 elif newStatus == Alert.Status.PAUSED:
                     self.notifyAlertPaused()
@@ -516,6 +523,7 @@ class Alert(object):
                 # No change.
                 pass
             elif newStatus == Alert.Status.STOPPED:
+                self.notifyAlertReset()
                 self.notifyAlertStopped()
             elif newStatus == Alert.Status.ACTIVE:
                 self.notifyAlertResumed()
@@ -536,6 +544,7 @@ class Alert(object):
                     self.notifySensorJoined()
                 self.notifyAlertActivated()
             elif newStatus == Alert.Status.STOPPED:
+                self.notifyAlertAborted()
                 self.notifyAlertStopped()
 
         # Stop obsolete timers for all sensors related to this alert.

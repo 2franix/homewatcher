@@ -200,6 +200,8 @@ class AcceptanceTestCase(base.TestCaseBase):
             eventObjectIds[configuration.AlertEvent.Type.ALERT_PAUSED] = '{0}AlertPaused'.format(alertName)
             eventObjectIds[configuration.AlertEvent.Type.ALERT_RESUMED] = '{0}AlertResumed'.format(alertName)
             eventObjectIds[configuration.AlertEvent.Type.ALERT_STOPPED] = '{0}AlertStopped'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_ABORTED] = '{0}AlertAborted'.format(alertName)
+            eventObjectIds[configuration.AlertEvent.Type.ALERT_RESET] = '{0}AlertReset'.format(alertName)
             eventObjectIds[configuration.AlertEvent.Type.SENSOR_JOINED] = '{0}SensorJoined'.format(alertName)
             eventObjectIds[configuration.AlertEvent.Type.SENSOR_LEFT] = '{0}SensorLeft'.format(alertName)
 
@@ -259,7 +261,7 @@ class AcceptanceTestCase(base.TestCaseBase):
         # Stopped.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
-        assertAlertEvents((configuration.AlertEvent.Type.ALERT_STOPPED,), 'Intrusion')
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_RESET, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
 
         # Raise a new alert. Should begin with a prealert.
         # Prealert.
@@ -275,13 +277,28 @@ class AcceptanceTestCase(base.TestCaseBase):
         # abortion.
         self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
         self.waitDuring(0.4, 'Waiting for alert to stop.')
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.ALERT_RESET, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
+
+        # Raise a new alert. Should begin with a prealert.
+        # Prealert.
+        prealertStartTime = time.time()
+        kitchenWindow.watchedObject.value = True
+        self.waitDuring(0.1, "Let 'alert started' event be raised.")
+        assertAlertEvents((configuration.AlertEvent.Type.PREALERT_STARTED,), 'Intrusion')
+        prealertDuration = kitchenWindow.getPrealertDuration()
+        self.waitUntil(prealertStartTime + prealertDuration / 2.0, 'Waiting for half of the prealert to expire.', [lambda: self.assertAlert([kitchenWindow],[],[]), lambda: assertAlertEvents([], 'Intrusion', resetsToOff=False)], 0.2, 0.4)
+
+        # Abort alert before it becomes active.
+        self.changeAlarmMode('Presence', 'notify@bar.com')
+        self.alarmDaemon.getAlertByName('Intrusion').persistenceObject.value = False
+        self.waitDuring(prealertDuration + 0.4, 'Waiting for alert to stop.')
+        assertAlertEvents((configuration.AlertEvent.Type.ALERT_ABORTED, configuration.AlertEvent.Type.ALERT_STOPPED), 'Intrusion')
 
         # Check the Temperature alert since it has no persistence.
         temperatureSensor = self.alarmDaemon.getSensorByName('OutdoorTemperature')
         temperatureSensor.watchedObject.value = 31.0
         self.waitDuring(0.8, 'Let the Temperature alert be raised.')
-        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.PREALERT_STARTED, configuration.AlertEvent.Type.ALERT_STOPPED, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Temperature')
+        assertAlertEvents((configuration.AlertEvent.Type.SENSOR_JOINED, configuration.AlertEvent.Type.SENSOR_LEFT, configuration.AlertEvent.Type.ALERT_DEACTIVATED, configuration.AlertEvent.Type.PREALERT_STARTED, configuration.AlertEvent.Type.ALERT_STOPPED, configuration.AlertEvent.Type.ALERT_RESET, configuration.AlertEvent.Type.ALERT_ACTIVATED), 'Temperature')
 
     def testIntrusionWithInhibition(self):
         self.doTestIntrusion(False, False, False, True)
