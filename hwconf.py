@@ -22,7 +22,7 @@
 
 """
 Modifies an XML config file for Linknx so that it allows for communication with an instance of homewatcher.
-This script adds pyknxcallback attributes to linknx objects that have to communicate with the homewatcher daemon.
+This script adds callback attributes to linknx objects that have to communicate with the homewatcher daemon.
 Which objects are to be added the attribute are determined based on the homewatcher XML configuration passed to this script.
 """
 

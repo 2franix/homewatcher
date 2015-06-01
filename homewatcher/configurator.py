@@ -60,6 +60,14 @@ class Configurator(pyknx.configurator.Configurator):
         daemonAddress = (servicesRepo.daemon.host, servicesRepo.daemon.port)
         pyknx.configurator.Configurator.__init__(self, sourceFile, outputFile, daemonAddress, 'homewatcher')
 
+    @property
+    def callbackAttributeName(self):
+        if pyknx.version < pyknx.Version(2, 2, 0):
+            # Up to v2.1, the attribute name was hardcoded.
+            return 'pyknxcallback'
+        else:
+            return super().callbackAttributeName
+
     def addCallbackForObject(self, objectId, callbackName, callbackDestination):
         if objectId == None or objectId == '':
             logger.reportWarning('{0} is not defined, skipping callback.'.format(callbackDestination))
@@ -67,21 +75,24 @@ class Configurator(pyknx.configurator.Configurator):
 
         # Search object in config.
         found = False
+        callbackAttributeName = self.callbackAttributeName
+
         for objectXmlConfig in self.config.getElementsByTagName('object'):
             if objectXmlConfig.getAttribute('id') == objectId:
                 if found:
                     raise Exception('Two objects with id {id} found.'.format(id=objectId))
                 found = True
-                objectXmlConfig.setAttribute('pyknxcallback', callbackName)
+                objectXmlConfig.setAttribute(callbackAttributeName, callbackName)
                 logger.reportInfo('Added callback {0} for {1}'.format(callbackName, objectId))
         if not found:
             raise Exception('Object {id} not found in linknx configuration'.format(id=objectId))
 
     def cleanConfig(self):
+        callbackAttributeName = self.callbackAttributeName
         for objectXmlConfig in self.config.getElementsByTagName('object'):
-            if objectXmlConfig.hasAttribute('pyknxcallback'):
-                logger.reportInfo('Removed callback {0} for {1}'.format(objectXmlConfig.getAttribute('pyknxcallback'), objectXmlConfig.getAttribute('id')))
-                objectXmlConfig.removeAttribute('pyknxcallback')
+            if objectXmlConfig.hasAttribute(callbackAttributeName):
+                logger.reportInfo('Removed callback {0} for {1}'.format(objectXmlConfig.getAttribute(callbackAttributeName), objectXmlConfig.getAttribute('id')))
+                objectXmlConfig.removeAttribute(callbackAttributeName)
         pyknx.configurator.Configurator.cleanConfig(self)
 
     def generateConfig(self):
