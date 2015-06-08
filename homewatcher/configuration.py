@@ -631,7 +631,8 @@ class ActivationCriterion(object):
 ActivationCriterion.PROPERTY_DEFINITIONS = PropertyCollection()
 ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('type', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, values=ActivationCriterion.Type.getAll())
 isOfSensorType=lambda context: context.object.type==ActivationCriterion.Type.SENSOR
-ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('sensorName', isMandatory=isOfSensorType, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML='sensor')
+getSensorNames = lambda configuration, owner: [s.name for s in configuration.sensors]
+ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('sensorName', isMandatory=isOfSensorType, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, namesInXML='sensor', values=getSensorNames)
 ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('whenTriggered', isMandatory=isOfSensorType, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 ActivationCriterion.PROPERTY_DEFINITIONS.addProperty('children', isMandatory=lambda context: context.object.type in (ActivationCriterion.Type.AND, ActivationCriterion.Type.OR), type=ActivationCriterion, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='activationCriterion', isCollection=True)
 

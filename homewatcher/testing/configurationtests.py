@@ -516,6 +516,18 @@ class ConfigurationTestCase(base.TestCaseBase):
             self.assertEqual(sensor.enabledObjectId, 'Boolean{key}Trigger{key}Enabled'.format(key=key))
             self.assertEqual(sensor.activationCriterion.sensorName, 'Boolean{key}'.format(key=key))
 
+    def testIssue31NonRegression(self):
+        configStr = """
+        <config>
+            <sensors>
+                <sensor type="boolean" name="Boolean1" watchedObjectId="Trigger2" enabledObjectId="Enabled1" alert="intrusion"/>
+                <sensor enabledObjectId="Enabled2" type="boolean" watchedObjectId="Trigger2" name="Boolean2" alert="intrusion">
+                    <activationCriterion type="sensor" sensor="foo" value="False"/>
+                </sensor>
+            </sensors>
+        </config>"""
+        self.checkSensorConfigFails(configStr, "Property sensorName (cf. the \"sensor\" attribute in XML) is invalid: A value in ['Boolean1', 'Boolean2'] is expected, foo found.")
+
     def testSensorInheritance(self):
         configStr= """<?xml version="1.0" encoding="UTF-8"?>
         <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="file://config.xsd">
