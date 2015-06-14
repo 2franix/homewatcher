@@ -416,7 +416,7 @@ class PyknxService(object):
     PROPERTY_DEFINITIONS.addProperty('port', isMandatory=False, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.CHILD_ELEMENT)
 
     def __init__(self):
-        self.host = 'localhost'
+        self.host = '127.0.0.1'
         self.port = 1029
 
     def __repr__(self):
@@ -443,7 +443,7 @@ class LinknxService(object):
     PROPERTY_DEFINITIONS.addProperty('ignoreEmail', isMandatory=False, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 
     def __init__(self):
-        self.host = 'localhost'
+        self.host = '127.0.0.1'
         self.port = 1028
         self.ignoreEmail = False
 

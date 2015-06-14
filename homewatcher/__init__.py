@@ -31,6 +31,6 @@ the configuration of the installation compared to one set up entirely with linkn
 """
 __all__ = ['alarm', 'configuration', 'configurator', 'sensor', 'timer']
 
-version = Version(1, 2, 0)
+version = Version(1, 2, 1)
 __version__=str(version)
 
