@@ -786,18 +786,37 @@ class ModeEvent(Event):
         def getAll():
             return [ModeEvent.Type.ENTERED, ModeEvent.Type.LEFT]
 
+class SensorReference(object):
+
+    PROPERTY_DEFINITIONS = PropertyCollection()
+    PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE|Property.XMLEntityTypes.INNER_TEXT, isUnique=True, values=lambda configuration, object: [s.name for s in configuration.sensors])
+    PROPERTY_DEFINITIONS.addProperty('resetsAlert', isMandatory=False, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
+
+    def __init__(self):
+        self.name = None
+        self.resetsAlert = False # Default for compatibility when this feature did not exist.
+
+    @staticmethod
+    def fromXML(xmlElement):
+        r = SensorReference()
+        SensorReference.PROPERTY_DEFINITIONS.readObjectFromXML(r, xmlElement)
+        return r
+
+    def __repr__(self):
+        return '{name}'.format(**vars(self))
+
 class Mode(object):
 
     PROPERTY_DEFINITIONS = PropertyCollection()
     PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
     PROPERTY_DEFINITIONS.addProperty('value', isMandatory=True, type=int, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
-    PROPERTY_DEFINITIONS.addProperty('sensorNames', isMandatory=False, type=str, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='sensor', isCollection=True, values=lambda configuration, object: [s.name for s in configuration.sensors])
+    PROPERTY_DEFINITIONS.addProperty('sensors', isMandatory=False, type=SensorReference, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='sensor', isCollection=True)
     PROPERTY_DEFINITIONS.addProperty('events', isMandatory=False, type=ModeEvent, xmlEntityType=Property.XMLEntityTypes.CHILD_ELEMENT, namesInXML='event', isCollection=True)
 
     def __init__(self, name, value):
         self.name = name # Unique identifier for the mode.
         self.value = value
-        self.sensorNames = []
+        self.sensors = []
         self.events = []
 
     @staticmethod

@@ -293,6 +293,8 @@ class Sensor(object):
                     if self.persistenceObject != None:
                         self.persistenceObject.value = False
                     self.onEnabled()
+                    if self.daemon.currentMode.sensorReferences[self.name].resetsAlert:
+                        self.alert.removeSensorFromAlert(self)
                 except Exception as e:
                     self._enabledObject.value = False
                     logger.reportException()

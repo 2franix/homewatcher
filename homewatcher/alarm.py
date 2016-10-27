@@ -785,7 +785,11 @@ class Mode(object):
 
     @property
     def sensorNames(self):
-        return self._config.sensorNames
+        return [sensorReference.name for sensorReference in self._config.sensors]
+
+    @property
+    def sensorReferences(self):
+        return {sensorReference.name:sensorReference for sensorReference in self._config.sensors}
 
     def makeEventContext(self):
         return {'mode' : self.name}
