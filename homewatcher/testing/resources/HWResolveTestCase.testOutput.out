@@ -2,28 +2,28 @@
 <config>
 	<modes objectId="Mode">
 		<mode name="Presence" value="1">
-			<sensor>OutdoorTemperature</sensor>
+			<sensor name="OutdoorTemperature" resetsAlert="False"/>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
 		</mode>
 		<mode name="Away" value="2">
-			<sensor>EntranceDoorOpening</sensor>
-			<sensor>GarageDoorOpening</sensor>
-			<sensor>LivingRoomWindowOpening</sensor>
-			<sensor>KitchenWindowOpening</sensor>
-			<sensor>KitchenSmokeSensor</sensor>
-			<sensor>BedroomSmokeSensor</sensor>
-			<sensor>OutdoorTemperature</sensor>
-			<sensor>SensorForIssue22</sensor>
+			<sensor name="EntranceDoorOpening" resetsAlert="False"/>
+			<sensor name="GarageDoorOpening" resetsAlert="False"/>
+			<sensor name="LivingRoomWindowOpening" resetsAlert="False"/>
+			<sensor name="KitchenWindowOpening" resetsAlert="False"/>
+			<sensor name="KitchenSmokeSensor" resetsAlert="False"/>
+			<sensor name="BedroomSmokeSensor" resetsAlert="False"/>
+			<sensor name="OutdoorTemperature" resetsAlert="False"/>
+			<sensor name="SensorForIssue22" resetsAlert="False"/>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>
 		</mode>
 		<mode name="Night" value="3">
-			<sensor>EntranceDoorOpening</sensor>
-			<sensor>LivingRoomWindowOpening</sensor>
-			<sensor>OutdoorTemperature</sensor>
+			<sensor name="EntranceDoorOpening" resetsAlert="False"/>
+			<sensor name="LivingRoomWindowOpening" resetsAlert="False"/>
+			<sensor name="OutdoorTemperature" resetsAlert="False"/>
 			<event type="left">
 				<action from="AppliedMode" to="PreviousMode" type="copy-value"/>
 			</event>

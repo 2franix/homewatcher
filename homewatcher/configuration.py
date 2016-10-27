@@ -444,7 +444,7 @@ class LinknxService(object):
     PROPERTY_DEFINITIONS.addProperty('ignoreEmail', isMandatory=False, type=bool, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE)
 
     def __init__(self):
-        self.host = '127.0.0.1'
+        self.host = '127.0.0.1' # Not locahost, because linknx does not handle hostnames properly.
         self.port = 1028
         self.ignoreEmail = False
 

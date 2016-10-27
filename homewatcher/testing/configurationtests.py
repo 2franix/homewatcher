@@ -136,7 +136,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             <services/>
         </config>""")
         configuration.ServicesRepository.PROPERTY_DEFINITIONS.checkIntegrity(config, config.servicesRepository)
-        self.assertEqual(config.servicesRepository.linknx.host, 'localhost')
+        self.assertEqual(config.servicesRepository.linknx.host, '127.0.0.1')
         self.assertEqual(config.servicesRepository.linknx.port, 1028)
         config = configuration.Configuration.parseString("""
         <config>
@@ -154,7 +154,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             </services>
         </config>""")
         configuration.ServicesRepository.PROPERTY_DEFINITIONS.checkIntegrity(config, config.servicesRepository)
-        self.assertEqual(config.servicesRepository.linknx.host, 'localhost')
+        self.assertEqual(config.servicesRepository.linknx.host, '127.0.0.1')
         self.assertEqual(config.servicesRepository.linknx.port, 1030)
 
     def testAlertIntegrityChecks(self):
@@ -358,7 +358,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             <sensors>
                 <sensor name="s1" type="boolean" alert="intrusion" enabledObjectId="obj1" watchedObjectId="obj2"/>
             </sensors>
-        </config>""", "Property sensorNames (cf. the \"sensor\" element in XML) is invalid: A value in ['s1'] is expected, Sensor1 found.")
+        </config>""", "Property name (cf. the \"name\" attribute or inner text in XML) is invalid: A value in ['s1'] is expected, Sensor1 found.")
 
     def testSensorIntegrityChecks(self):
         """ Exercises Configuration.checkIntegrity """
@@ -442,11 +442,12 @@ class ConfigurationTestCase(base.TestCaseBase):
         for m in config.modesRepository.modes:
             self.assertIn(m.name, ('Away', 'At home'))
         awayMode = config.getModeByName('Away')
-        self.assertEqual(len(awayMode.sensorNames), 2)
-        for s in awayMode.sensorNames:
-            self.assertIn(s, ('Sensor1', 'Sensor2'))
+        self.assertEqual(len(awayMode.sensors), 2)
+        for s in awayMode.sensors:
+            self.assertIn(s.name, ('Sensor1', 'Sensor2'))
+            self.assertFalse(s.resetsAlert)
         atHomeMode = config.getModeByName('At home')
-        self.assertEqual(atHomeMode.sensorNames, [])
+        self.assertEqual(atHomeMode.sensors, [])
 
     def testGlobalAndLocalAlertEvents(self):
         """ Exercises the definition of local and global alert events. """
