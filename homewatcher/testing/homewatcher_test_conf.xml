@@ -11,6 +11,9 @@
 				<body>New mode. <context type="mode.enabled-sensors"/></body>
 			</action>
 			<action type="copy-value" from="Mode" to="AppliedMode"/>
+			<action type="shell-cmd">
+				<cmd>echo "Entered mode <context type="mode.current"/>"</cmd>
+			</action>
 		</event>
 		<mode name="Presence" value="1">
 			<sensor>OutdoorTemperature</sensor>

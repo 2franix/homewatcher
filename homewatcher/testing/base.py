@@ -41,6 +41,20 @@ from homewatcher.sensor import *
 from homewatcher.alarm import *
 
 class TestCaseBase(base.WithLinknxTestCase):
+    class ExecuteActionMock(object):
+        def __init__(self, linknx, test):
+            self.realExecute = linknx.executeAction
+            self.test = test
+
+        def executeAction(self, actionXml):
+            logger.reportDebug('executeActionMock: {0}'.format(actionXml.toxml()))
+            actionNode = actionXml.getElementsByTagName('action')[0]
+            if actionNode.getAttribute('type') == 'shell-cmd':
+                self.test.assertIsNone(self.test.shellCmdInfo, 'An unconsumed shell command is about to be deleted. It is likely to be an unexpected shell command. Details are {0}'.format(self.test.shellCmdInfo))
+                self.test.shellCmdInfo = {'action' : actionXml, 'date' : time.ctime()}
+                logger.reportInfo('executeAction mock received {0}'.format(self.test.shellCmdInfo))
+            self.realExecute(actionXml)
+
     def sendEmailMock(self, actionXml):
         logger.reportDebug('sendEmailMock: {0}'.format(actionXml.toxml()))
         self.assertIsNone(self.emailInfo, 'An unconsumed email is about to be deleted. It is likely to be an unexpected email. Details are {0}'.format(self.emailInfo))
@@ -69,6 +83,15 @@ class TestCaseBase(base.WithLinknxTestCase):
 
         if consumesEmail: self.emailInfo = None
 
+    def assertShellCmd(self, cmd, consumes=True):
+        self.assertIsNotNone(self.shellCmdInfo, 'No shell command has been sent.')
+
+        actionXml = self.shellCmdInfo['action']
+        actionNode = actionXml.getElementsByTagName('action')[0]
+        self.assertEqual(actionNode.getAttribute('cmd'), cmd)
+
+        if consumes: self.shellCmdInfo = None
+
     def setUp(self, linknxConfFile='linknx_test_conf.xml', usesCommunicator=True,  hwConfigFile=os.path.join(os.path.dirname(__file__), 'homewatcher_test_conf.xml')):
         usesLinknx = linknxConfFile != None
         communicatorAddress = ('localhost', 1031) if usesCommunicator else None
@@ -92,9 +115,12 @@ class TestCaseBase(base.WithLinknxTestCase):
             if self.alarmDaemon:
                 logger.reportInfo('Redirecting email capability of the alarm daemon to the mock for testing.')
                 self.alarmDaemon.sendEmail = self.sendEmailMock
+                mock = TestCaseBase.ExecuteActionMock(self.alarmDaemon.linknx, self)
+                self.alarmDaemon.linknx.executeAction = mock.executeAction
             else:
                 logger.reportInfo('No alarm daemon. Email redirection is not set.')
             self.emailInfo = None
+            self.shellCmdInfo = None
         except:
             logger.reportException('Error in setUp.')
             self.tearDown()
@@ -135,6 +161,9 @@ class TestCaseBase(base.WithLinknxTestCase):
         expectedSubjectStart = 'Entered mode {0}'.format(newMode)
         self.waitDuring(1, 'Waiting for email notification')
         if emailAddressesForNotification != None: self.assertEmail('mode change', emailAddressesForNotification, expectedSubjectStart, [], body=None)
+
+        # Check shell command.
+        self.assertShellCmd('echo "Entered mode {0}"'.format(newMode))
 
     def assertAlert(self, sensorsInPrealert, sensorsInAlert, sensorsInPersistentAlert):
         # Sort sensors by alert types.

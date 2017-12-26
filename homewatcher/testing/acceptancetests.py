@@ -522,8 +522,10 @@ class AcceptanceTestCase(base.TestCaseBase):
             mode = daemon.getMode(modeName)
             self.assertEqual(len(mode.eventManager.eventConfigs), 2)
             self.assertEqual(mode.eventManager.eventConfigs[0].type, 'entered')
-            self.assertEqual(len(mode.eventManager.eventConfigs[0].actions), 2)
+            self.assertEqual(len(mode.eventManager.eventConfigs[0].actions), 3)
             self.assertEqual(mode.eventManager.eventConfigs[0].actions[0].type, 'send-email')
+            self.assertEqual(mode.eventManager.eventConfigs[0].actions[1].type, 'copy-value')
+            self.assertEqual(mode.eventManager.eventConfigs[0].actions[2].type, 'shell-cmd')
             self.assertEqual(mode.eventManager.eventConfigs[1].type, 'left')
             self.assertEqual(len(mode.eventManager.eventConfigs[1].actions), 1)
 

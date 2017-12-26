@@ -169,6 +169,26 @@ class SendSMSAction(Action):
 
         self.daemon.linknx.executeAction(linknxActionXml)
 
+class ShellCommandAction(Action):
+    def __init__(self, daemon, config):
+        Action.__init__(self, daemon, config)
+
+    def execute(self, context):
+        # Initialize the XML to send to linknx with the XML from homewatcher
+        # configuration.
+        linknxActionXml = xml.dom.minidom.Document()
+        linknxActionXml.appendChild(linknxActionXml.importNode(self.actionXml.childNodes[0], True))
+
+        # As a second step, interpret any parameterizable block.
+        actionXmlNode = linknxActionXml.getElementsByTagName('action')[0]
+        for childNode in actionXmlNode.childNodes:
+            if childNode.nodeType == xml.dom.minidom.Element.ELEMENT_NODE:
+                if childNode.tagName == 'cmd':
+                    actionXmlNode.setAttribute('cmd', self.parseParameterizableString(childNode, context))
+                    actionXmlNode.removeChild(childNode)
+
+        self.daemon.linknx.executeAction(linknxActionXml)
+
 class LinknxAction(Action):
     """ Action that sets the value of an object. """
     def __init__(self, daemon, config):
@@ -738,6 +758,8 @@ class EventManager(object):
                     action = SendEmailAction(self.daemon, actionConfig)
                 elif actionConfig.type == 'send-sms':
                     action = SendSMSAction(self.daemon, actionConfig)
+                elif actionConfig.type == 'shell-cmd':
+                    action = ShellCommandAction(self.daemon, actionConfig)
                 else:
                     # Delegate execution to linknx.
                     action = LinknxAction(self.daemon, actionConfig)
