@@ -88,7 +88,7 @@ class TimerTestCase(base.TestCaseBase):
         self.waitDuring(0.2, 'Let timer iterate for a while.')
         self.assertTrue(timer.isAlive())
         status.shouldStop = True
-        self.waitDuring(0.2, 'Let timer stop.')
+        self.waitDuring(0.3, 'Let timer stop.')
         self.assertFalse(timer.isAlive())
 
     def testResetFromOnIterate(self):

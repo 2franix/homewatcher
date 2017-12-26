@@ -430,11 +430,24 @@ class ConfigurationTestCase(base.TestCaseBase):
             </sensors>
         </config>""", 'Property modeName (cf. the "mode" attribute in XML) is invalid: Value Away is already assigned to another object.')
 
+        # Test that sensors are associated with an alert.
+        self.checkSensorConfigFails("""
+        <config>
+            <sensors>
+                <sensor name="sensor1" type="boolean" watchedObjectId="toto" enabledObjectId="titi">
+                    <prealertDuration value="20">
+                        <value mode="Away">30</value>
+                    </prealertDuration>
+                </sensor>
+            </sensors>
+        </config>""", '"Sensor sensor1" should define the property alertName (cf. the "alert" attribute in XML).')
+
     def testModes(self):
         config = configuration.Configuration.parseString("""<config><modes>
                 <mode name="Away" value="1">
                     <sensor>Sensor1</sensor>
-                    <sensor>Sensor2</sensor>
+                    <sensor name="Sensor2" resetsAlert="true"/>
+                    <sensor resetsAlert="false">Sensor3</sensor>
                 </mode>
                 <mode name="At home" value="0"/>
                 </modes></config>""")
@@ -442,10 +455,10 @@ class ConfigurationTestCase(base.TestCaseBase):
         for m in config.modesRepository.modes:
             self.assertIn(m.name, ('Away', 'At home'))
         awayMode = config.getModeByName('Away')
-        self.assertEqual(len(awayMode.sensors), 2)
+        self.assertEqual(len(awayMode.sensors), 3)
         for s in awayMode.sensors:
-            self.assertIn(s.name, ('Sensor1', 'Sensor2'))
-            self.assertFalse(s.resetsAlert)
+            self.assertIn(s.name, ('Sensor1', 'Sensor2', 'Sensor3'))
+            self.assertEqual(s.resetsAlert, s.name == 'Sensor2')
         atHomeMode = config.getModeByName('At home')
         self.assertEqual(atHomeMode.sensors, [])
 

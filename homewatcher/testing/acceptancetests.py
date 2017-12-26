@@ -464,7 +464,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 kitchenWindowSensor.watchedObject.value = False
                 self.waitDuring(0.2, 'Closing kitchen window.')
                 kitchenWindowSensor.watchedObject.value = True
-                self.waitDuring(kitchenWindowSensor.getPrealertDuration() + 1.5, 'Checking that opening sesnors do not fire alert anymore (alert is inhibited)...', [checkAlertStatus])
+                self.waitDuring(kitchenWindowSensor.getPrealertDuration() + 1.5, 'Checking that opening sensors do not fire alert anymore (alert is inhibited)...', [checkAlertStatus])
 
                 # Remove inhibition: nothing should occur until a sensor gets
                 # triggered again (currently triggered sensors are still ignored).
