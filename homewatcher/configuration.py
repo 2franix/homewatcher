@@ -301,6 +301,7 @@ class PropertyCollection(object):
     """ Collection of properties stored in groups with an associated mandatory status. """
     def __init__(self):
         self.propertyGroups = []
+        self.ignoreCheckIntegrityCallable = lambda object: False
 
     def addProperty(self, propertyName, isMandatory, type, xmlEntityType, namesInXML=None, groupNameInXML = None, isCollection=False, isUnique=False, values=None, getter=None):
         self.propertyGroups.append(PropertyGroup([Property(name=propertyName, type=type, xmlEntityType = xmlEntityType, namesInXML=namesInXML, groupNameInXML=groupNameInXML, isCollection=isCollection, isUnique=isUnique, values=values, getter=getter)], isMandatory))
@@ -358,6 +359,7 @@ class PropertyCollection(object):
         if collectedValues == None: collectedValues = {}
         objects = obj if isinstance(obj, list) else [obj]
         for o in objects:
+            if self.ignoreCheckIntegrityCallable(o): continue
             for group in self.propertyGroups:
                 group.checkObjectIntegrity(configuration, o, collectedValues)
 
@@ -653,6 +655,7 @@ class Sensor(object):
             return all
 
     PROPERTY_DEFINITIONS = PropertyCollection()
+    PROPERTY_DEFINITIONS.ignoreCheckIntegrityCallable = lambda sensor: sensor.isClass
     # Generic mandatory properties of various types.
     PROPERTY_DEFINITIONS.addProperty('name', isMandatory=True, type=str, xmlEntityType=Property.XMLEntityTypes.ATTRIBUTE, isUnique=True)
     getClassNamesExceptRoot = lambda configuration, owner: [c.name for c in configuration.classes if (not c.isRootType() or owner.name in Sensor.Type.getAll()) and c != owner and not configuration.doesSensorInherit(c, owner)]
@@ -1160,10 +1163,7 @@ class Configuration(object):
         resolvedSensors = []
         for sensor in self.sensorsAndClasses:
             if sensor.isClass:
-                # if sensor.isBuiltIn:
                 resolvedSensors.append(sensor)
-                # else:
-                    # continue
             else:
                 resolvedSensors.append(self._getResolvedSensor(sensor))
 
@@ -1262,7 +1262,7 @@ class Configuration(object):
             paramsInB = regex.findall(obj.attributes[b])
             if b in paramsInA:
                 if a in paramsInB:
-                    raise Exception('{a} and {b} are both mutually dependent.'.format(a=a, b=b))
+                    raise Exception('{a} and {b} are mutually dependent.'.format(a=a, b=b))
                 # b must be resolved after a.
                 return 1
             elif a in paramsInB:
