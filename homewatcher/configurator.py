@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2012-2014 Cyrille Defranoux
+# Copyright (C) 2012-2017 Cyrille Defranoux
 #
 # This file is part of Homewatcher.
 #
@@ -20,7 +20,6 @@
 # For any question, feature requests or bug reports, feel free to contact me at:
 # knx at aminate dot net
 
-# Check that pyknx is present as soon as possible.
 from homewatcher import ensurepyknx
 
 from xml.dom.minidom import parse
