@@ -136,7 +136,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             <services/>
         </config>""")
         configuration.ServicesRepository.PROPERTY_DEFINITIONS.checkIntegrity(config, config.servicesRepository)
-        self.assertEqual(config.servicesRepository.linknx.host, 'localhost')
+        self.assertEqual(config.servicesRepository.linknx.host, '127.0.0.1')
         self.assertEqual(config.servicesRepository.linknx.port, 1028)
         config = configuration.Configuration.parseString("""
         <config>
@@ -154,7 +154,7 @@ class ConfigurationTestCase(base.TestCaseBase):
             </services>
         </config>""")
         configuration.ServicesRepository.PROPERTY_DEFINITIONS.checkIntegrity(config, config.servicesRepository)
-        self.assertEqual(config.servicesRepository.linknx.host, 'localhost')
+        self.assertEqual(config.servicesRepository.linknx.host, '127.0.0.1')
         self.assertEqual(config.servicesRepository.linknx.port, 1030)
 
     def testAlertIntegrityChecks(self):
