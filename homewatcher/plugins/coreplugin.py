@@ -15,11 +15,13 @@ class SensorListContextHandler(homewatcher.contexthandlers.ContextHandler):
 
     def formatSensorList(self, sensors):
         message = ''
-        for sensor in sensors:
+        sensorNames = [str(s) for s in sensors]
+        sensorNames.sort()
+        for sensor in sensorNames:
             if self.format == 'inline':
                 if message:
                     message += ','
-                message += str(sensor)
+                message += sensor
             elif self.format == 'bulleted':
                 if message:
                     message += '\n'

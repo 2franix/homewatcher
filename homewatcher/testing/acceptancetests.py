@@ -398,6 +398,7 @@ class AcceptanceTestCase(base.TestCaseBase):
             sensorsInAlert.extend(sensorsInPrealert)
             sensorsInPersistentAlert.extend(sensorsInAlert)
             del(sensorsInPrealert[:])
+            self.assertShellCmd('echo foocmd "Intrusion Alert!\nSensors: [EntranceDoorOpening,LivingRoomWindowOpening]"')
 
             # Wait for first sensor to quit alert. At this point, entranceSensor
             # should already have been in alert for 1 second.

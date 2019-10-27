@@ -65,6 +65,9 @@
 			<event type="activated">
 				<action type="set-value" id="Siren" value="on"/>
 				<action type="set-value" id="IntrusionAlertActivated" value="on"/>
+				<action type="shell-cmd">
+					<cmd>echo foocmd &quot;Intrusion Alert!<br/>Sensors: [<context type="alert.sensors-status" format="inline" inPrealert="false" inAlert="true" inPause="false"/>]&quot;</cmd>
+				</action>
 			</event>
 			<event type="deactivated">
 				<action type="set-value" id="Siren" value="off"/>
