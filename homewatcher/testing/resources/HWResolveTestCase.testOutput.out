@@ -46,6 +46,17 @@
 			
 			</action>
 			<action from="Mode" to="AppliedMode" type="copy-value"/>
+			<action type="shell-cmd">
+				
+				
+				<cmd>
+					echo &quot;Entered mode 
+					<context type="mode.current"/>
+					&quot;
+				</cmd>
+				
+			
+			</action>
 		</event>
 	</modes>
 	<alerts>
@@ -62,6 +73,19 @@
 			<event type="activated">
 				<action id="Siren" type="set-value" value="on"/>
 				<action id="IntrusionAlertActivated" type="set-value" value="on"/>
+				<action type="shell-cmd">
+					
+					
+					<cmd>
+						echo foocmd &quot;Intrusion Alert!
+						<br/>
+						Sensors: [
+						<context format="inline" inAlert="true" inPause="false" inPrealert="false" type="alert.sensors-status"/>
+						]&quot;
+					</cmd>
+					
+				
+				</action>
 			</event>
 			<event type="deactivated">
 				<action id="Siren" type="set-value" value="off"/>

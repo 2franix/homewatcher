@@ -225,6 +225,9 @@ class AcceptanceTestCase(base.TestCaseBase):
             # been treated.
             self.emailInfo = None
 
+            # Do the same for shell commands.
+            self.shellCmdInfo = None
+
         self.assertAlert([], [], [])
         assertAlertEvents([], 'Intrusion')
 
@@ -398,7 +401,11 @@ class AcceptanceTestCase(base.TestCaseBase):
             sensorsInAlert.extend(sensorsInPrealert)
             sensorsInPersistentAlert.extend(sensorsInAlert)
             del(sensorsInPrealert[:])
-            self.assertShellCmd('echo foocmd "Intrusion Alert!\nSensors: [EntranceDoorOpening,LivingRoomWindowOpening]"')
+            def assertFooCmd():
+                sortedSensorNames = [str(s) for s in sensorsInAlert]
+                sortedSensorNames.sort()
+                self.assertShellCmd('echo foocmd "Intrusion Alert!\nSensors: [{0}]"'.format(','.join(sortedSensorNames)))
+            assertFooCmd()
 
             # Wait for first sensor to quit alert. At this point, entranceSensor
             # should already have been in alert for 1 second.
@@ -430,6 +437,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 entranceSensor.watchedObject.value = True
                 self.waitDuring(0.5, 'Waiting for alert to be reraised...')
                 self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
+                assertFooCmd()
                 checkAlertStatus()
 
                 # Stop current alert without inhibiting for now.
@@ -447,10 +455,11 @@ class AcceptanceTestCase(base.TestCaseBase):
                 entranceSensor.watchedObject.value = False
                 sensorsInPrealert.append(entranceSensor)
                 self.waitDuring(5.9, 'Waiting for alert to be reraised...', [checkAlertStatus], 0.5, 0.2)
-                self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
                 sensorsInPrealert.remove(entranceSensor)
                 sensorsInAlert.append(entranceSensor)
                 sensorsInPersistentAlert.append(entranceSensor)
+                self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
+                assertFooCmd()
                 checkAlertStatus()
 
                 # Now inhibit intrusion alert.
@@ -482,6 +491,7 @@ class AcceptanceTestCase(base.TestCaseBase):
                 sensorsInPrealert.remove(kitchenWindowSensor)
                 sensorsInAlert.append(kitchenWindowSensor)
                 sensorsInPersistentAlert.append(kitchenWindowSensor)
+                assertFooCmd()
                 self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [])
                 self.waitUntil(triggerTime + kitchenWindowSensor.getPrealertDuration() + kitchenWindowSensor.getAlertDuration(), 'Checking door alert...', [checkAlertStatus], 0.2, 0.2)
                 sensorsInAlert.remove(kitchenWindowSensor)
@@ -653,6 +663,8 @@ class AcceptanceTestCase(base.TestCaseBase):
         intrusionSensor.watchedObject.value = True
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + 0.2, 'Waiting for prealert to expire.', [lambda: self.assertFalse(sirenObject.value), lambda: self.assertIsNone(self.emailInfo)], 0, 0.3)
         self.assertEmail('Sensor joined', ['alert@foo.com'], 'Alert Intrusion: sensor joined', [], body='A sensor joined alert. Sensors in alert:\n-{0}'.format(intrusionSensor))
+        self.assertIsNotNone(self.shellCmdInfo)
+        self.shellCmdInfo = None # Do not check the content of the command, it is already done in other tests.
         self.waitUntil(triggerTime + intrusionSensor.getPrealertDuration() + intrusionSensor.getAlertDuration(), 'Waiting for alert to expire.', [lambda: self.assertTrue(sirenObject.value)], 0.2, 0.1)
         self.waitDuring(2, 'Checking siren is now off again.', [lambda: self.assertFalse(sirenObject.value)], 0.2, 0)
 

@@ -86,10 +86,10 @@ class TimerTestCase(base.TestCaseBase):
         timer.start()
         startTime = time.time()
         self.waitDuring(0.2, 'Let timer iterate for a while.')
-        self.assertTrue(timer.isAlive())
+        self.assertTrue(timer.is_alive())
         status.shouldStop = True
         self.waitDuring(0.2, 'Let timer stop.')
-        self.assertFalse(timer.isAlive())
+        self.assertFalse(timer.is_alive())
 
     def testResetFromOnIterate(self):
         class TimerStatus:
@@ -106,8 +106,8 @@ class TimerTestCase(base.TestCaseBase):
         timer = Timer(None, 1.5, 'ResetOnIterate test timer', onTimeoutReached=None, onIterate=status.onIterate)
         timer.start()
         startTime = time.time()
-        self.waitDuring(2.7, 'Wait for timer\'s timeout.', [lambda: self.assertTrue(timer.isAlive())], 0, 0.2)
-        self.assertFalse(timer.isAlive())
+        self.waitDuring(2.7, 'Wait for timer\'s timeout.', [lambda: self.assertTrue(timer.is_alive())], 0, 0.2)
+        self.assertFalse(timer.is_alive())
 
 
 if __name__ == '__main__':
