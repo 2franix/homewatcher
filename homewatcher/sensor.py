@@ -342,7 +342,7 @@ class Sensor(object):
         pass
 
     def isActivationPending(self):
-        return self._activationTimer != None and self._activationTimer.isAlive() and not self._activationTimer.isTerminating
+        return self._activationTimer != None and self._activationTimer.is_alive() and not self._activationTimer.isTerminating
 
     def _onActivationTimerTimeout(self, timer):
         if not timer.isCancelled:
